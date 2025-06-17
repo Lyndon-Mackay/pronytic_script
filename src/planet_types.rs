@@ -1,18 +1,12 @@
-use std::{fmt, num::ParseIntError, str::FromStr};
+use std::{fmt, str::FromStr};
 
 use lalrpop_util::lalrpop_mod;
-use miette::{Diagnostic, Error, NamedSource, SourceSpan};
-use regex::Regex;
+use miette::NamedSource;
 use rust_decimal::Decimal;
 
-use thiserror::Error;
-use tracing::*;
-
-use logos::{self, Logos, Source};
+use logos::Logos;
 
 use crate::{LexicalError, SyntaxError, handle_lexical_errors};
-
-const SKIP_TEXTS: [&str; 2] = [r"//[^\n\r]*", r"[\s\t\f]+"];
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -113,6 +107,11 @@ pub enum Token {
     Atmosphere,
     #[token("goods_base")]
     GoodsBase,
+
+    #[token("stored")]
+    Stored,
+    #[token("stored_number")]
+    StoredNumber,
 }
 
 impl fmt::Display for Token {
@@ -171,6 +170,7 @@ pub enum Action {
     SetAsset(String),
     SetPlanetType(String),
     Branch(Branch),
+    SetStored(String, String),
 }
 
 #[derive(Clone, Debug, Default)]

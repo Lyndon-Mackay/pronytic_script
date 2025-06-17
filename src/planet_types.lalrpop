@@ -67,7 +67,10 @@ extern {
         "water_level" => Token::WaterLevel,
         "magnetosphere" => Token::Magnetosphere,
         "atmosphere" => Token::Atmosphere,
-        "goods_base" => Token::GoodsBase
+        "goods_base" => Token::GoodsBase,
+
+        "stored" => Token::Stored,
+        "stored_number" => Token::StoredNumber,
     }
 }
 
@@ -223,6 +226,7 @@ Actions:Action = {
     <a:AssetLocation> => Action::SetAsset(a),
     <p:PlanetType> => Action::SetPlanetType(p),
     <b:Branch> => Action::Branch(b),
+    <s:SetStored> => s,
 }
 
 Field: Field = {
@@ -239,13 +243,18 @@ PlanetType:String = {
     "set_planet_type" "=" <id:"name"> => id.to_string()
 }
 
+SetStored:Action = {
+    "stored" "[" <id:"name"> "]" "=" <value:"name"> =>Action::SetStored(id,value),
+}
+
 GoodsAbundance:Vec<GoodAbundance> = {
     "goods_abundance" "=" "[" <g:GoodAbundance*> "]" => g,
 }
 
 GoodAbundance:GoodAbundance = {
     //I don't want to actually accept negative numbers,
-    //It's just there for the lexar
+    //It's just there for the lexar, can be improved to tokenise seperately
+    //Then just or but not up to it ATM
     "{" <id:"name"> "(" "mean" ":" <m:DecimalNumber> "std_dev" ":" <s:DecimalNumber>  ")" "}" => {
         GoodAbundance {
             id,
