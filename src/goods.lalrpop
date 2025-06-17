@@ -1,0 +1,96 @@
+use crate::goods::{Field,GoodData,GoodType,Token};
+use rust_decimal::Decimal;
+
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token {
+        "=" => Token::Equal,
+        "string" => Token::String(<String>),
+        "number" => Token::DecimalNumber(<Decimal>),
+        "icon" => Token::Icon,
+        "name" => Token::Name,
+        "buy_value" => Token::BuyValue,
+        "sell_value" => Token::SellValue,
+        "good_type" => Token::GoodType,
+        "public" => Token::Public,
+        "private" => Token::Private,
+        "tender" => Token::Tender,
+        "hardcoded_id" => Token::HardcodedId,
+    }
+}
+
+pub Goods:Vec<GoodData> = {
+    Good*
+}
+
+Good:GoodData = {
+    <id:"string"> <fields:Field*> =>{
+        let mut hardcoded_id = None;
+        let mut icon = String::new();
+        let mut name = String::new();
+        let mut good_type = GoodType::Public;
+        let mut buy_value = Decimal::ZERO;
+        let mut sell_value = Decimal::ZERO;
+        for f in fields {
+            match f{
+                Field::Icon(i) => icon = i,
+                Field::Name(n) => name = n,
+                Field::BuyValue(b) => buy_value = b,
+                Field::SellValue(s) => sell_value = s,
+                Field::GoodType(g) => good_type = g,
+                Field::HardcodedId(i) => hardcoded_id = Some(i),
+            }
+        }
+        GoodData {
+            id:id.to_string(),
+            hardcoded_id,
+            icon,
+            name,
+            good_type,
+            buy_value,
+            sell_value,
+        }
+    }
+}
+
+
+Field: Field = {
+    <i:Icon> => Field::Icon(i),
+    <n:Name> => Field::Name(n),
+    <b:BuyValue> => Field::BuyValue(b),
+    <s:SellValue> => Field::BuyValue(s),
+    <g:GoodType> => Field::GoodType(g),
+    <h:HardcodedId> => Field::HardcodedId(h),
+}
+
+Icon:String ={
+    "icon" "=" <s:"string"> => s.to_string(),
+}
+
+Name:String ={
+    "name" "=" <s:"string"> => s.to_string(),
+}
+
+BuyValue:Decimal = {
+    "buy_value" "=" <n:"number"> => n,
+}
+
+SellValue:Decimal = {
+    "sell_value" "=" <n:"number"> => n,
+}
+
+GoodType:GoodType = {
+    "good_type" "=" "public" => GoodType::Public,
+    "good_type" "=" "private" => GoodType::Private,
+    "good_type" "=" "tender" => GoodType::Tender,
+}
+
+HardcodedId:u8 = {
+    "hardcoded_id" "=" <n:"number"> => n.try_into().unwrap(),
+}
+

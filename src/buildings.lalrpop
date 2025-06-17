@@ -1,0 +1,227 @@
+use crate::building::{BuildingData,CustomGood,Field,Token};
+
+use rust_decimal::Decimal;
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token {
+        "true" => Token::True,
+        "false" => Token::False,
+        "=" => Token::Equal,
+
+        "{" => Token::LeftCurly,
+        "}" => Token::RightCurly,
+        "[" => Token::LeftSquare,
+        "]" => Token::RightSquare,
+        
+        "string" => Token::String(<String>),
+        "number" => Token::DecimalNumber(<Decimal>),
+
+        "id" => Token::Id,
+        "name" => Token::Name,
+        "planet_filters" => Token::PlanetFilters,
+        "initial" => Token::Initial,
+        "unique" => Token::Unique,
+        "energy" => Token::Energy,
+
+        "private_costs" => Token::PrivateCosts,
+        "costs" => Token::Costs,
+        "consumes" => Token::Consumes,
+        "produces" => Token::Produces,
+
+        "housing" => Token::Housing,
+        "workers" => Token::Workers,
+        
+        "private_sector" => Token::PrivateSector,
+        "magnetosphere_equilibrium" => Token::MagnetosphereEquilibrium,
+        "atmosphere_equilibrium" => Token::AtmosphereEquilibrium,
+        "temperature_change" => Token::TemperatureChange,
+        "water_change" => Token::WaterChange,
+        "breathable_change" => Token::BreathableChange,
+        "tech_needed" => Token::TechNeeded,
+        "upgrades_from" => Token::UpgradesFrom,
+    }
+}
+
+pub Buildings:Vec<BuildingData> = {
+    Building*
+}
+
+Building:BuildingData = {
+    <id:"string"> <fields:Field*> => {
+        let mut building_data = BuildingData::default();
+        building_data.id = id;
+        for f in fields {
+            match f {
+                Field::Name(n) => {
+                    building_data.name = n;
+                }
+                Field::PlanetFilters(p) => {
+                    building_data.planet_filters = p;
+                }
+                Field::Initial(i) => {
+                    building_data.initial = i;
+                }
+                Field::Unique(u) => {
+                    building_data.unique = u;
+                }
+                Field::Energy(d) => {
+                    building_data.energy = d;
+                }
+                Field::PrivateCosts(d) => {
+                    building_data.private_costs = d;
+                }
+                Field::Costs(c) => building_data.costs = c,
+                Field::Consumes(c) => building_data.consumes = c,
+                Field::Produces(p) => building_data.produces = p,
+                Field::Housing(h) => building_data.housing = h,
+                Field::Workers(w) => building_data.workers = w,
+                Field::PrivateSector(p) => {
+                    building_data.private_sector = p;
+                }
+                Field::Magnetosphere(m) => {
+                    building_data.magnetosphere_equilibrium = m;
+                }
+                Field::Atmosphere(a) => {
+                    building_data.atmosphere_equilibrium = a;
+                }
+                Field::TemperatureChange(t) => {
+                    building_data.temperature_change = t;
+                }
+                Field::WaterChange(w) => {
+                    building_data.water_change = w;
+                }
+                Field::BreathableChange(b) => {
+                    building_data.breathable_change = b;
+                }
+                Field::TechNeeded(t) => {
+                    building_data.tech_needed = Some(t);
+                }
+                Field::UpgradesFrom(t) => {
+                    building_data.upgrades_from = Some(t);
+                }
+            }
+        }
+        building_data
+    }
+}
+
+Field:Field = {
+    <n:Name> => Field::Name(n),
+    <p:PlanetFilters> => Field::PlanetFilters(p),
+    <i:Initial> => Field::Initial(i),
+    <u:Unique> => Field::Unique(u),
+    <e:Energy> => Field::Energy(e),
+    <p:PrivateCosts> => Field::PrivateCosts(p),
+    <c:Costs> => Field::Costs(c),
+    <c:Consumes> => Field::Consumes(c),
+    <p:Produces> => Field::Produces(p),
+    <h:Housing> => Field::Housing(h),
+    <w:Workers> => Field::Workers(w),
+    <p:PrivateSector> => Field::PrivateSector(p),
+    <m:MagnetosphereEquilibrium> => Field::Magnetosphere(m),
+    <a:AtmosphereEquilibrium> => Field::Atmosphere(a),
+    <t:TemperatureChange> => Field::TemperatureChange(t),
+    <w:WaterChange> => Field::WaterChange(w),
+    <b:BreathableChange> => Field::BreathableChange(b),
+    <t:TechNeeded> => Field::TechNeeded(t),
+    <u:UpgradesFrom> => Field::UpgradesFrom(u),
+}
+
+Costs:Vec<CustomGood> = {
+    "costs" "=" "[" <c:CustomGood+> "]" => c,
+}
+
+Consumes:Vec<CustomGood> = {
+    "consumes" "=" "[" <c:CustomGood+> "]" => c,
+}
+
+Produces:Vec<CustomGood> = {
+    "produces" "=" "[" <c:CustomGood+> "]" =>c,
+}
+
+CustomGood:CustomGood = {
+    "{" <id:"string"> <amount:"number"> "}" => {
+        CustomGood{
+            id,
+            amount,
+        }
+    }
+}
+
+Id:String = {
+    "id" "=" <id:"string"> => id,
+}
+
+Name:String = {
+    "name" "=" <id:"string"> => id,
+}
+
+PlanetFilters:Vec<String> = {
+    "planet_filters" "=" "[" <planets:"string"+> "]" => planets,
+}
+
+Initial:bool = {
+    "initial" "=" <b:Bool> => b,
+}
+
+Unique:bool = {
+    "unique" "=" <b:Bool> => b,
+}
+
+Energy:Decimal = {
+    "energy" "=" <n:"number"> => n,
+}
+
+Housing:u64 = {
+    "housing" "=" <n:"number"> => n.try_into().unwrap(),
+}
+
+Workers:u64 = {
+    "workers" "=" <n:"number"> => n.try_into().unwrap(),
+}
+
+PrivateCosts:Decimal = {
+    "private_costs" "=" <n:"number"> => n,
+}
+
+MagnetosphereEquilibrium:Decimal = {
+    "magnetosphere_equilibrium" "=" <n:"number"> => n,
+}
+
+AtmosphereEquilibrium:Decimal = {
+    "atmosphere_equilibrium" "=" <n:"number"> => n,
+}
+
+TemperatureChange:Decimal = {
+    "temperature_change" "=" <n:"number"> => n,
+}
+
+WaterChange:Decimal = {
+    "water_change" "=" <n:"number"> => n,
+}
+
+BreathableChange:Decimal = {
+    "breathable_change" "=" <n:"number"> => n,
+}
+
+TechNeeded:String = {
+    "tech_needed" "=" <s:"string"> => s,
+}
+
+UpgradesFrom:String = {
+    "upgrades_from" "=" <s:"string"> => s,
+}
+
+PrivateSector:bool = {
+    "private_sector" "=" <b:Bool> => b,
+}
+
+Bool:bool = {
+    "true" => true,
+    "false" => false,
+}

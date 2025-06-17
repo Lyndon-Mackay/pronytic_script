@@ -1,0 +1,28 @@
+use crate::{Section,Token};
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token {
+        "buildings" => Token::Buildings,
+        "goods" => Token::Goods,
+        "tech" => Token::Tech,
+        "planet_types" => Token::PlanetTypes,
+        "section_contents" => Token::SectionContents(<String>),
+    }
+    
+}
+
+pub Sections:Vec<Section> = {
+    section*
+}
+
+section:Section = {
+    "buildings" <s:"section_contents"> => Section::Buildings(s),
+    "goods" <s:"section_contents"> => Section::Goods(s),
+    "tech" <s:"section_contents"> => Section::Tech(s),
+    "planet_types" <s:"section_contents"> => Section::PlanetTypes(s),
+}

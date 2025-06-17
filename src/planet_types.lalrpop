@@ -1,0 +1,257 @@
+use std::str::FromStr;
+use rust_decimal::Decimal;
+use crate::planet_types::{PlanetTypeData,PlanetTypeDataList};
+
+use crate::planet_types::{Action,Branch,Condition,Field,
+GoodAbundance, IfCondition ,Token,Value};
+
+
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+    enum Token {
+        "true" => Token::True,
+        "false" => Token::False,
+
+        "=" => Token::Equal,
+
+        DecimalNumber => Token::DecimalNumber(<Decimal>),
+        Number => Token::Number(<Decimal>),
+        "name" => Token::Name(<String>),
+
+
+        "set_asset" => Token::SetAsset,
+        "set_planet_type" => Token::SetPlanetType,
+        "goods_abundance" => Token::GoodsAbundance,
+
+        "setup" => Token::Setup,
+        "on_terraform" => Token::OnTerraform,
+
+        "mean" => Token::Mean,
+        "std_dev" => Token::StdDev,
+
+
+        ":" => Token::Colon,
+
+        "(" => Token::RightBracket,
+        ")" => Token::LeftBracket,
+        
+        "{" => Token::LeftCurly,
+        "}" => Token::RightCurly,
+
+        "[" => Token::LeftSquare,
+        "]" => Token::RightSquare,
+        
+        "if" => Token::If,
+        "else" => Token::Else,
+
+        "EQ" => Token::Eq,
+        "IN" => Token::In,
+
+        "NE" => Token::Ne,
+        "GT" => Token::Gt,
+        "GE" => Token::Ge,
+        "LT" => Token::Lt,
+        "LE" => Token::Le,
+
+        "&" => Token::Ampersand,
+
+
+        "star_type" => Token::StarType,
+        "oxygen_level" => Token::OxygenLevel,
+        "temperature_celsius" => Token::TemperatureCelsius,
+        "temperature_kelvin" => Token::TemperatureKelvin,
+        "water_level" => Token::WaterLevel,
+        "magnetosphere" => Token::Magnetosphere,
+        "atmosphere" => Token::Atmosphere,
+        "goods_base" => Token::GoodsBase
+    }
+}
+
+
+pub PlanetTypeList:PlanetTypeDataList = {
+    <i:TypesItem+> => PlanetTypeDataList  {
+        list:i
+    }
+}
+
+TypesItem :PlanetTypeData = {
+    <i:TypeId> <fields:Field*>   => {
+        let mut asset_location = "".to_string();
+        let mut setup_branch = Branch::default();
+        let mut abundances = Vec::new();
+        let mut terraform = Branch::default();
+         for f in fields.into_iter() {
+            match f {
+                Field::AssetLocation(a) => asset_location = a,
+                Field::Setup(s) => setup_branch = s,
+                Field::GoodsAbundance(g) => abundances = g,
+                Field::Terraform(t) => terraform = t,
+            }
+        }
+        PlanetTypeData{
+            name:i,
+            asset_location,
+            setup_conditions:vec![setup_branch],
+            abundances,
+            terraform_conditions:vec![terraform],
+
+        }
+    }
+}
+
+TypeId:String = {
+    <name:"name"> => name.to_string()
+}
+
+
+Setup:Branch = {
+    "setup" "{"  <b:Branch> "}" => {
+        b
+    }
+}
+
+OnTerraform:Branch = {
+    "on_terraform" "{" <b:Branch> "}" => {
+        b
+    }
+}
+
+
+Branch:Branch = {
+    <i:If> <elif:ElseIf*> <e:Else?> => {
+        let mut if_conditions = vec![i];
+
+        if_conditions.extend(elif);
+        Branch {
+            if_conditions,
+            else_actions:e.unwrap_or_default()
+        }
+    }
+}
+
+If:IfCondition = {
+    "if" <c:Condition> <c2:("&" Condition)*>   "{"  <a:Actions*>  "}" => {
+        let mut conditions = vec![c];
+        let mut actions = Vec::with_capacity(a.len());
+
+        conditions.extend(c2.into_iter().map(|(_,c)|c));
+        actions.extend(a.into_iter());
+
+        IfCondition {
+            conditions,
+            actions,
+        }
+    }
+}
+
+ElseIf: IfCondition = {
+    "else" "if" <c:Condition> <c2:("&" Condition)*> "{" <a:Actions*> "}" => {
+        let mut conditions = vec![c];
+        conditions.extend(c2.into_iter().map(|(_,c)|c));
+        IfCondition {
+            conditions,
+            actions: a,
+        }
+    }
+}
+
+Else:Vec<Action> ={
+    "else" "{" <a:Actions*> "}" => a
+}
+
+
+
+Condition:Condition = {
+    <first:StringValue> <sc:StringCompare> <second:StringValue> => {
+        match sc.as_str() {
+            "EQ" => Condition::Eq(first,second),
+            "NE" => Condition::Ne(first,second),
+            _ =>unreachable!(),
+        }
+    },
+    <first:DecimalValue> <dc:DecimalCompare> <second:DecimalValue> => {
+        match dc.as_str() {
+            "EQ" => Condition::Eq(first,second),
+            "NE" => Condition::Ne(first,second),
+            "GT" => Condition::Gt(first,second),
+            "GE" => Condition::Ge(first,second),
+            "LT" => Condition::Lt(first,second),
+            "LE" => Condition::Le(first,second),
+            _ =>unreachable!(),
+        }
+    }
+}
+
+StringCompare :String = {
+    "EQ" => "EQ".to_string(),
+    "NE" => "NE".to_string()
+}
+
+DecimalCompare:String = {
+    "EQ" => "EQ".to_string(),
+    "NE" => "NE".to_string(),
+    "GT" => "GT".to_string(),
+    "GE" => "GE".to_string(),
+    "LT" => "LT".to_string(),
+    "LE" => "LE".to_string(),
+}
+
+StringValue:Value = {
+    "star_type" => Value::StarType,  
+    <s:"name"> => Value::String(s)
+}
+
+DecimalValue:Value = {
+    "oxygen_level" => Value::OxygenLevel,
+    "temperature_celsius" => Value::TemperatureCelsius,
+    "temperature_kelvin" => Value::TemperatureKelvin,
+    "water_level" => Value::WaterLevel,
+    "magnetosphere" => Value::Magnetosphere,
+    "atmosphere" => Value::Atmosphere,
+    "goods_base" "[" <id:"name"> "]" => {
+            Value::GoodsAbundance(id)
+    },
+    <d:DecimalNumber> => {
+        Value::Decimal(d)
+    },
+}
+Actions:Action = {
+    <a:AssetLocation> => Action::SetAsset(a),
+    <p:PlanetType> => Action::SetPlanetType(p),
+    <b:Branch> => Action::Branch(b),
+}
+
+Field: Field = {
+    <a:AssetLocation> =>Field::AssetLocation(a),
+    <g:GoodsAbundance> => Field::GoodsAbundance(g),
+    <s:Setup> => Field::Setup(s),
+    <t:OnTerraform> => Field::Terraform(t),
+}
+
+AssetLocation: String = {
+    "set_asset" "=" <id:"name"> => id.to_string()
+}
+PlanetType:String = {
+    "set_planet_type" "=" <id:"name"> => id.to_string()
+}
+
+GoodsAbundance:Vec<GoodAbundance> = {
+    "goods_abundance" "=" "[" <g:GoodAbundance*> "]" => g,
+}
+
+GoodAbundance:GoodAbundance = {
+    //I don't want to actually accept negative numbers,
+    //It's just there for the lexar
+    "{" <id:"name"> "(" "mean" ":" <m:DecimalNumber> "std_dev" ":" <s:DecimalNumber>  ")" "}" => {
+        GoodAbundance {
+            id,
+            mean:m,
+            std_dev:s,
+        }
+    }
+}
+

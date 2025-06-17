@@ -1,0 +1,54 @@
+use crate::tech::{Field,TechData,Token};
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token {
+        "=" => Token::Equal,
+        "string" => Token::String(<String>),
+        "number" => Token::Number(<u8>),
+        "name" => Token::Name,
+        "time" => Token::Time,
+        "description" => Token::Description
+    }
+}
+
+
+pub Techs:Vec<TechData> = {
+    Tech*
+}
+
+Tech:TechData = {
+    <id:TechId> <fields:Field*> => {
+        let mut time = 0;
+        let mut name = String::new();
+        let mut description = String::new();
+
+        for f in fields{
+            match f {
+                Field::Time(t) => time = t,
+                Field::Name(n) => name = n,
+                Field::Description(d) => description = d
+            }
+        }
+        TechData{
+            id,
+            time,
+            name,
+            description,
+        }
+    }
+}
+
+TechId:String = {
+    "string"
+}
+
+Field:Field = {
+   "name" "=" <n:"string"> => Field::Name(n),
+   "time" "=" <t:"number"> => Field::Time(t),
+    "description" "=" <d:"string"> => Field::Description(d)
+}
