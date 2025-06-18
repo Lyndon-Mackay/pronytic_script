@@ -1,4 +1,4 @@
-use crate::goods::{Field,GoodData,GoodType,Token};
+use crate::goods::{ConsumptionType,Field,GoodData,GoodType,Token};
 use rust_decimal::Decimal;
 
 
@@ -21,6 +21,10 @@ extern {
         "private" => Token::Private,
         "tender" => Token::Tender,
         "hardcoded_id" => Token::HardcodedId,
+        "consumption_type" => Token::ConsumptionType,
+        "none" => Token::None,
+        "amenity" => Token::Amenity,
+        "essential" => Token::Essential,
     }
 }
 
@@ -36,6 +40,7 @@ Good:GoodData = {
         let mut good_type = GoodType::Public;
         let mut buy_value = Decimal::ZERO;
         let mut sell_value = Decimal::ZERO;
+        let mut consumption_type = ConsumptionType::None;
         for f in fields {
             match f{
                 Field::Icon(i) => icon = i,
@@ -44,6 +49,7 @@ Good:GoodData = {
                 Field::SellValue(s) => sell_value = s,
                 Field::GoodType(g) => good_type = g,
                 Field::HardcodedId(i) => hardcoded_id = Some(i),
+                Field::ConsumptionType(c) => consumption_type = c,
             }
         }
         GoodData {
@@ -52,6 +58,7 @@ Good:GoodData = {
             icon,
             name,
             good_type,
+            consumption_type,
             buy_value,
             sell_value,
         }
@@ -66,6 +73,7 @@ Field: Field = {
     <s:SellValue> => Field::BuyValue(s),
     <g:GoodType> => Field::GoodType(g),
     <h:HardcodedId> => Field::HardcodedId(h),
+    <c:ConsumptionType> => Field::ConsumptionType(c),
 }
 
 Icon:String ={
@@ -94,3 +102,8 @@ HardcodedId:u8 = {
     "hardcoded_id" "=" <n:"number"> => n.try_into().unwrap(),
 }
 
+ConsumptionType:ConsumptionType = {
+    "consumption_type" "=" "essential" => ConsumptionType::Essential,
+    "consumption_type" "=" "amenity" => ConsumptionType::Amenity,
+    "consumption_type" "=" "none" => ConsumptionType::None,
+}

@@ -9,25 +9,6 @@ use logos::{self, Logos};
 
 use crate::{LexicalError, SyntaxError, handle_lexical_errors};
 
-#[derive(Clone, Default, Debug)]
-pub enum GoodType {
-    #[default]
-    Public,
-    Private,
-    Tender,
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct GoodData {
-    pub id: String,
-    pub hardcoded_id: Option<u8>,
-    pub icon: String,
-    pub name: String,
-    pub good_type: GoodType,
-    pub buy_value: Decimal,
-    pub sell_value: Decimal,
-}
-
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
@@ -63,6 +44,16 @@ pub enum Token {
 
     #[token("hardcoded_id")]
     HardcodedId,
+
+    #[token("consumption_type")]
+    ConsumptionType,
+
+    #[token("none")]
+    None,
+    #[token("amenity")]
+    Amenity,
+    #[token("essential")]
+    Essential,
 }
 
 impl fmt::Display for Token {
@@ -73,6 +64,34 @@ impl fmt::Display for Token {
 
 lalrpop_mod!(pub goods);
 
+#[derive(Clone, Default, Debug)]
+pub enum GoodType {
+    #[default]
+    Public,
+    Private,
+    Tender,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct GoodData {
+    pub id: String,
+    pub hardcoded_id: Option<u8>,
+    pub icon: String,
+    pub name: String,
+    pub good_type: GoodType,
+    pub consumption_type: ConsumptionType,
+    pub buy_value: Decimal,
+    pub sell_value: Decimal,
+}
+
+#[derive(Clone, Default, Debug)]
+pub enum ConsumptionType {
+    #[default]
+    None,
+    Amenity,
+    Essential,
+}
+
 pub enum Field {
     Icon(String),
     Name(String),
@@ -80,6 +99,7 @@ pub enum Field {
     SellValue(Decimal),
     GoodType(GoodType),
     HardcodedId(u8),
+    ConsumptionType(ConsumptionType),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
@@ -89,7 +109,7 @@ fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
         let token = match tok {
             Ok(t) => t,
             Err(e) => match e {
-                LexicalError::InvalidInteger(parse_int_error) => todo!(),
+                LexicalError::InvalidInteger(_parse_int_error) => todo!(),
                 LexicalError::InvalidToken => {
                     let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
                     handle_lexical_errors(file_name, e, input, last);
@@ -118,7 +138,10 @@ pub(super) fn parse_goods_section(file_name: &str, input: &str) -> Vec<GoodData>
 
                 panic!("{:?}", miette::Error::new(problem));
             }
-            lalrpop_util::ParseError::UnrecognizedEof { location, expected } => todo!(),
+            lalrpop_util::ParseError::UnrecognizedEof {
+                location: _,
+                expected: _,
+            } => todo!(),
             lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
                 let problem = SyntaxError {
                     src: NamedSource::new(file_name, input.to_string()),
@@ -127,8 +150,8 @@ pub(super) fn parse_goods_section(file_name: &str, input: &str) -> Vec<GoodData>
                 };
                 panic!("{:?}", miette::Error::new(problem));
             }
-            lalrpop_util::ParseError::ExtraToken { token } => todo!(),
-            lalrpop_util::ParseError::User { error } => todo!(),
+            lalrpop_util::ParseError::ExtraToken { token: _ } => todo!(),
+            lalrpop_util::ParseError::User { error: _ } => todo!(),
         },
     }
 }
