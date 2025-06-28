@@ -1,0 +1,109 @@
+use std::str::FromStr;
+use rust_decimal::Decimal;
+use crate::species_trait::{Effect,Field,GoodConsumes,SpeciesTrait,SpeciesTraitList,Token};
+
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token {
+        "string" => Token::String(<String>),
+        "number" => Token::DecimalNumber(<Decimal>),
+
+        "name" => Token::Name,
+        "icon" => Token::Icon,
+
+        "=" => Token::Equal,
+        ":" => Token::Colon,
+
+        "{" => Token::LeftCurly,
+        "}" => Token::RightCurly,
+
+        "[" => Token::LeftSquare,
+        "]" => Token::RightSquare,
+
+        
+        "good_id" => Token::GoodId,
+
+        "amount" => Token::Amount,
+        
+        "consumes" => Token::Consumes,
+
+        "growth_rate" => Token::GrowthRate,
+    }
+	
+}
+
+pub SpeciesTraits:SpeciesTraitList = {
+}
+
+SpeciesTrait:SpeciesTrait = {
+    
+    <id:Id> <fields:Field*> => {
+        let mut name = "".to_string();
+        let mut icon = "".to_string();
+        let mut consumes = Vec::new();
+        let mut effects = Vec::new();
+
+        for f in fields.into_iter(){
+            match f {
+                Field::Name(n) => name = n,
+                Field::Icon(i) => icon = i,
+                Field::Consumes(c) => consumes = c,
+                Field::Effects(e) => effects = e,
+            }
+        }
+
+        SpeciesTrait {
+            id,
+            name,
+            icon,
+            consumes,
+            effects
+        }
+    }
+}
+
+
+Field:Field = {
+    <n:Name> => Field::Name(n),
+    <i:Icon> => Field::Icon(i),
+    <c:Consumes> => Field::Consumes(c),
+    <e:Effects> => Field::Effects(e),
+}
+
+Id:String = {
+    "string"
+}
+
+Name:String = {
+    "name" "=" <id:"string"> => id,
+}
+
+Icon:String = {
+    "icon" "=" <id:"string"> => id,
+}
+
+Consumes:Vec<GoodConsumes> = {
+    "consumes" "=" "[" <c:SingleConsumes*>  "]" => c,
+}
+
+SingleConsumes:GoodConsumes = {
+    "{" "good_id" ":" <id:"string"> "amount" ":" <n:"number">  "}" => {
+        GoodConsumes {
+            id,
+            amount:n,
+        }    
+    }
+}
+
+Effects:Vec<Effect> = {
+    <effect:Effect*> => effect
+}
+
+Effect:Effect = {
+    "growth_rate" "=" <n:"number"> => Effect::GrowthRate(n),
+}

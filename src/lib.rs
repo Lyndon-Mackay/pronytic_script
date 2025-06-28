@@ -15,6 +15,8 @@ use tracing::*;
 
 use logos::{self, Logos};
 
+use crate::species_trait::{SpeciesTrait, parse_species_traits};
+
 pub mod building;
 pub mod goods;
 pub mod planet_types;
@@ -71,6 +73,7 @@ pub struct ParseData {
     pub goods_data: Vec<GoodData>,
     pub planet_type_data: Vec<PlanetTypeData>,
     pub tech_data: Vec<TechData>,
+    pub species_trait: Vec<SpeciesTrait>,
 }
 
 impl ParseData {
@@ -95,13 +98,16 @@ pub enum Token {
     #[token("#planet_types")]
     PlanetTypes,
 
+    #[token("specie_traits")]
+    SpecieTraits,
+
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),
 }
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -112,6 +118,7 @@ pub enum Section {
     Goods(String),
     Tech(String),
     PlanetTypes(String),
+    SpecieTraits(String),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
@@ -161,6 +168,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                     Section::PlanetTypes(t) => parse_data
                         .planet_type_data
                         .append(&mut parse_planet_types_section(file_name, &t)),
+                    Section::SpecieTraits(s) => parse_data
+                        .species_trait
+                        .append(&mut parse_species_traits(file_name, &s)),
                 }
             }
         }
