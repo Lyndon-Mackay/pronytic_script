@@ -1,12 +1,11 @@
 use std::{fmt, str::FromStr};
 
 use lalrpop_util::lalrpop_mod;
-use miette::NamedSource;
+use logos::{self, Logos};
 use rust_decimal::Decimal;
 
-use logos::Logos;
-
 use crate::{LexicalError, SyntaxError, handle_lexical_errors};
+use miette::NamedSource;
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -34,15 +33,15 @@ pub enum Token {
     #[token(":")]
     Colon,
 
-    #[token("name")]
-    Name,
-    #[token("icon")]
-    Icon,
-
     #[token("good_id")]
     GoodId,
     #[token("amount")]
     Amount,
+
+    #[token("name")]
+    Name,
+    #[token("icon")]
+    Icon,
 
     #[token("consumes")]
     Consumes,
@@ -50,8 +49,12 @@ pub enum Token {
     #[token("effects")]
     Effects,
 
-    #[token("growth_rate")]
-    GrowthRate,
+    #[token("add_trait")]
+    AddTrait,
+    #[token("remove_trait")]
+    RemoveTrait,
+    #[token("star_adapt")]
+    StarAdapt,
 }
 
 impl fmt::Display for Token {
@@ -60,13 +63,14 @@ impl fmt::Display for Token {
     }
 }
 
-lalrpop_mod!(pub species_trait);
+lalrpop_mod!(pub augmentations);
 
 #[derive(Clone, Default, Debug)]
-pub struct SpeciesTraitData {
+pub struct AugmentationData {
     pub id: String,
     pub name: String,
     pub icon: String,
+
     pub consumes: Vec<GoodConsumes>,
     pub effects: Vec<Effect>,
 }
@@ -77,17 +81,18 @@ pub struct GoodConsumes {
     pub amount: Decimal,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub enum Effect {
-    GrowthRate(Decimal),
+    AdaptStarType,
+    AddTrait(String),
+    RemoveTrait(String),
 }
 
-#[derive(Debug, Clone)]
 pub enum Field {
     Name(String),
     Icon(String),
-    Consumes(Vec<GoodConsumes>),
     Effects(Vec<Effect>),
+    Consumes(Vec<GoodConsumes>),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
@@ -111,9 +116,9 @@ fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
     tokens
 }
 
-pub(super) fn parse_species_traits(file_name: &str, input: &str) -> Vec<SpeciesTraitData> {
+pub(super) fn parse_augmentations(file_name: &str, input: &str) -> Vec<AugmentationData> {
     let tokens = lex(file_name, input);
-    let species_trait_parse = species_trait::SpeciesTraitsParser::new().parse(tokens);
+    let species_trait_parse = augmentations::AugmentationsParser::new().parse(tokens);
     match species_trait_parse {
         Ok(list) => list,
         Err(e) => match e {

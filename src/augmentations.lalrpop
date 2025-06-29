@@ -1,8 +1,7 @@
 use std::str::FromStr;
 use rust_decimal::Decimal;
 
-use crate::species_trait::{Effect,Field,GoodConsumes,SpeciesTraitData,Token};
-
+use crate::augmentations::{AugmentationData,Effect,Field,GoodConsumes,Token};
 
 grammar;
 
@@ -10,7 +9,7 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token {
+	enum Token {
         "string" => Token::String(<String>),
         "number" => Token::DecimalNumber(<Decimal>),
 
@@ -26,7 +25,6 @@ extern {
         "[" => Token::LeftSquare,
         "]" => Token::RightSquare,
 
-        
         "good_id" => Token::GoodId,
 
         "amount" => Token::Amount,
@@ -35,18 +33,21 @@ extern {
 
 		"effects" => Token::Effects,
 
-        "growth_rate" => Token::GrowthRate,
-    }
+		"add_trait" => Token::AddTrait,
+		"remove_trait" => Token::RemoveTrait,
+
+		"star_adapt" => Token::StarAdapt,
+	}
 	
 }
 
-pub SpeciesTraits:Vec<SpeciesTraitData> = {
-    <list:SpeciesTrait*> => list,
+
+pub Augmentations:Vec<AugmentationData> = {
+	<list:Augmentation*> => list,
 }
 
-SpeciesTrait:SpeciesTraitData = {
-    
-    <id:Id> <fields:Field*> => {
+Augmentation:AugmentationData = {
+	<id:Id> <fields:Field*> => {
         let mut name = "".to_string();
         let mut icon = "".to_string();
         let mut consumes = Vec::new();
@@ -61,16 +62,15 @@ SpeciesTrait:SpeciesTraitData = {
             }
         }
 
-        SpeciesTraitData {
-            id,
-            name,
-            icon,
-            consumes,
-            effects,
-        }
-    }
+		AugmentationData {
+			id,
+			name,
+			icon,
+			consumes,
+			effects,
+		}
+	}
 }
-
 
 Field:Field = {
     <n:Name> => Field::Name(n),
@@ -109,5 +109,7 @@ Effects:Vec<Effect> = {
 }
 
 Effect:Effect = {
-    "growth_rate" "=" <n:"number"> => Effect::GrowthRate(n),
+	"star_adapt" => Effect::AdaptStarType,
+	"add_trait" "=" <id:"string"> => Effect::AddTrait(id),
+	"remove_trait" "=" <id:"string"> => Effect::RemoveTrait(id),
 }

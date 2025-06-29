@@ -116,7 +116,7 @@ pub enum Token {
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 lalrpop_mod!(pub planet_types);
@@ -200,7 +200,7 @@ fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
         let token = match tok {
             Ok(t) => t,
             Err(e) => match e {
-                LexicalError::InvalidInteger(parse_int_error) => todo!(),
+                LexicalError::InvalidInteger(..) => todo!(),
                 LexicalError::InvalidToken => {
                     let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
 
@@ -229,7 +229,7 @@ pub(super) fn parse_planet_types_section(file_name: &str, input: &str) -> Vec<Pl
 
                 panic!("{:?}", miette::Error::new(problem));
             }
-            lalrpop_util::ParseError::UnrecognizedEof { location, expected } => todo!(),
+            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
             lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
                 let problem = SyntaxError {
                     src: NamedSource::new(file_name, input.to_string()),
@@ -238,8 +238,8 @@ pub(super) fn parse_planet_types_section(file_name: &str, input: &str) -> Vec<Pl
                 };
                 panic!("{:?}", miette::Error::new(problem));
             }
-            lalrpop_util::ParseError::ExtraToken { token } => todo!(),
-            lalrpop_util::ParseError::User { error } => todo!(),
+            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
+            lalrpop_util::ParseError::User { .. } => todo!(),
         },
     }
 }

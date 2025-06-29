@@ -8,15 +8,18 @@ use regex::Regex;
 use tech::{TechData, parse_tech_section};
 use tracing::*;
 
-use miette::{Diagnostic, Error, NamedSource, SourceSpan};
+use miette::{Diagnostic, NamedSource, SourceSpan};
 
 use thiserror::Error;
-use tracing::*;
 
 use logos::{self, Logos};
 
-use crate::species_trait::{SpeciesTrait, parse_species_traits};
+use crate::{
+    augmentations::{AugmentationData, parse_augmentations},
+    species_trait::{SpeciesTraitData, parse_species_traits},
+};
 
+mod augmentations;
 pub mod building;
 pub mod goods;
 pub mod planet_types;
@@ -69,11 +72,12 @@ impl From<ParseIntError> for LexicalError {
 
 #[derive(Clone, Default, Debug)]
 pub struct ParseData {
+    pub augmentations: Vec<AugmentationData>,
     pub building_data: Vec<BuildingData>,
     pub goods_data: Vec<GoodData>,
     pub planet_type_data: Vec<PlanetTypeData>,
     pub tech_data: Vec<TechData>,
-    pub species_trait: Vec<SpeciesTrait>,
+    pub species_trait: Vec<SpeciesTraitData>,
 }
 
 impl ParseData {
@@ -98,8 +102,10 @@ pub enum Token {
     #[token("#planet_types")]
     PlanetTypes,
 
-    #[token("specie_traits")]
+    #[token("#specie_traits")]
     SpecieTraits,
+    #[token("#augmentations")]
+    Agumentations,
 
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),
@@ -119,6 +125,7 @@ pub enum Section {
     Tech(String),
     PlanetTypes(String),
     SpecieTraits(String),
+    Augmentation(String),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
@@ -128,7 +135,7 @@ fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
         let token = match tok {
             Ok(t) => t,
             Err(e) => match e {
-                LexicalError::InvalidInteger(parse_int_error) => todo!(),
+                LexicalError::InvalidInteger(_parse_int_error) => todo!(),
                 LexicalError::InvalidToken => {
                     let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
                     let problem = TokenErrorReport {
@@ -156,6 +163,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
         Ok(sections) => {
             for s in sections {
                 match s {
+                    Section::Augmentation(s) => parse_data
+                        .augmentations
+                        .append(&mut parse_augmentations(file_name, &s)),
                     Section::Buildings(b) => parse_data
                         .building_data
                         .append(&mut parse_buildings_section(file_name, &b)),
@@ -184,7 +194,7 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
 
                 panic!("{:?}", miette::Error::new(problem));
             }
-            lalrpop_util::ParseError::UnrecognizedEof { location, expected } => todo!(),
+            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
             lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
                 let problem = SyntaxError {
                     src: NamedSource::new(file_name, contents.to_string()),
@@ -193,8 +203,8 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                 };
                 panic!("{:?}", miette::Error::new(problem));
             }
-            lalrpop_util::ParseError::ExtraToken { token } => todo!(),
-            lalrpop_util::ParseError::User { error } => todo!(),
+            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
+            lalrpop_util::ParseError::User { .. } => todo!(),
         },
     }
     parse_data
@@ -213,7 +223,7 @@ fn handle_lexical_errors(
     let skip_texts: [&str; 2] = [r"//[^\n\r]*", r"[\s\t\f]+"];
     match lexical_error {
         //I have never come across this error, when I do I will figure how to present this error
-        LexicalError::InvalidInteger(parse_int_error) => todo!(),
+        LexicalError::InvalidInteger(..) => todo!(),
         LexicalError::InvalidToken => {
             let regexes = skip_texts
                 .into_iter()
