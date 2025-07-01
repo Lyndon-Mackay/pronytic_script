@@ -3,6 +3,7 @@ use std::{fmt, str::FromStr};
 use lalrpop_util::lalrpop_mod;
 use logos::{self, Logos};
 use rust_decimal::Decimal;
+use tracing::info;
 
 use crate::{LexicalError, SyntaxError, handle_lexical_errors};
 use miette::NamedSource;

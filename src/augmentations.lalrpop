@@ -84,7 +84,7 @@ Id:String = {
 }
 
 Name:String = {
-    "name" "=" <id:"string"> => id,
+    "name" "=" <id:"string"> => id.trim_matches('"').to_string(),
 }
 
 Icon:String = {

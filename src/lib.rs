@@ -83,9 +83,11 @@ pub struct ParseData {
 impl ParseData {
     ///Combines ParseData
     pub fn combine(&mut self, mut other: ParseData) {
+        self.augmentations.append(&mut other.augmentations);
         self.building_data.append(&mut other.building_data);
         self.goods_data.append(&mut other.goods_data);
         self.planet_type_data.append(&mut other.planet_type_data);
+        self.species_trait.append(&mut other.species_trait);
         self.tech_data.append(&mut other.tech_data);
     }
 }
