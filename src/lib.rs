@@ -19,7 +19,7 @@ use crate::{
     species_trait::{SpeciesTraitData, parse_species_traits},
 };
 
-mod augmentations;
+pub mod augmentations;
 pub mod building;
 pub mod goods;
 pub mod planet_types;
@@ -105,7 +105,7 @@ pub enum Token {
     #[token("#specie_traits")]
     SpecieTraits,
     #[token("#augmentations")]
-    Agumentations,
+    Augmentations,
 
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),
@@ -125,7 +125,7 @@ pub enum Section {
     Tech(String),
     PlanetTypes(String),
     SpecieTraits(String),
-    Augmentation(String),
+    Augmentations(String),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
@@ -163,7 +163,7 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
         Ok(sections) => {
             for s in sections {
                 match s {
-                    Section::Augmentation(s) => parse_data
+                    Section::Augmentations(s) => parse_data
                         .augmentations
                         .append(&mut parse_augmentations(file_name, &s)),
                     Section::Buildings(b) => parse_data
