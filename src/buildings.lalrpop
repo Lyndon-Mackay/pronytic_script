@@ -20,6 +20,7 @@ extern {
         
         "string" => Token::String(<String>),
         "number" => Token::DecimalNumber(<Decimal>),
+        "negative_number" => Token::NegativeNumber(<Decimal>),
 
         "id" => Token::Id,
         "name" => Token::Name,
@@ -44,6 +45,7 @@ extern {
         "breathable_change" => Token::BreathableChange,
         "tech_needed" => Token::TechNeeded,
         "upgrades_from" => Token::UpgradesFrom,
+        "prosperity_per_job" => Token::ProsperityPerJob,
     }
 }
 
@@ -104,6 +106,9 @@ Building:BuildingData = {
                 Field::UpgradesFrom(t) => {
                     building_data.upgrades_from = Some(t);
                 }
+                Field::ProsperityPerJob(p) => {
+                    building_data.prosperity_per_job = p;
+                }
             }
         }
         building_data
@@ -130,6 +135,7 @@ Field:Field = {
     <b:BreathableChange> => Field::BreathableChange(b),
     <t:TechNeeded> => Field::TechNeeded(t),
     <u:UpgradesFrom> => Field::UpgradesFrom(u),
+    <p:ProsperityPerJob> => Field::ProsperityPerJob(p),
 }
 
 Costs:Vec<CustomGood> = {
@@ -174,7 +180,7 @@ Unique:bool = {
 }
 
 Energy:Decimal = {
-    "energy" "=" <n:"number"> => n,
+    "energy" "=" <n:RealNumber> => n,
 }
 
 Housing:u64 = {
@@ -219,6 +225,15 @@ UpgradesFrom:String = {
 
 PrivateSector:bool = {
     "private_sector" "=" <b:Bool> => b,
+}
+
+ProsperityPerJob:Decimal = {
+    "prosperity_per_job" "=" <n:"number"> => n,
+}
+
+RealNumber:Decimal = {
+    <n:"number"> => n,
+    <n:"negative_number"> => n,
 }
 
 Bool:bool = {

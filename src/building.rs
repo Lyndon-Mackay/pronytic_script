@@ -47,6 +47,8 @@ pub struct BuildingData {
 
     pub tech_needed: Option<String>,
     pub upgrades_from: Option<String>,
+
+    pub prosperity_per_job: Decimal,
 }
 
 impl Default for BuildingData {
@@ -76,6 +78,7 @@ impl Default for BuildingData {
             breathable_change: Decimal::ZERO,
             tech_needed: None,
             upgrades_from: None,
+            prosperity_per_job: Decimal::ONE,
         }
     }
 }
@@ -104,8 +107,10 @@ pub enum Token {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
-    #[regex(r"(-?\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    #[regex(r"(\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
     DecimalNumber(Decimal),
+    #[regex(r"(-\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    NegativeNumber(Decimal),
 
     #[token("id")]
     Id,
@@ -160,6 +165,9 @@ pub enum Token {
     TechNeeded,
     #[token("upgrades_from")]
     UpgradesFrom,
+
+    #[token("prosperity_per_job")]
+    ProsperityPerJob,
 }
 
 impl fmt::Display for Token {
@@ -189,6 +197,7 @@ pub enum Field {
     BreathableChange(Decimal),
     TechNeeded(String),
     UpgradesFrom(String),
+    ProsperityPerJob(Decimal),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
