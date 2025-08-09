@@ -1,6 +1,6 @@
-use crate::building::{BuildingData,CustomGood,Field,Token};
+use crate::building::{BuildingData,CustomGood,Station,StationField,Field,Token};
 
-use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 grammar;
 
@@ -36,6 +36,8 @@ extern {
 
         "housing" => Token::Housing,
         "workers" => Token::Workers,
+
+        "stations" => Token::Stations,
         
         "private_sector" => Token::PrivateSector,
         "magnetosphere_equilibrium" => Token::MagnetosphereEquilibrium,
@@ -46,6 +48,12 @@ extern {
         "tech_needed" => Token::TechNeeded,
         "upgrades_from" => Token::UpgradesFrom,
         "prosperity_per_job" => Token::ProsperityPerJob,
+
+        "x" => Token::X,
+        "y" => Token::Y,
+        "z" => Token::Z,
+        "scale" => Token::Scale,
+        "path" => Token::Path,
     }
 }
 
@@ -109,6 +117,9 @@ Building:BuildingData = {
                 Field::ProsperityPerJob(p) => {
                     building_data.prosperity_per_job = p;
                 }
+                Field::Stations(s) => {
+                    building_data.stations = s;
+                }
             }
         }
         building_data
@@ -136,6 +147,7 @@ Field:Field = {
     <t:TechNeeded> => Field::TechNeeded(t),
     <u:UpgradesFrom> => Field::UpgradesFrom(u),
     <p:ProsperityPerJob> => Field::ProsperityPerJob(p),
+    <s:Stations> => Field::Stations(s),
 }
 
 Costs:Vec<CustomGood> = {
@@ -229,6 +241,64 @@ PrivateSector:bool = {
 
 ProsperityPerJob:Decimal = {
     "prosperity_per_job" "=" <n:"number"> => n,
+}
+
+Stations:Vec<Station> = {
+    "stations" "=" "[" <g:Station*> "]" => g,
+}
+
+Station:Station ={
+     "{" <fields:StationField*> "}" => {
+        let mut station = Station::default();
+        for f in fields{
+            match f {
+                StationField::X(x) => {
+                    station.x = x;
+                }
+                StationField::Y(y) => {
+                    station.y = y;
+                }
+                StationField::Z(z) => {
+                    station.z = z;
+                }
+                StationField::Scale(s) => {
+                    station.scale = s;
+                }
+                StationField::Path(p) => {
+                    station.path = p;
+                }
+            }
+        }
+        station
+    }
+}
+
+StationField:StationField = {
+    <x:X> => StationField::X(x),
+    <y:Y> => StationField::Y(y),
+    <z:Z> => StationField::Z(z),
+    <s:Scale> => StationField::Scale(s),
+    <p:Path> => StationField::Path(p),
+}
+
+X:f32 = {
+    "x" "=" <n:RealNumber> => n.to_f32().unwrap(),
+}
+
+Y:f32 = {
+    "y" "=" <n:RealNumber> => n.to_f32().unwrap(),
+}
+
+Z:f32 = {
+    "z" "=" <n:RealNumber> => n.to_f32().unwrap(),
+}
+
+Scale:f32 = {
+    "scale" "=" <n:"number"> => n.to_f32().unwrap(),
+}
+
+Path:String ={
+    "path" "=" <s:"string"> => s,
 }
 
 RealNumber:Decimal = {

@@ -1,6 +1,6 @@
-use std::{fmt, str::FromStr};
+use std::{fmt, path::Path, str::FromStr};
 
-use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 use lalrpop_util::lalrpop_mod;
 use miette::NamedSource;
@@ -12,6 +12,18 @@ use logos::{self, Logos};
 pub struct CustomGood {
     pub id: String,
     pub amount: Decimal,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct Station {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+
+    pub scale: f32,
+
+    pub path: String,
+    //TODO animation information
 }
 /// Building data to send to game
 /// this is only made for serialisation
@@ -37,6 +49,8 @@ pub struct BuildingData {
     pub workers: u64,
 
     pub private_sector: bool,
+
+    pub stations: Vec<Station>,
 
     pub magnetosphere_equilibrium: Decimal,
     pub atmosphere_equilibrium: Decimal,
@@ -70,6 +84,8 @@ impl Default for BuildingData {
             workers: 0,
 
             private_sector: false,
+
+            stations: vec![],
 
             magnetosphere_equilibrium: Decimal::ZERO,
             atmosphere_equilibrium: Decimal::ZERO,
@@ -131,6 +147,9 @@ pub enum Token {
     #[token("private_cost")]
     PrivateCosts,
 
+    #[token("stations")]
+    Stations,
+
     #[token("costs")]
     Costs,
     #[token("consumes")]
@@ -168,6 +187,17 @@ pub enum Token {
 
     #[token("prosperity_per_job")]
     ProsperityPerJob,
+
+    #[token("x")]
+    X,
+    #[token("y")]
+    Y,
+    #[token("z")]
+    Z,
+    #[token("scale")]
+    Scale,
+    #[token("path")]
+    Path,
 }
 
 impl fmt::Display for Token {
@@ -198,6 +228,15 @@ pub enum Field {
     TechNeeded(String),
     UpgradesFrom(String),
     ProsperityPerJob(Decimal),
+    Stations(Vec<Station>),
+}
+
+pub enum StationField {
+    X(f32),
+    Y(f32),
+    Z(f32),
+    Scale(f32),
+    Path(String),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
