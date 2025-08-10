@@ -15,6 +15,18 @@ pub struct CustomGood {
 }
 
 #[derive(Clone, Debug, Default)]
+pub struct AtmosphereImpact {
+    pub added_equilibrium: Decimal,
+    pub rate: Decimal,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct MagnetosphereImpact {
+    pub added_equilibrium: Decimal,
+    pub rate: Decimal,
+}
+
+#[derive(Clone, Debug, Default)]
 pub struct Station {
     pub x: f32,
     pub y: f32,
@@ -52,8 +64,8 @@ pub struct BuildingData {
 
     pub stations: Vec<Station>,
 
-    pub magnetosphere_equilibrium: Decimal,
-    pub atmosphere_equilibrium: Decimal,
+    pub magnetosphere_equilibrium: MagnetosphereImpact,
+    pub atmosphere_equilibrium: AtmosphereImpact,
 
     pub temperature_change: Decimal,
     pub water_change: Decimal,
@@ -87,8 +99,8 @@ impl Default for BuildingData {
 
             stations: vec![],
 
-            magnetosphere_equilibrium: Decimal::ZERO,
-            atmosphere_equilibrium: Decimal::ZERO,
+            magnetosphere_equilibrium: MagnetosphereImpact::default(),
+            atmosphere_equilibrium: AtmosphereImpact::default(),
             temperature_change: Decimal::ZERO,
             water_change: Decimal::ZERO,
             breathable_change: Decimal::ZERO,
@@ -188,6 +200,11 @@ pub enum Token {
     #[token("prosperity_per_job")]
     ProsperityPerJob,
 
+    #[token("rate")]
+    Rate,
+    #[token("added")]
+    Added,
+
     #[token("x")]
     X,
     #[token("y")]
@@ -220,8 +237,8 @@ pub enum Field {
     Housing(u64),
     Workers(u64),
     PrivateSector(bool),
-    Magnetosphere(Decimal),
-    Atmosphere(Decimal),
+    Magnetosphere(MagnetosphereImpact),
+    Atmosphere(AtmosphereImpact),
     TemperatureChange(Decimal),
     WaterChange(Decimal),
     BreathableChange(Decimal),

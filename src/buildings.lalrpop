@@ -1,4 +1,4 @@
-use crate::building::{BuildingData,CustomGood,Station,StationField,Field,Token};
+use crate::building::{AtmosphereImpact,BuildingData,CustomGood,MagnetosphereImpact,Station,StationField,Field,Token};
 
 use rust_decimal::prelude::*;
 
@@ -48,6 +48,9 @@ extern {
         "tech_needed" => Token::TechNeeded,
         "upgrades_from" => Token::UpgradesFrom,
         "prosperity_per_job" => Token::ProsperityPerJob,
+
+        "rate" => Token::Rate,
+        "added" => Token::Added,
 
         "x" => Token::X,
         "y" => Token::Y,
@@ -207,12 +210,22 @@ PrivateCosts:Decimal = {
     "private_costs" "=" <n:"number"> => n,
 }
 
-MagnetosphereEquilibrium:Decimal = {
-    "magnetosphere_equilibrium" "=" <n:"number"> => n,
+MagnetosphereEquilibrium:MagnetosphereImpact = {
+    "magnetosphere_equilibrium" "=" "{" "added" "=" <n:"number"> "rate" "=" <r:"number"> "}" => {
+        MagnetosphereImpact {
+            added_equilibrium:n,
+            rate:r,
+        }
+    },
 }
 
-AtmosphereEquilibrium:Decimal = {
-    "atmosphere_equilibrium" "=" <n:"number"> => n,
+AtmosphereEquilibrium:AtmosphereImpact = {
+    "atmosphere_equilibrium" "=" "{" "added" "=" <n:"number"> "rate" "=" <r:"number"> "}" => {
+        AtmosphereImpact {
+            added_equilibrium:n,
+            rate:r,
+        }
+     },
 }
 
 TemperatureChange:Decimal = {
