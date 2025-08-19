@@ -1,4 +1,4 @@
-use crate::goods::{ConsumptionType,Field,GoodData,GoodType,Token};
+use crate::goods::{ConsumptionType,Field,GoodData,GoodType,SurvivalConditions,SurvivalField,Token};
 use rust_decimal::Decimal;
 
 
@@ -10,6 +10,8 @@ extern {
 
     enum Token {
         "=" => Token::Equal,
+        "{" => Token::LeftCurly,
+        "}" => Token::RightCurly,
         "string" => Token::String(<String>),
         "number" => Token::DecimalNumber(<Decimal>),
         "icon" => Token::Icon,
@@ -22,9 +24,19 @@ extern {
         "tender" => Token::Tender,
         "hardcoded_id" => Token::HardcodedId,
         "consumption_type" => Token::ConsumptionType,
+
+        "prosperity_bonus" => Token::ProsperityBonus,
+
         "none" => Token::None,
         "amenity" => Token::Amenity,
+        "survival" => Token::Survival,
         "essential" => Token::Essential,
+
+        "magnetosphere" => Token::Magnetosphere,
+        "atmosphere" => Token::Atmosphere,
+        "temperature" => Token::Temperature,
+        "water" => Token::Water,
+        "breathability" => Token::Breathability,
     }
 }
 
@@ -41,6 +53,7 @@ Good:GoodData = {
         let mut buy_value = Decimal::ZERO;
         let mut sell_value = Decimal::ZERO;
         let mut consumption_type = ConsumptionType::None;
+        let mut prosperity_bonus = Decimal::ZERO;
         for f in fields {
             match f{
                 Field::Icon(i) => icon = i,
@@ -50,6 +63,7 @@ Good:GoodData = {
                 Field::GoodType(g) => good_type = g,
                 Field::HardcodedId(i) => hardcoded_id = Some(i),
                 Field::ConsumptionType(c) => consumption_type = c,
+                Field::ProsperityBonus(p) => prosperity_bonus = p,
             }
         }
         GoodData {
@@ -61,6 +75,7 @@ Good:GoodData = {
             consumption_type,
             buy_value,
             sell_value,
+            prosperity_bonus,
         }
     }
 }
@@ -74,6 +89,15 @@ Field: Field = {
     <g:GoodType> => Field::GoodType(g),
     <h:HardcodedId> => Field::HardcodedId(h),
     <c:ConsumptionType> => Field::ConsumptionType(c),
+    <p:ProsperityBonus> => Field::ProsperityBonus(p),
+}
+
+SurvivalField:SurvivalField = {
+    <m:Magnetosphere> => SurvivalField::Magnetosphere(m),
+    <a:Atmosphere> => SurvivalField::Atmosphere(a),
+    <t:Temperature> => SurvivalField::Temperature(t),
+    <w:Water> => SurvivalField::Water(w),
+    <b:Breathability> => SurvivalField::Breathability(b),
 }
 
 Icon:String ={
@@ -92,10 +116,34 @@ SellValue:Decimal = {
     "sell_value" "=" <n:"number"> => n,
 }
 
+ProsperityBonus:Decimal = {
+    "prosperity_bonus" "=" <n:"number"> => n,
+}
+
 GoodType:GoodType = {
     "good_type" "=" "public" => GoodType::Public,
     "good_type" "=" "private" => GoodType::Private,
     "good_type" "=" "tender" => GoodType::Tender,
+}
+
+Magnetosphere:Decimal = {
+    "magnetosphere" "=" <n:"number"> => n,
+}
+
+Atmosphere:Decimal = {
+    "atmosphere" "=" <n:"number"> => n,
+}
+
+Temperature:Decimal = {
+    "temperature" "=" <n:"number"> => n,
+}
+
+Water:Decimal = {
+    "water" "=" <n:"number"> => n,
+}
+
+Breathability:Decimal = {
+    "breathability" "=" <n:"number"> => n,
 }
 
 HardcodedId:u8 = {
@@ -106,4 +154,19 @@ ConsumptionType:ConsumptionType = {
     "consumption_type" "=" "essential" => ConsumptionType::Essential,
     "consumption_type" "=" "amenity" => ConsumptionType::Amenity,
     "consumption_type" "=" "none" => ConsumptionType::None,
+    "consumption_type" "=" "survival"
+     "{" <fields:SurvivalField*> "}" => {
+        let mut survival_conditions = SurvivalConditions::default();
+        for f in fields{
+            match f {
+                SurvivalField::Magnetosphere(m) => survival_conditions.magnetosphere = Some(m),
+                SurvivalField::Atmosphere(a) => survival_conditions.atmosphere = Some(a),
+                SurvivalField::Temperature(t) => survival_conditions.temperature = Some(t),
+                SurvivalField::Water(w) => survival_conditions.water = Some(w),
+                SurvivalField::Breathability(b) => survival_conditions.breathability = Some(b),
+            }
+        } 
+        assert_ne!(survival_conditions,SurvivalConditions::default()); 
+        ConsumptionType::Survival(survival_conditions)
+    } 
 }

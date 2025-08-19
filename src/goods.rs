@@ -15,6 +15,12 @@ use crate::{LexicalError, SyntaxError, handle_lexical_errors};
 pub enum Token {
     #[token("=")]
     Equal,
+
+    #[token("{")]
+    LeftCurly,
+    #[token("}")]
+    RightCurly,
+
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -48,12 +54,28 @@ pub enum Token {
     #[token("consumption_type")]
     ConsumptionType,
 
+    #[token("prosperity_bonus")]
+    ProsperityBonus,
+
     #[token("none")]
     None,
     #[token("amenity")]
     Amenity,
+    #[token("survival")]
+    Survival,
     #[token("essential")]
     Essential,
+
+    #[token("magnetosphere")]
+    Magnetosphere,
+    #[token("atmosphere")]
+    Atmosphere,
+    #[token("temperature")]
+    Temperature,
+    #[token("water")]
+    Water,
+    #[token("breathability")]
+    Breathability,
 }
 
 impl fmt::Display for Token {
@@ -80,6 +102,7 @@ pub struct GoodData {
     pub name: String,
     pub good_type: GoodType,
     pub consumption_type: ConsumptionType,
+    pub prosperity_bonus: Decimal,
     pub buy_value: Decimal,
     pub sell_value: Decimal,
 }
@@ -88,8 +111,24 @@ pub struct GoodData {
 pub enum ConsumptionType {
     #[default]
     None,
+    //Goods that the population likes to have
     Amenity,
+    ///Needed for harsh enviroments, buying costs purchasing power without giving any bonus to prosperity
+    Survival(SurvivalConditions),
+    ///Esential is stuff like food absolutely need no matter
+    ///Where you are
     Essential,
+}
+
+///For triggerering when the good is needed these are thresholds on
+/// when to stop
+#[derive(Clone, Default, Debug, PartialEq)]
+pub struct SurvivalConditions {
+    pub magnetosphere: Option<Decimal>,
+    pub atmosphere: Option<Decimal>,
+    pub temperature: Option<Decimal>,
+    pub water: Option<Decimal>,
+    pub breathability: Option<Decimal>,
 }
 
 pub enum Field {
@@ -100,6 +139,15 @@ pub enum Field {
     GoodType(GoodType),
     HardcodedId(u8),
     ConsumptionType(ConsumptionType),
+    ProsperityBonus(Decimal),
+}
+
+pub enum SurvivalField {
+    Magnetosphere(Decimal),
+    Atmosphere(Decimal),
+    Temperature(Decimal),
+    Water(Decimal),
+    Breathability(Decimal),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
