@@ -56,6 +56,8 @@ pub enum Token {
 
     #[token("prosperity_bonus")]
     ProsperityBonus,
+    #[token("prosperity_cost")]
+    ProsperityCost,
 
     #[token("none")]
     None,
@@ -103,6 +105,7 @@ pub struct GoodData {
     pub good_type: GoodType,
     pub consumption_type: ConsumptionType,
     pub prosperity_bonus: Decimal,
+    pub prosperity_cost: Decimal,
     pub buy_value: Decimal,
     pub sell_value: Decimal,
 }
@@ -140,6 +143,7 @@ pub enum Field {
     HardcodedId(u8),
     ConsumptionType(ConsumptionType),
     ProsperityBonus(Decimal),
+    ProsperityCost(Decimal),
 }
 
 pub enum SurvivalField {

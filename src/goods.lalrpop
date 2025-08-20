@@ -26,6 +26,7 @@ extern {
         "consumption_type" => Token::ConsumptionType,
 
         "prosperity_bonus" => Token::ProsperityBonus,
+        "prosperity_cost" => Token::ProsperityCost,
 
         "none" => Token::None,
         "amenity" => Token::Amenity,
@@ -54,6 +55,7 @@ Good:GoodData = {
         let mut sell_value = Decimal::ZERO;
         let mut consumption_type = ConsumptionType::None;
         let mut prosperity_bonus = Decimal::ZERO;
+        let mut prosperity_cost = Decimal::ZERO;
         for f in fields {
             match f{
                 Field::Icon(i) => icon = i,
@@ -64,6 +66,7 @@ Good:GoodData = {
                 Field::HardcodedId(i) => hardcoded_id = Some(i),
                 Field::ConsumptionType(c) => consumption_type = c,
                 Field::ProsperityBonus(p) => prosperity_bonus = p,
+                Field::ProsperityCost(p) => prosperity_cost = p,
             }
         }
         GoodData {
@@ -76,6 +79,7 @@ Good:GoodData = {
             buy_value,
             sell_value,
             prosperity_bonus,
+            prosperity_cost,
         }
     }
 }
@@ -90,6 +94,7 @@ Field: Field = {
     <h:HardcodedId> => Field::HardcodedId(h),
     <c:ConsumptionType> => Field::ConsumptionType(c),
     <p:ProsperityBonus> => Field::ProsperityBonus(p),
+    <p:ProsperityCost> => Field::ProsperityCost(p),
 }
 
 SurvivalField:SurvivalField = {
@@ -118,6 +123,10 @@ SellValue:Decimal = {
 
 ProsperityBonus:Decimal = {
     "prosperity_bonus" "=" <n:"number"> => n,
+}
+
+ProsperityCost:Decimal = {
+    "prosperity_cost" "=" <n:"number"> => n,
 }
 
 GoodType:GoodType = {
