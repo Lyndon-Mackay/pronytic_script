@@ -78,6 +78,10 @@ pub enum Token {
     Water,
     #[token("breathability")]
     Breathability,
+    #[token("served_step")]
+    ServedStep,
+    #[token("lack_of_service_penalty")]
+    LackServicePenalty,
 }
 
 impl fmt::Display for Token {
@@ -125,13 +129,31 @@ pub enum ConsumptionType {
 
 ///For triggerering when the good is needed these are thresholds on
 /// when to stop
-#[derive(Clone, Default, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct SurvivalConditions {
     pub magnetosphere: Option<Decimal>,
     pub atmosphere: Option<Decimal>,
     pub temperature: Option<Decimal>,
     pub water: Option<Decimal>,
     pub breathability: Option<Decimal>,
+
+    ///Each step is considered served by natural conditions
+    pub served_step: Decimal,
+    pub lack_of_service_penalty: Decimal,
+}
+
+impl Default for SurvivalConditions {
+    fn default() -> Self {
+        Self {
+            magnetosphere: Default::default(),
+            atmosphere: Default::default(),
+            temperature: Default::default(),
+            water: Default::default(),
+            breathability: Default::default(),
+            served_step: Decimal::ONE,
+            lack_of_service_penalty: Decimal::ZERO,
+        }
+    }
 }
 
 pub enum Field {
@@ -152,6 +174,8 @@ pub enum SurvivalField {
     Temperature(Decimal),
     Water(Decimal),
     Breathability(Decimal),
+    ServedStep(Decimal),
+    LackServicePenalty(Decimal),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {

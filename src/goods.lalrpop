@@ -38,6 +38,8 @@ extern {
         "temperature" => Token::Temperature,
         "water" => Token::Water,
         "breathability" => Token::Breathability,
+        "served_step" => Token::ServedStep,
+        "lack_of_service_penalty" => Token::LackServicePenalty,
     }
 }
 
@@ -103,6 +105,8 @@ SurvivalField:SurvivalField = {
     <t:Temperature> => SurvivalField::Temperature(t),
     <w:Water> => SurvivalField::Water(w),
     <b:Breathability> => SurvivalField::Breathability(b),
+    <s:ServedStep> => SurvivalField::ServedStep(s),
+    <s:LackServicePenalty> => SurvivalField::LackServicePenalty(s),
 }
 
 Icon:String ={
@@ -155,6 +159,14 @@ Breathability:Decimal = {
     "breathability" "=" <n:"number"> => n,
 }
 
+ServedStep:Decimal = {
+    "served_step" "=" <n:"number"> => n,
+}
+
+LackServicePenalty:Decimal = {
+    "lack_of_service_penalty" "=" <n:"number"> => n,
+}
+
 HardcodedId:u8 = {
     "hardcoded_id" "=" <n:"number"> => n.try_into().unwrap(),
 }
@@ -173,6 +185,8 @@ ConsumptionType:ConsumptionType = {
                 SurvivalField::Temperature(t) => survival_conditions.temperature = Some(t),
                 SurvivalField::Water(w) => survival_conditions.water = Some(w),
                 SurvivalField::Breathability(b) => survival_conditions.breathability = Some(b),
+                SurvivalField::ServedStep(s) =>survival_conditions.served_step = s, 
+                SurvivalField::LackServicePenalty(s) => survival_conditions.lack_of_service_penalty = s,
             }
         } 
         assert_ne!(survival_conditions,SurvivalConditions::default()); 
