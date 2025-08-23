@@ -1,0 +1,91 @@
+use std::str::FromStr;
+use rust_decimal::Decimal;
+
+use crate::shipyard::{Field,ShipyardData,Token};
+
+use crate::common::GoodConsumes;
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token{
+        "string" => Token::String(<String>),
+        "number" => Token::Number(<u8>),
+        "decimal_number" => Token::DecimalNumber(<Decimal>),
+
+        "=" => Token::Equal,
+        ":" => Token::Colon,
+
+        "{" => Token::LeftCurly,
+        "}" => Token::RightCurly,
+
+        "[" => Token::LeftSquare,
+        "]" => Token::RightSquare,
+
+        "name" => Token::Name,
+        "asset_location" => Token::AssetLocation,
+
+        "good_id" => Token::GoodId,
+
+        "amount" => Token::Amount,
+        
+        "consumes" => Token::Consumes,
+        
+    }
+}
+
+pub ShipyardData:Vec<ShipyardData> = {
+    <list:ShipyardDatum*> => list,
+}
+
+ShipyardDatum:ShipyardData = {
+    "number" "=" "{" <fields:ShipyardField*> "}" => {
+        let mut shipyard = ShipyardData::default();
+
+        for f in fields{
+            match f {
+                Field::Name(n) => shipyard.name = n,
+                Field::AssetLocation(a) => shipyard.asset_location = a,
+                Field::Consumes(c) => shipyard.costs = c,
+            }
+        }
+
+        shipyard
+        
+    }
+}
+
+
+ShipyardField:Field ={
+    <n:Name> => Field::Name(n),
+    <a:AssetLocation> => Field::AssetLocation(a),
+    <c:GoodConsumes> => Field::Consumes(c),
+}
+
+
+Name:String = {
+    "name" "=" <s:"string"> => s,
+}
+
+AssetLocation:String = {
+    "asset_location" "=" <s:"string"> => s,
+}
+
+GoodConsumes:Vec<GoodConsumes> = {
+    "consumes" "=" "[" <c:GoodConsume*> "]" =>c,
+}
+
+GoodConsume:GoodConsumes = {
+    "{" "good_id" ":" <id:"string"> "amount" ":" <n:"decimal_number"> "}" => {
+        GoodConsumes {
+            id,
+            amount:n,
+        }
+    }
+}
+
+
+

@@ -16,13 +16,16 @@ use logos::{self, Logos};
 
 use crate::{
     augmentations::{AugmentationData, parse_augmentations},
+    shipyard::{ShipyardData, parse_shipyard},
     species_trait::{SpeciesTraitData, parse_species_traits},
 };
 
 pub mod augmentations;
 pub mod building;
+pub mod common;
 pub mod goods;
 pub mod planet_types;
+pub mod shipyard;
 pub mod species_trait;
 pub mod tech;
 
@@ -78,6 +81,7 @@ pub struct ParseData {
     pub planet_type_data: Vec<PlanetTypeData>,
     pub tech_data: Vec<TechData>,
     pub species_trait: Vec<SpeciesTraitData>,
+    pub shipyard: Vec<ShipyardData>,
 }
 
 impl ParseData {
@@ -109,6 +113,9 @@ pub enum Token {
     #[token("#augmentations")]
     Augmentations,
 
+    #[token("#shipyard")]
+    Shipyard,
+
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),
 }
@@ -128,6 +135,7 @@ pub enum Section {
     PlanetTypes(String),
     SpecieTraits(String),
     Augmentations(String),
+    Shipyard(String),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
@@ -183,6 +191,11 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                     Section::SpecieTraits(s) => parse_data
                         .species_trait
                         .append(&mut parse_species_traits(file_name, &s)),
+                    Section::Shipyard(s) => {
+                        parse_data
+                            .shipyard
+                            .append(&mut parse_shipyard(file_name, &s));
+                    }
                 }
             }
         }

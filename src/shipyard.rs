@@ -3,17 +3,20 @@ use std::{fmt, str::FromStr};
 use lalrpop_util::lalrpop_mod;
 use logos::{self, Logos};
 use rust_decimal::Decimal;
-use tracing::info;
+
+use miette::NamedSource;
 
 use crate::{LexicalError, SyntaxError, common::GoodConsumes, handle_lexical_errors};
-use miette::NamedSource;
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-enum Token {
+pub enum Token {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
+
+    #[regex(r"(\d+)", |lex|lex.parse::<u8> .expect("parsed u8"), priority = 3)]
+    Number(u8),
 
     #[regex(r"(\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
     DecimalNumber(Decimal),
@@ -25,7 +28,6 @@ enum Token {
     LeftCurly,
     #[token("}")]
     RightCurly,
-
     #[token("[")]
     LeftSquare,
     #[token("]")]
@@ -34,28 +36,17 @@ enum Token {
     #[token(":")]
     Colon,
 
+    #[token("name")]
+    Name,
+    #[token("asset_location")]
+    AssetLocation,
+
+    #[token("consumes")]
+    Consumes,
     #[token("good_id")]
     GoodId,
     #[token("amount")]
     Amount,
-
-    #[token("name")]
-    Name,
-    #[token("icon")]
-    Icon,
-
-    #[token("consumes")]
-    Consumes,
-
-    #[token("effects")]
-    Effects,
-
-    #[token("add_trait")]
-    AddTrait,
-    #[token("remove_trait")]
-    RemoveTrait,
-    #[token("star_adapt")]
-    StarAdapt,
 }
 
 impl fmt::Display for Token {
@@ -64,29 +55,19 @@ impl fmt::Display for Token {
     }
 }
 
-lalrpop_mod!(pub augmentations);
-
+lalrpop_mod!(pub shipyard);
 #[derive(Clone, Default, Debug)]
-pub struct AugmentationData {
-    pub id: String,
+pub struct ShipyardData {
+    pub level: u8,
     pub name: String,
-    pub icon: String,
+    pub asset_location: String,
 
-    pub consumes: Vec<GoodConsumes>,
-    pub effects: Vec<Effect>,
-}
-
-#[derive(Clone, Debug)]
-pub enum Effect {
-    AdaptStarType,
-    AddTrait(String),
-    RemoveTrait(String),
+    pub costs: Vec<GoodConsumes>,
 }
 
 pub enum Field {
     Name(String),
-    Icon(String),
-    Effects(Vec<Effect>),
+    AssetLocation(String),
     Consumes(Vec<GoodConsumes>),
 }
 
@@ -111,10 +92,10 @@ fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
     tokens
 }
 
-pub(super) fn parse_augmentations(file_name: &str, input: &str) -> Vec<AugmentationData> {
+pub(super) fn parse_shipyard(file_name: &str, input: &str) -> Vec<ShipyardData> {
     let tokens = lex(file_name, input);
-    let species_trait_parse = augmentations::AugmentationsParser::new().parse(tokens);
-    match species_trait_parse {
+    let shipyard_parse = shipyard::ShipyardDataParser::new().parse(tokens);
+    match shipyard_parse {
         Ok(list) => list,
         Err(e) => match e {
             lalrpop_util::ParseError::InvalidToken { location } => {

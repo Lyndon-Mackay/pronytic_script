@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 
 use logos::Logos;
 
-use crate::{LexicalError, SyntaxError, handle_lexical_errors};
+use crate::{LexicalError, SyntaxError, common::GoodConsumes, handle_lexical_errors};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -69,12 +69,6 @@ pub struct SpeciesTraitData {
     pub icon: String,
     pub consumes: Vec<GoodConsumes>,
     pub effects: Vec<Effect>,
-}
-
-#[derive(Debug, Clone)]
-pub struct GoodConsumes {
-    pub id: String,
-    pub amount: Decimal,
 }
 
 #[derive(Debug, Clone)]

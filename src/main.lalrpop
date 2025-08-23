@@ -13,6 +13,7 @@ extern {
         "planet_types" => Token::PlanetTypes,
         "specie_traits" => Token::SpecieTraits,
         "augmentations" => Token::Augmentations,
+        "shipyard" => Token::Augmentations,
         "section_contents" => Token::SectionContents(<String>),
     }
     
@@ -29,4 +30,5 @@ section:Section = {
     "planet_types" <s:"section_contents"> => Section::PlanetTypes(s),
     "specie_traits" <s:"section_contents"> => Section::SpecieTraits(s),
     "augmentations" <s:"section_contents"> => Section::Augmentations(s),
+    "shipyard" <s:"section_contents"> => Section::Shipyard(s),
 }
