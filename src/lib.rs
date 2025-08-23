@@ -92,6 +92,7 @@ impl ParseData {
         self.goods_data.append(&mut other.goods_data);
         self.planet_type_data.append(&mut other.planet_type_data);
         self.species_trait.append(&mut other.species_trait);
+        self.shipyard.append(&mut other.shipyard);
         self.tech_data.append(&mut other.tech_data);
     }
 }
