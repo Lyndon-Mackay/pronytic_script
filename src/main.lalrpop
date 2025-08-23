@@ -13,7 +13,7 @@ extern {
         "planet_types" => Token::PlanetTypes,
         "specie_traits" => Token::SpecieTraits,
         "augmentations" => Token::Augmentations,
-        "shipyard" => Token::Augmentations,
+        "shipyard" => Token::Shipyard,
         "section_contents" => Token::SectionContents(<String>),
     }
     

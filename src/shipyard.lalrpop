@@ -33,6 +33,8 @@ extern {
         "amount" => Token::Amount,
         
         "consumes" => Token::Consumes,
+
+        "time" => Token::Time,
         
     }
 }
@@ -50,6 +52,7 @@ ShipyardDatum:ShipyardData = {
                 Field::Name(n) => shipyard.name = n,
                 Field::AssetLocation(a) => shipyard.asset_location = a,
                 Field::Consumes(c) => shipyard.costs = c,
+                Field::Time(t) => shipyard.time = t,
             }
         }
 
@@ -63,6 +66,7 @@ ShipyardField:Field ={
     <n:Name> => Field::Name(n),
     <a:AssetLocation> => Field::AssetLocation(a),
     <c:GoodConsumes> => Field::Consumes(c),
+    <t:Time> => Field::Time(t),
 }
 
 
@@ -72,6 +76,10 @@ Name:String = {
 
 AssetLocation:String = {
     "asset_location" "=" <s:"string"> => s,
+}
+
+Time:u8 = {
+    "time" "=" <t:"number"> => t,
 }
 
 GoodConsumes:Vec<GoodConsumes> = {

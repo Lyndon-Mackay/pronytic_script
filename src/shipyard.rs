@@ -8,6 +8,7 @@ use miette::NamedSource;
 
 use crate::{LexicalError, SyntaxError, common::GoodConsumes, handle_lexical_errors};
 
+//TODO! this number tokenising is inconsistent with other token types I should change the others to split decimal numbers as consistently
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
@@ -15,10 +16,10 @@ pub enum Token {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
-    #[regex(r"(\d+)", |lex|lex.parse::<u8> .expect("parsed u8"), priority = 3)]
+    #[regex(r"(\d+)", |lex|lex.slice().parse::<u8>().expect("parsing u8"), priority = 5)]
     Number(u8),
 
-    #[regex(r"(\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    #[regex(r"(\d+\.\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
     DecimalNumber(Decimal),
 
     #[token("=")]
@@ -47,6 +48,9 @@ pub enum Token {
     GoodId,
     #[token("amount")]
     Amount,
+
+    #[token("time")]
+    Time,
 }
 
 impl fmt::Display for Token {
@@ -63,12 +67,14 @@ pub struct ShipyardData {
     pub asset_location: String,
 
     pub costs: Vec<GoodConsumes>,
+    pub time: u8,
 }
 
 pub enum Field {
     Name(String),
     AssetLocation(String),
     Consumes(Vec<GoodConsumes>),
+    Time(u8),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
