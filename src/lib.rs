@@ -15,11 +15,13 @@ use thiserror::Error;
 use logos::{self, Logos};
 
 use crate::{
+    asteroid_mining::{AsteroidMiningData, parse_asteroid_mining},
     augmentations::{AugmentationData, parse_augmentations},
     shipyard::{ShipyardData, parse_shipyard},
     species_trait::{SpeciesTraitData, parse_species_traits},
 };
 
+pub mod asteroid_mining;
 pub mod augmentations;
 pub mod building;
 pub mod common;
@@ -73,8 +75,10 @@ impl From<ParseIntError> for LexicalError {
     }
 }
 
+///This is the stored results from a given string of data
 #[derive(Clone, Default, Debug)]
 pub struct ParseData {
+    pub asteroid_mining: Vec<AsteroidMiningData>,
     pub augmentations: Vec<AugmentationData>,
     pub building_data: Vec<BuildingData>,
     pub goods_data: Vec<GoodData>,
@@ -85,9 +89,11 @@ pub struct ParseData {
 }
 
 impl ParseData {
-    ///Combines ParseData
+    ///As a parsedata (generally) represents one file worth of results
+    ///this is an easy way to combine them
     pub fn combine(&mut self, mut other: ParseData) {
         self.augmentations.append(&mut other.augmentations);
+        self.asteroid_mining.append(&mut other.asteroid_mining);
         self.building_data.append(&mut other.building_data);
         self.goods_data.append(&mut other.goods_data);
         self.planet_type_data.append(&mut other.planet_type_data);
@@ -117,6 +123,9 @@ pub enum Token {
     #[token("#shipyard")]
     Shipyard,
 
+    #[token("#asteroid_mining")]
+    AsteriodMinging,
+
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),
 }
@@ -130,12 +139,13 @@ impl fmt::Display for Token {
 lalrpop_mod!(pub main);
 
 pub enum Section {
+    AsteroidMining(String),
+    Augmentations(String),
     Buildings(String),
     Goods(String),
     Tech(String),
     PlanetTypes(String),
     SpecieTraits(String),
-    Augmentations(String),
     Shipyard(String),
 }
 
@@ -174,6 +184,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
         Ok(sections) => {
             for s in sections {
                 match s {
+                    Section::AsteroidMining(s) => parse_data
+                        .asteroid_mining
+                        .append(&mut parse_asteroid_mining(file_name, &s)),
                     Section::Augmentations(s) => parse_data
                         .augmentations
                         .append(&mut parse_augmentations(file_name, &s)),

@@ -2,7 +2,7 @@ use std::{fmt, str::FromStr};
 
 use lalrpop_util::lalrpop_mod;
 use logos::{self, Logos};
-use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 use miette::NamedSource;
 

@@ -1,0 +1,56 @@
+
+[unstable]
+codegen-backend = true
+
+
+[profile.dev]
+codegen-backend = "cranelift"
+# If you want to attach a debugger, set this to true
+debug = "line-tables-only"
+
+
+[profile.llvm]
+codegen-backend = "llvm"
+# If you want to attach a debugger, set this to true
+debug = "line-tables-only"
+inherits = "dev"
+
+# Consider compiling deps with cranelift if you want cold-compilation to be faster
+[profile.dev.package."*"]
+codegen-backend = "llvm"
+
+# cranelift is `panic = abort`, so you need to compile with llvm to get `#[should_panic]` working
+[profile.test.package."*"]
+codegen-backend = "llvm"
+
+# Disable cranelift for release profile
+[profile.release]
+codegen-backend = "llvm"
+
+# cranelift cannot build wasm32-unknown-unknown out of the box
+[profile.web]
+codegen-backend = "llvm"
+
+# # for Linux
+# [target.x86_64-unknown-linux-gnu]
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = [
+    # Nightly
+    "-Zshare-generics=y",
+    "-Zthreads=8",
+    "-Clink-arg=-fuse-ld=lld",
+]
+
+
+
+rustdocflags = [
+    "--cfg",
+    "getrandom_backend=\"wasm_js\"",
+    "-Ctarget-feature=+sign-ext,+nontrapping-fptoint",
+    # Nightly
+    "-Zshare-generics=y",
+    "-Zthreads=8",
+]

@@ -1,6 +1,5 @@
 use rust_decimal::Decimal;
-
-use crate::shipyard::{Field,ShipyardData,Token};
+use crate::asteroid_mining::{Field,AsteroidMiningData,Token};
 
 use crate::common::GoodConsumes;
 
@@ -25,7 +24,8 @@ extern {
         "]" => Token::RightSquare,
 
         "name" => Token::Name,
-        "asset_location" => Token::AssetLocation,
+        "depot_asset" => Token::DepotAsset,
+        "ship_asset" => Token::ShipAsset,
 
         "good_id" => Token::GoodId,
 
@@ -38,43 +38,46 @@ extern {
     }
 }
 
-pub ShipyardData:Vec<ShipyardData> = {
-    <list:ShipyardDatum*> => list,
+pub AsteroidMiningData:Vec<AsteroidMiningData> = {
+    <list:AsteroidMiningDatum*> => list,
 }
 
-ShipyardDatum:ShipyardData = {
-    <level:"number"> "=" "{" <fields:ShipyardField*> "}" => {
-        let mut shipyard = ShipyardData::default();
-        shipyard.level = level;
-        for f in fields{
+AsteroidMiningDatum:AsteroidMiningData = {
+    <level:"number"> "=" "{" <fields:AsteroidField*>  "}" => {
+        let mut asteroid_mine = AsteroidMiningData::default();
+        asteroid_mine.level = level;
+
+        for f in fields {
             match f {
-                Field::Name(n) => shipyard.name = n,
-                Field::AssetLocation(a) => shipyard.asset_location = a,
-                Field::Consumes(c) => shipyard.costs = c,
-                Field::Time(t) => shipyard.time = t,
+                Field::Name(n) => asteroid_mine.name = n,
+                Field::DepotAsset(n) => asteroid_mine.depot_asset = n,
+                Field::ShipAsset(n) => asteroid_mine.ship_asset = n,
+                Field::Consumes(c) => asteroid_mine.costs = c,
+                Field::Time(t) => asteroid_mine.time = t,
             }
         }
-
-        shipyard
-        
+        asteroid_mine
     }
 }
 
-
-ShipyardField:Field ={
+AsteroidField:Field ={
     <n:Name> => Field::Name(n),
-    <a:AssetLocation> => Field::AssetLocation(a),
+    <a:DepotAsset> => Field::DepotAsset(a),
+    <a:ShipAsset> => Field::ShipAsset(a),
     <c:GoodConsumes> => Field::Consumes(c),
     <t:Time> => Field::Time(t),
 }
-
 
 Name:String = {
     "name" "=" <s:"string"> => s,
 }
 
-AssetLocation:String = {
-    "asset_location" "=" <s:"string"> => s,
+DepotAsset:String = {
+    "depot_asset" "=" <s:"string"> =>s,
+}
+
+ShipAsset:String = {
+    "ship_asset" "=" <s:"string"> =>s,
 }
 
 Time:u8 = {
@@ -93,6 +96,3 @@ GoodConsume:GoodConsumes = {
         }
     }
 }
-
-
-

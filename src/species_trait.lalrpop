@@ -1,4 +1,3 @@
-use std::str::FromStr;
 use rust_decimal::Decimal;
 
 use crate::species_trait::{Effect,Field,SpeciesTraitData,Token};

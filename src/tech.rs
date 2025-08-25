@@ -3,7 +3,7 @@ use std::fmt;
 use lalrpop_util::lalrpop_mod;
 
 use logos::{self, Logos};
-use miette::{Diagnostic, Error, NamedSource, SourceSpan};
+use miette::NamedSource;
 
 use crate::{LexicalError, SyntaxError, handle_lexical_errors};
 
