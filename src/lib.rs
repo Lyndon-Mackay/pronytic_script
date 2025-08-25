@@ -124,7 +124,7 @@ pub enum Token {
     Shipyard,
 
     #[token("#asteroid_mining")]
-    AsteriodMinging,
+    AsteroidMining,
 
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),

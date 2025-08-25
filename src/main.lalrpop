@@ -14,6 +14,7 @@ extern {
         "specie_traits" => Token::SpecieTraits,
         "augmentations" => Token::Augmentations,
         "shipyard" => Token::Shipyard,
+        "asteroid_mining" => Token::AsteroidMining,
         "section_contents" => Token::SectionContents(<String>),
     }
     
@@ -31,4 +32,5 @@ section:Section = {
     "specie_traits" <s:"section_contents"> => Section::SpecieTraits(s),
     "augmentations" <s:"section_contents"> => Section::Augmentations(s),
     "shipyard" <s:"section_contents"> => Section::Shipyard(s),
+    "asteroid_mining" <s:"section_contents"> => Section::AsteroidMining(s),
 }
