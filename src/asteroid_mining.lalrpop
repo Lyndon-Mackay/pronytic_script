@@ -32,6 +32,7 @@ extern {
         "amount" => Token::Amount,
         
         "consumes" => Token::Consumes,
+        "produces" => Token::Produces,
 
         "time" => Token::Time,
         
@@ -53,6 +54,7 @@ AsteroidMiningDatum:AsteroidMiningData = {
                 Field::DepotAsset(n) => asteroid_mine.depot_asset = n,
                 Field::ShipAsset(n) => asteroid_mine.ship_asset = n,
                 Field::Consumes(c) => asteroid_mine.costs = c,
+                Field::Produces(c) => asteroid_mine.produces = c,
                 Field::Time(t) => asteroid_mine.time = t,
             }
         }
@@ -65,6 +67,7 @@ AsteroidField:Field ={
     <a:DepotAsset> => Field::DepotAsset(a),
     <a:ShipAsset> => Field::ShipAsset(a),
     <c:GoodConsumes> => Field::Consumes(c),
+    <c:GoodProduces> => Field::Produces(c),
     <t:Time> => Field::Time(t),
 }
 
@@ -84,6 +87,9 @@ Time:u8 = {
     "time" "=" <t:"number"> => t,
 }
 
+GoodProduces:Vec<GoodConsumes> = {
+    "produces" "=" "[" <c:GoodConsume*> "]" =>c,
+}
 GoodConsumes:Vec<GoodConsumes> = {
     "consumes" "=" "[" <c:GoodConsume*> "]" =>c,
 }
