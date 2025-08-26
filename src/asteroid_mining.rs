@@ -19,7 +19,7 @@ pub enum Token {
     #[regex(r"(\d+)", |lex|lex.slice().parse::<u8>().expect("parsing u8"), priority = 5)]
     Number(u8),
 
-    #[regex(r"(\d+\.\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    #[regex(r"(-?\d+\.\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
     DecimalNumber(Decimal),
 
     #[token("=")]
@@ -54,6 +54,9 @@ pub enum Token {
     #[token("amount")]
     Amount,
 
+    #[token("power")]
+    Power,
+
     #[token("time")]
     Time,
 }
@@ -75,6 +78,8 @@ pub struct AsteroidMiningData {
 
     pub costs: Vec<GoodConsumes>,
     pub produces: Vec<GoodConsumes>,
+
+    pub power: Decimal,
     pub time: u8,
 }
 
@@ -85,6 +90,7 @@ pub enum Field {
     Consumes(Vec<GoodConsumes>),
     Produces(Vec<GoodConsumes>),
     Time(u8),
+    Power(Decimal),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
