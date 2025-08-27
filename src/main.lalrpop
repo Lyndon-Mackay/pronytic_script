@@ -7,14 +7,15 @@ extern {
     type Error = String;
 
     enum Token {
+        "asteroid_mining" => Token::AsteroidMining,
+        "augmentations" => Token::Augmentations,
         "buildings" => Token::Buildings,
         "goods" => Token::Goods,
-        "tech" => Token::Tech,
+        "orbital" => Token::Orbital,
         "planet_types" => Token::PlanetTypes,
         "specie_traits" => Token::SpecieTraits,
-        "augmentations" => Token::Augmentations,
+        "tech" => Token::Tech,
         "shipyard" => Token::Shipyard,
-        "asteroid_mining" => Token::AsteroidMining,
         "section_contents" => Token::SectionContents(<String>),
     }
     
@@ -25,12 +26,13 @@ pub Sections:Vec<Section> = {
 }
 
 section:Section = {
+    "asteroid_mining" <s:"section_contents"> => Section::AsteroidMining(s),
+    "augmentations" <s:"section_contents"> => Section::Augmentations(s),
     "buildings" <s:"section_contents"> => Section::Buildings(s),
     "goods" <s:"section_contents"> => Section::Goods(s),
-    "tech" <s:"section_contents"> => Section::Tech(s),
+    "orbital" <s:"section_contents"> => Section::Orbital(s),
     "planet_types" <s:"section_contents"> => Section::PlanetTypes(s),
     "specie_traits" <s:"section_contents"> => Section::SpecieTraits(s),
-    "augmentations" <s:"section_contents"> => Section::Augmentations(s),
     "shipyard" <s:"section_contents"> => Section::Shipyard(s),
-    "asteroid_mining" <s:"section_contents"> => Section::AsteroidMining(s),
+    "tech" <s:"section_contents"> => Section::Tech(s),
 }

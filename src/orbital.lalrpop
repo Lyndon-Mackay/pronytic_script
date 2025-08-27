@@ -1,15 +1,15 @@
 use rust_decimal::Decimal;
 
-use crate::shipyard::{Field,ShipyardData,Token};
+use crate::orbital::{Field,OrbitalData,Token};
 
 use crate::common::GoodConsumes;
 
 grammar;
-
 extern {
     type Location = usize;
     type Error = String;
 
+    
     enum Token{
         "string" => Token::String(<String>),
         "number" => Token::Number(<u8>),
@@ -34,41 +34,39 @@ extern {
         "consumes" => Token::Consumes,
 
         "time" => Token::Time,
-        
+        "building_limit" => Token::BuildingLimit,
     }
+
 }
 
-pub ShipyardData:Vec<ShipyardData> = {
-    <list:ShipyardDatum*> => list,
+pub OrbitalData:Vec<OrbitalData> = {
+    <list:OrbitalDatum*> => list,
 }
 
-ShipyardDatum:ShipyardData = {
-    <level:"number"> "=" "{" <fields:ShipyardField*> "}" => {
-        let mut shipyard = ShipyardData::default();
-        shipyard.level = level;
-        for f in fields{
+OrbitalDatum:OrbitalData = {
+    <level:"number"> "=" "{" <fields:OrbitalField*> "}" => {
+        let mut orbital = OrbitalData::default();
+        orbital.level = level;
+        for f in fields {
             match f {
-                Field::Name(n) => shipyard.name = n,
-                Field::AssetLocation(a) => shipyard.asset_location = a,
-                Field::Consumes(c) => shipyard.costs = c,
-                Field::Time(t) => shipyard.time = t,
+                Field::Name(n) => orbital.name = n,
+                Field::AssetLocation(a) => orbital.asset_location = a,
+                Field::Consumes(c) => orbital.costs = c,
+                Field::Time(t) => orbital.time = t,
+                Field::BuildingLimit(l) => orbital.building_limit = l,
             }
         }
-
-        shipyard
-        
+        orbital
     }
 }
 
-
-ShipyardField:Field ={
+OrbitalField:Field ={
     <n:Name> => Field::Name(n),
     <a:AssetLocation> => Field::AssetLocation(a),
     <c:GoodConsumes> => Field::Consumes(c),
     <t:Time> => Field::Time(t),
+    <l:BuildingLimit> => Field::BuildingLimit(l),
 }
-
-
 Name:String = {
     "name" "=" <s:"string"> => s,
 }
@@ -79,6 +77,10 @@ AssetLocation:String = {
 
 Time:u8 = {
     "time" "=" <t:"number"> => t,
+}
+
+BuildingLimit:u8 = {
+    "building_limit" "=" <l:"number"> => l,
 }
 
 GoodConsumes:Vec<GoodConsumes> = {
@@ -93,4 +95,6 @@ GoodConsume:GoodConsumes = {
         }
     }
 }
+
+
 

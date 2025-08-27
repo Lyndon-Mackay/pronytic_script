@@ -17,6 +17,7 @@ use logos::{self, Logos};
 use crate::{
     asteroid_mining::{AsteroidMiningData, parse_asteroid_mining},
     augmentations::{AugmentationData, parse_augmentations},
+    orbital::{OrbitalData, parse_orbital},
     shipyard::{ShipyardData, parse_shipyard},
     species_trait::{SpeciesTraitData, parse_species_traits},
 };
@@ -26,6 +27,7 @@ pub mod augmentations;
 pub mod building;
 pub mod common;
 pub mod goods;
+pub mod orbital;
 pub mod planet_types;
 pub mod shipyard;
 pub mod species_trait;
@@ -76,12 +78,14 @@ impl From<ParseIntError> for LexicalError {
 }
 
 ///This is the stored results from a given string of data
+///typically a file
 #[derive(Clone, Default, Debug)]
 pub struct ParseData {
     pub asteroid_mining: Vec<AsteroidMiningData>,
     pub augmentations: Vec<AugmentationData>,
     pub building_data: Vec<BuildingData>,
     pub goods_data: Vec<GoodData>,
+    pub orbital_data: Vec<OrbitalData>,
     pub planet_type_data: Vec<PlanetTypeData>,
     pub tech_data: Vec<TechData>,
     pub species_trait: Vec<SpeciesTraitData>,
@@ -91,15 +95,29 @@ pub struct ParseData {
 impl ParseData {
     ///As a parsedata (generally) represents one file worth of results
     ///this is an easy way to combine them
-    pub fn combine(&mut self, mut other: ParseData) {
-        self.augmentations.append(&mut other.augmentations);
-        self.asteroid_mining.append(&mut other.asteroid_mining);
-        self.building_data.append(&mut other.building_data);
-        self.goods_data.append(&mut other.goods_data);
-        self.planet_type_data.append(&mut other.planet_type_data);
-        self.species_trait.append(&mut other.species_trait);
-        self.shipyard.append(&mut other.shipyard);
-        self.tech_data.append(&mut other.tech_data);
+    pub fn combine(
+        &mut self,
+        Self {
+            mut asteroid_mining,
+            mut augmentations,
+            mut building_data,
+            mut goods_data,
+            mut orbital_data,
+            mut planet_type_data,
+            mut tech_data,
+            mut species_trait,
+            mut shipyard,
+        }: Self,
+    ) {
+        self.augmentations.append(&mut augmentations);
+        self.asteroid_mining.append(&mut asteroid_mining);
+        self.building_data.append(&mut building_data);
+        self.goods_data.append(&mut goods_data);
+        self.orbital_data.append(&mut orbital_data);
+        self.planet_type_data.append(&mut planet_type_data);
+        self.species_trait.append(&mut species_trait);
+        self.shipyard.append(&mut shipyard);
+        self.tech_data.append(&mut tech_data);
     }
 }
 
@@ -126,6 +144,9 @@ pub enum Token {
     #[token("#asteroid_mining")]
     AsteroidMining,
 
+    #[token("#orbital")]
+    Orbital,
+
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),
 }
@@ -143,10 +164,11 @@ pub enum Section {
     Augmentations(String),
     Buildings(String),
     Goods(String),
-    Tech(String),
+    Orbital(String),
     PlanetTypes(String),
     SpecieTraits(String),
     Shipyard(String),
+    Tech(String),
 }
 
 fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
@@ -199,6 +221,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                     Section::Tech(t) => parse_data
                         .tech_data
                         .append(&mut parse_tech_section(file_name, &t)),
+                    Section::Orbital(o) => parse_data
+                        .orbital_data
+                        .append(&mut parse_orbital(file_name, &o)),
                     Section::PlanetTypes(t) => parse_data
                         .planet_type_data
                         .append(&mut parse_planet_types_section(file_name, &t)),
@@ -275,3 +300,5 @@ fn handle_lexical_errors(
         }
     }
 }
+
+//TODO test the combine opetation
