@@ -5,6 +5,7 @@ use crate::orbital::{Field,OrbitalData,Token};
 use crate::common::GoodConsumes;
 
 grammar;
+
 extern {
     type Location = usize;
     type Error = String;

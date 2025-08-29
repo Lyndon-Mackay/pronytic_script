@@ -20,6 +20,7 @@ use crate::{
     orbital::{OrbitalData, parse_orbital},
     shipyard::{ShipyardData, parse_shipyard},
     species_trait::{SpeciesTraitData, parse_species_traits},
+    stapledon_swarm::{StapledonSwarmData, parse_stapledon},
 };
 
 pub mod asteroid_mining;
@@ -31,6 +32,7 @@ pub mod orbital;
 pub mod planet_types;
 pub mod shipyard;
 pub mod species_trait;
+pub mod stapledon_swarm;
 pub mod tech;
 
 /// Placeholder for better syntax errors
@@ -99,9 +101,10 @@ create_parse_data!({
     pub goods_data: Vec<GoodData>,
     pub orbital_data: Vec<OrbitalData>,
     pub planet_type_data: Vec<PlanetTypeData>,
-    pub tech_data: Vec<TechData>,
     pub species_trait: Vec<SpeciesTraitData>,
-    pub shipyard: Vec<ShipyardData>
+    pub shipyard: Vec<ShipyardData>,
+    pub stapledon:Vec<StapledonSwarmData>,
+    pub tech_data: Vec<TechData>,
 });
 
 #[derive(Logos, Clone, Debug, PartialEq)]
@@ -130,6 +133,9 @@ pub enum Token {
     #[token("#orbital")]
     Orbital,
 
+    #[token("#stapledon_swarm")]
+    Stapledon,
+
     #[regex(r#"[^#]+"#, |lex| lex.slice().trim_matches('"').to_string())]
     SectionContents(String),
 }
@@ -151,6 +157,7 @@ pub enum Section {
     PlanetTypes(String),
     SpecieTraits(String),
     Shipyard(String),
+    Stapledon(String),
     Tech(String),
 }
 
@@ -218,6 +225,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                             .shipyard
                             .append(&mut parse_shipyard(file_name, &s));
                     }
+                    Section::Stapledon(s) => parse_data
+                        .stapledon
+                        .append(&mut parse_stapledon(file_name, &s)),
                 }
             }
         }
