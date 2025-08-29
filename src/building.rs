@@ -5,7 +5,7 @@ use rust_decimal::prelude::*;
 use lalrpop_util::lalrpop_mod;
 use miette::NamedSource;
 
-use crate::{LexicalError, SyntaxError, handle_lexical_errors};
+use crate::{LexicalError, SyntaxError, lex};
 use logos::{self, Logos};
 
 #[derive(Clone, Debug, Default)]
@@ -256,28 +256,8 @@ pub enum StationField {
     Path(String),
 }
 
-fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
-    let mut lex = Token::lexer(input);
-    let mut tokens = Vec::new();
-    while let Some(tok) = lex.next() {
-        let token = match tok {
-            Ok(t) => t,
-            Err(e) => match e {
-                LexicalError::InvalidInteger(..) => todo!(),
-                LexicalError::InvalidToken => {
-                    let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
-
-                    handle_lexical_errors(file_name, e, input, last);
-                }
-            },
-        };
-        let span = lex.span();
-        tokens.push((span.start, token, span.end));
-    }
-    tokens
-}
 pub(super) fn parse_buildings_section(file_name: &str, input: &str) -> Vec<BuildingData> {
-    let tokens = lex(file_name, input);
+    let tokens = lex::<Token>(file_name, input);
     let buildings_parse = buildings::BuildingsParser::new().parse(tokens);
     match buildings_parse {
         Ok(b) => b,

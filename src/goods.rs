@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 
 use logos::{self, Logos};
 
-use crate::{LexicalError, SyntaxError, handle_lexical_errors};
+use crate::{LexicalError, SyntaxError, lex};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -177,28 +177,8 @@ pub enum SurvivalField {
     LackServicePenalty(Decimal),
 }
 
-fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
-    let mut lex = Token::lexer(input);
-    let mut tokens = Vec::new();
-    while let Some(tok) = lex.next() {
-        let token = match tok {
-            Ok(t) => t,
-            Err(e) => match e {
-                LexicalError::InvalidInteger(_parse_int_error) => todo!(),
-                LexicalError::InvalidToken => {
-                    let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
-                    handle_lexical_errors(file_name, e, input, last);
-                }
-            },
-        };
-        let span = lex.span();
-        tokens.push((span.start, token, span.end));
-    }
-    tokens
-}
-
 pub(super) fn parse_goods_section(file_name: &str, input: &str) -> Vec<GoodData> {
-    let tokens = lex(file_name, input);
+    let tokens = lex::<Token>(file_name, input);
     let goods_parse = goods::GoodsParser::new().parse(tokens);
 
     match goods_parse {

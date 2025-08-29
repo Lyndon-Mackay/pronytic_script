@@ -1,0 +1,117 @@
+
+use rust_decimal::Decimal;
+use crate::stapledon_swarm::{Field,StapledonSwarmData,Token};
+
+use crate::common::GoodConsumes;
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum Token {
+        "string" => Token::String(<String>),
+        "number" => Token::Number(<u8>),
+        "decimal_number" => Token::DecimalNumber(<Decimal>),
+
+        
+        "=" => Token::Equal,
+        ":" => Token::Colon,
+
+        "{" => Token::LeftCurly,
+        "}" => Token::RightCurly,
+
+        "[" => Token::LeftSquare,
+        "]" => Token::RightSquare,
+
+        "name" => Token::Name,
+
+        "swarm_asset" => Token::SwarmAsset,
+        "receiver_asset" => Token::ReceiverAsset,
+
+        
+        "good_id" => Token::GoodId,
+
+        "amount" => Token::Amount,
+        
+        "consumes" => Token::Consumes,
+        "upkeep" => Token::Upkeep,
+
+        
+        "time" => Token::Time,
+        "power" => Token::Power,
+    }
+    
+}
+
+pub StapledonData:Vec<StapledonSwarmData> = {
+    <list:StapledonDatum*> =>list,
+}
+
+StapledonDatum:StapledonSwarmData = {
+    <level:"number">  "=" "{" <fields:StapledonField*> "}" =>{
+        let mut stapledon = StapledonSwarmData::default();
+        stapledon.level = level;
+        for f in fields {
+            match f {
+                Field::Name(n) => stapledon.name = n,
+                Field::SwarmAsset(a) => stapledon.swarm_asset = a,
+                Field::ReceiverAsset(a) => stapledon.receiver_asset = a,
+                Field::Cost(c) => stapledon.costs = c,
+                Field::Upkeep(c) => stapledon.upkeep = c,
+                Field::Time(t) => stapledon.time = t,
+                Field::Power(p) => stapledon.power = p,
+            }
+        }
+        stapledon
+    }
+}
+
+StapledonField:Field = {
+    <n:Name> => Field::Name(n),
+    <a:SwarmAsset> => Field::SwarmAsset(a),
+    <a:ReceiverAsset> => Field::ReceiverAsset(a),
+    <c:GoodConsumes> => Field::Cost(c),
+    <c:GoodUpkeep> => Field::Upkeep(c),
+    <p:Power> => Field::Power(p),
+    <t:Time> => Field::Time(t),
+}
+
+Name:String = {
+    "name" "=" <s:"string"> => s,
+}
+
+Time:u8 = {
+    "time" "=" <t:"number"> => t,
+}
+
+Power:Decimal = {
+    "power" "=" <p:"decimal_number"> => p,
+}
+
+SwarmAsset:String = {
+    "swarm_asset" "=" <s:"string"> => s,
+}
+
+ReceiverAsset:String = {
+    "receiver_asset" "=" <s:"string"> => s,
+}
+
+GoodConsumes:Vec<GoodConsumes> = {
+    "consumes" "=" "[" <c:GoodConsume*> "]" =>c,
+}
+
+GoodUpkeep:Vec<GoodConsumes> = {
+    "upkeep" "=" "[" <c:GoodConsume*> "]" =>c,
+}
+
+
+GoodConsume:GoodConsumes = {
+    "{" "good_id" ":" <id:"string"> "amount" ":" <n:"decimal_number"> "}" => {
+        GoodConsumes {
+            id,
+            amount:n,
+        }
+    }
+}

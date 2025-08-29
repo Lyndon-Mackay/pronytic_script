@@ -5,7 +5,7 @@ use rust_decimal::prelude::*;
 use lalrpop_util::lalrpop_mod;
 use logos::{self, Logos};
 
-use crate::{LexicalError, SyntaxError, common::GoodConsumes, handle_lexical_errors};
+use crate::{LexicalError, SyntaxError, common::GoodConsumes, lex};
 use miette::NamedSource;
 
 //TODO! this number tokenising is inconsistent with other token types I should change the others to split decimal numbers as consistently
@@ -93,29 +93,8 @@ pub enum Field {
     Power(Decimal),
 }
 
-fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
-    let mut lex = Token::lexer(input);
-    let mut tokens = Vec::new();
-    while let Some(tok) = lex.next() {
-        let token = match tok {
-            Ok(t) => t,
-            Err(e) => match e {
-                LexicalError::InvalidInteger(_parse_int_error) => todo!(),
-                LexicalError::InvalidToken => {
-                    let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
-
-                    handle_lexical_errors(file_name, e, input, last);
-                }
-            },
-        };
-        let span = lex.span();
-        tokens.push((span.start, token, span.end));
-    }
-    tokens
-}
-
 pub(super) fn parse_asteroid_mining(file_name: &str, input: &str) -> Vec<AsteroidMiningData> {
-    let tokens = lex(file_name, input);
+    let tokens = lex::<Token>(file_name, input);
     let shipyard_parse = asteroid_mining::AsteroidMiningDataParser::new().parse(tokens);
     match shipyard_parse {
         Ok(list) => list,

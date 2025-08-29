@@ -1,4 +1,4 @@
-use std::{fmt, num::ParseIntError};
+use std::fmt;
 
 use building::{BuildingData, parse_buildings_section};
 use goods::{GoodData, parse_goods_section};
@@ -68,15 +68,8 @@ struct TokenErrorReport {
 
 #[derive(Default, Debug, Clone, PartialEq)]
 pub enum LexicalError {
-    InvalidInteger(ParseIntError),
     #[default]
     InvalidToken,
-}
-
-impl From<ParseIntError> for LexicalError {
-    fn from(err: ParseIntError) -> Self {
-        LexicalError::InvalidInteger(err)
-    }
 }
 
 macro_rules! create_parse_data {
@@ -161,22 +154,21 @@ pub enum Section {
     Tech(String),
 }
 
-fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
-    let mut lex = Token::lexer(input);
+fn lex<'s, T>(file_name: &str, input: &'s str) -> Vec<(usize, T, usize)>
+where
+    T: Logos<'s, Source = str, Error = LexicalError>,
+    T::Extras: Default,
+{
+    let mut lex = T::lexer(input);
     let mut tokens = Vec::new();
     while let Some(tok) = lex.next() {
         let token = match tok {
             Ok(t) => t,
             Err(e) => match e {
-                LexicalError::InvalidInteger(_parse_int_error) => todo!(),
                 LexicalError::InvalidToken => {
                     let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
-                    let problem = TokenErrorReport {
-                        src: NamedSource::new(file_name, input.to_string()),
-                        bad_bit: (last).into(),
-                        advice: Some("Main token".to_string()),
-                    };
-                    panic!("{:?}", miette::Error::new(problem));
+
+                    handle_lexical_errors(file_name, e, input, last);
                 }
             },
         };
@@ -187,7 +179,7 @@ fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
 }
 
 pub fn parse(file_name: &str, contents: &str) -> ParseData {
-    let tokens = lex(file_name, contents);
+    let tokens = lex::<Token>(file_name, contents);
 
     let main_parse = main::SectionsParser::new().parse(tokens);
     let mut parse_data = ParseData::default();
@@ -269,8 +261,6 @@ fn handle_lexical_errors(
     // cannot be done in const context as macros require string
     let skip_texts: [&str; 2] = [r"//[^\n\r]*", r"[\s\t\f]+"];
     match lexical_error {
-        //I have never come across this error, when I do I will figure how to present this error
-        LexicalError::InvalidInteger(..) => todo!(),
         LexicalError::InvalidToken => {
             let regexes = skip_texts
                 .into_iter()
@@ -293,5 +283,3 @@ fn handle_lexical_errors(
         }
     }
 }
-
-//TODO test the combine opetation

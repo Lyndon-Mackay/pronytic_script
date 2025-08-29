@@ -6,7 +6,7 @@ use rust_decimal::Decimal;
 
 use logos::Logos;
 
-use crate::{LexicalError, SyntaxError, common::GoodConsumes, handle_lexical_errors};
+use crate::{LexicalError, SyntaxError, common::GoodConsumes, lex};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -84,29 +84,8 @@ pub enum Field {
     Effects(Vec<Effect>),
 }
 
-fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
-    let mut lex = Token::lexer(input);
-    let mut tokens = Vec::new();
-    while let Some(tok) = lex.next() {
-        let token = match tok {
-            Ok(t) => t,
-            Err(e) => match e {
-                LexicalError::InvalidInteger(_parse_int_error) => todo!(),
-                LexicalError::InvalidToken => {
-                    let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
-
-                    handle_lexical_errors(file_name, e, input, last);
-                }
-            },
-        };
-        let span = lex.span();
-        tokens.push((span.start, token, span.end));
-    }
-    tokens
-}
-
 pub(super) fn parse_species_traits(file_name: &str, input: &str) -> Vec<SpeciesTraitData> {
-    let tokens = lex(file_name, input);
+    let tokens = lex::<Token>(file_name, input);
     let species_trait_parse = species_trait::SpeciesTraitsParser::new().parse(tokens);
     match species_trait_parse {
         Ok(list) => list,

@@ -5,7 +5,7 @@ use lalrpop_util::lalrpop_mod;
 use logos::{self, Logos};
 use miette::NamedSource;
 
-use crate::{LexicalError, SyntaxError, handle_lexical_errors};
+use crate::{LexicalError, SyntaxError, lex};
 
 #[derive(Clone, Debug, Default)]
 pub struct TechData {
@@ -45,28 +45,9 @@ pub enum Field {
 }
 
 lalrpop_mod!(pub tech);
-fn lex(file_name: &str, input: &str) -> Vec<(usize, Token, usize)> {
-    let mut lex = Token::lexer(input);
-    let mut tokens = Vec::new();
-    while let Some(tok) = lex.next() {
-        let token = match tok {
-            Ok(t) => t,
-            Err(e) => match e {
-                LexicalError::InvalidInteger(..) => todo!(),
-                LexicalError::InvalidToken => {
-                    let last: usize = tokens.last().map(|(_, _, x)| *x).unwrap_or_default();
-                    handle_lexical_errors(file_name, e, input, last);
-                }
-            },
-        };
-        let span = lex.span();
-        tokens.push((span.start, token, span.end));
-    }
-    tokens
-}
 
 pub(super) fn parse_tech_section(file_name: &str, input: &str) -> Vec<TechData> {
-    let tokens = lex(file_name, input);
+    let tokens = lex::<Token>(file_name, input);
     let tech_parse = tech::TechsParser::new().parse(tokens);
     match tech_parse {
         Ok(t) => t,

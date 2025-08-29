@@ -1,10 +1,9 @@
-use std::{fmt, str::FromStr};
+use std::fmt;
 
 use lalrpop_util::lalrpop_mod;
-use logos::{self, Logos};
-use rust_decimal::prelude::*;
-
+use logos::Logos;
 use miette::NamedSource;
+use rust_decimal::prelude::*;
 
 use crate::{LexicalError, SyntaxError, common::GoodConsumes, lex};
 
@@ -18,7 +17,7 @@ pub enum Token {
     #[regex(r"(\d+)", |lex|lex.slice().parse::<u8>().expect("parsing u8"), priority = 5)]
     Number(u8),
 
-    #[regex(r"(\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    #[regex(r"(-?\d+\.\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
     DecimalNumber(Decimal),
 
     #[token("=")]
@@ -38,20 +37,26 @@ pub enum Token {
 
     #[token("name")]
     Name,
-    #[token("asset_location")]
-    AssetLocation,
+
+    #[token("swarm_asset")]
+    SwarmAsset,
+    #[token("receiver_asset")]
+    ReceiverAsset,
 
     #[token("consumes")]
     Consumes,
+    #[token("upkeep")]
+    Upkeep,
     #[token("good_id")]
     GoodId,
     #[token("amount")]
     Amount,
 
+    #[token("power")]
+    Power,
+
     #[token("time")]
     Time,
-    #[token("building_limit")]
-    BuildingLimit,
 }
 
 impl fmt::Display for Token {
@@ -60,30 +65,36 @@ impl fmt::Display for Token {
     }
 }
 
-lalrpop_mod!(pub orbital);
+lalrpop_mod!(pub stapledon_swarm);
+
 #[derive(Clone, Default, Debug)]
-pub struct OrbitalData {
+pub struct StapledonSwarmData {
     pub level: u8,
     pub name: String,
-    pub asset_location: String,
+
+    pub swarm_asset: String,
+    pub receiver_asset: String,
+
+    pub power: Decimal,
+    pub time: u8,
 
     pub costs: Vec<GoodConsumes>,
-
-    pub time: u8,
-    pub building_limit: u8,
+    pub upkeep: Vec<GoodConsumes>,
 }
 
 pub enum Field {
     Name(String),
-    AssetLocation(String),
-    Consumes(Vec<GoodConsumes>),
+    SwarmAsset(String),
+    ReceiverAsset(String),
+    Cost(Vec<GoodConsumes>),
+    Upkeep(Vec<GoodConsumes>),
     Time(u8),
-    BuildingLimit(u8),
+    Power(Decimal),
 }
 
-pub(super) fn parse_orbital(file_name: &str, input: &str) -> Vec<OrbitalData> {
+pub(super) fn parse_stapledon(file_name: &str, input: &str) -> Vec<StapledonSwarmData> {
     let tokens = lex::<Token>(file_name, input);
-    let orbital_parse = orbital::OrbitalDataParser::new().parse(tokens);
+    let orbital_parse = stapledon_swarm::StapledonDataParser::new().parse(tokens);
     match orbital_parse {
         Ok(list) => list,
         Err(e) => match e {
