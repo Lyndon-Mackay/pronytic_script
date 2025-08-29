@@ -77,10 +77,22 @@ impl From<ParseIntError> for LexicalError {
     }
 }
 
-///This is the stored results from a given string of data
-///typically a file
-#[derive(Clone, Default, Debug)]
-pub struct ParseData {
+macro_rules! create_parse_data {
+  ({ $( pub $field:ident : $ty:ty ),* $(,)? }) => {
+    ///This is the stored results from a given string of data
+    ///typically a file
+    #[derive(Clone, Default, Debug)]
+    pub struct ParseData { $( pub $field: $ty, )* }
+
+    impl ParseData {
+       pub fn combine(&mut self, mut other: ParseData) {
+          $( self.$field.append(&mut other.$field); )*
+       }
+    }
+  }
+}
+
+create_parse_data!({
     pub asteroid_mining: Vec<AsteroidMiningData>,
     pub augmentations: Vec<AugmentationData>,
     pub building_data: Vec<BuildingData>,
@@ -89,37 +101,8 @@ pub struct ParseData {
     pub planet_type_data: Vec<PlanetTypeData>,
     pub tech_data: Vec<TechData>,
     pub species_trait: Vec<SpeciesTraitData>,
-    pub shipyard: Vec<ShipyardData>,
-}
-
-impl ParseData {
-    ///As a parsedata (generally) represents one file worth of results
-    ///this is an easy way to combine them
-    pub fn combine(
-        &mut self,
-        Self {
-            mut asteroid_mining,
-            mut augmentations,
-            mut building_data,
-            mut goods_data,
-            mut orbital_data,
-            mut planet_type_data,
-            mut tech_data,
-            mut species_trait,
-            mut shipyard,
-        }: Self,
-    ) {
-        self.augmentations.append(&mut augmentations);
-        self.asteroid_mining.append(&mut asteroid_mining);
-        self.building_data.append(&mut building_data);
-        self.goods_data.append(&mut goods_data);
-        self.orbital_data.append(&mut orbital_data);
-        self.planet_type_data.append(&mut planet_type_data);
-        self.species_trait.append(&mut species_trait);
-        self.shipyard.append(&mut shipyard);
-        self.tech_data.append(&mut tech_data);
-    }
-}
+    pub shipyard: Vec<ShipyardData>
+});
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(error=LexicalError)]
