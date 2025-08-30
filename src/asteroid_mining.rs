@@ -2,11 +2,13 @@ use std::fmt;
 
 use rust_decimal::prelude::*;
 
-use lalrpop_util::lalrpop_mod;
+use lalrpop_util::{ParseError, lalrpop_mod};
 use logos::{self, Logos};
 
-use crate::{LexicalError, SyntaxError, common::GoodConsumes, lex};
-use miette::NamedSource;
+use crate::{
+    LexicalError,
+    common::{DataParser, GoodConsumes},
+};
 
 //TODO! this number tokenising is inconsistent with other token types I should change the others to split decimal numbers as consistently
 #[derive(Logos, Clone, Debug, PartialEq)]
@@ -83,6 +85,14 @@ pub struct AsteroidMiningData {
     pub time: u8,
 }
 
+impl<'s> DataParser<'s, Token, AsteroidMiningData> for AsteroidMiningData {
+    fn parse_tokens(
+        tokens: Vec<(usize, Token, usize)>,
+    ) -> Result<Vec<AsteroidMiningData>, ParseError<usize, Token, String>> {
+        asteroid_mining::AsteroidMiningDataParser::new().parse(tokens)
+    }
+}
+
 pub enum Field {
     Name(String),
     DepotAsset(String),
@@ -91,34 +101,4 @@ pub enum Field {
     Produces(Vec<GoodConsumes>),
     Time(u8),
     Power(Decimal),
-}
-
-pub(super) fn parse_asteroid_mining(file_name: &str, input: &str) -> Vec<AsteroidMiningData> {
-    let tokens = lex::<Token>(file_name, input);
-    let shipyard_parse = asteroid_mining::AsteroidMiningDataParser::new().parse(tokens);
-    match shipyard_parse {
-        Ok(list) => list,
-        Err(e) => match e {
-            lalrpop_util::ParseError::InvalidToken { location } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (location).into(),
-                    advice: Some("Skill issue".to_string()),
-                };
-
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
-            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (token.0, token.2).into(),
-                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
-                };
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
-            lalrpop_util::ParseError::User { .. } => todo!(),
-        },
-    }
 }

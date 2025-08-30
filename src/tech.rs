@@ -3,9 +3,8 @@ use std::fmt;
 use lalrpop_util::lalrpop_mod;
 
 use logos::{self, Logos};
-use miette::NamedSource;
 
-use crate::{LexicalError, SyntaxError, lex};
+use crate::{LexicalError, common::DataParser};
 
 #[derive(Clone, Debug, Default)]
 pub struct TechData {
@@ -46,32 +45,10 @@ pub enum Field {
 
 lalrpop_mod!(pub tech);
 
-pub(super) fn parse_tech_section(file_name: &str, input: &str) -> Vec<TechData> {
-    let tokens = lex::<Token>(file_name, input);
-    let tech_parse = tech::TechsParser::new().parse(tokens);
-    match tech_parse {
-        Ok(t) => t,
-        Err(e) => match e {
-            lalrpop_util::ParseError::InvalidToken { location } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (location).into(),
-                    advice: Some("Skill issue".to_string()),
-                };
-
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
-            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (token.0, token.2).into(),
-                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
-                };
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
-            lalrpop_util::ParseError::User { .. } => todo!(),
-        },
+impl<'s> DataParser<'s, Token, TechData> for TechData {
+    fn parse_tokens(
+        tokens: Vec<(usize, Token, usize)>,
+    ) -> Result<Vec<TechData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tech::TechsParser::new().parse(tokens)
     }
 }

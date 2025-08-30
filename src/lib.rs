@@ -1,11 +1,11 @@
-use std::fmt;
+use std::fmt::{self, Display};
 
-use building::{BuildingData, parse_buildings_section};
-use goods::{GoodData, parse_goods_section};
+use building::BuildingData;
+use goods::GoodData;
 use lalrpop_util::lalrpop_mod;
-use planet_types::{PlanetTypeData, parse_planet_types_section};
+use planet_types::PlanetTypeData;
 use regex::Regex;
-use tech::{TechData, parse_tech_section};
+use tech::TechData;
 use tracing::*;
 
 use miette::{Diagnostic, NamedSource, SourceSpan};
@@ -15,13 +15,21 @@ use thiserror::Error;
 use logos::{self, Logos};
 
 use crate::{
-    asteroid_mining::{AsteroidMiningData, parse_asteroid_mining},
-    augmentations::{AugmentationData, parse_augmentations},
-    orbital::{OrbitalData, parse_orbital},
-    shipyard::{ShipyardData, parse_shipyard},
-    species_trait::{SpeciesTraitData, parse_species_traits},
-    stapledon_swarm::{StapledonSwarmData, parse_stapledon},
+    asteroid_mining::AsteroidMiningData, augmentations::AugmentationData, common::DataParser,
+    orbital::OrbitalData, shipyard::ShipyardData, species_trait::SpeciesTraitData,
+    stapledon_swarm::StapledonSwarmData,
 };
+
+use asteroid_mining::Token as AsteroidToken;
+use augmentations::Token as AugmentationToken;
+use building::Token as BuildingToken;
+use goods::Token as GoodToken;
+use orbital::Token as OrbitalToken;
+use planet_types::Token as PlanetTypeToken;
+use shipyard::Token as ShipyardToken;
+use species_trait::Token as SpeciesToken;
+use stapledon_swarm::Token as StapledonToken;
+use tech::Token as TechToken;
 
 pub mod asteroid_mining;
 pub mod augmentations;
@@ -87,6 +95,7 @@ macro_rules! create_parse_data {
   }
 }
 
+//TODO trait for each type that does the parser
 create_parse_data!({
     pub asteroid_mining: Vec<AsteroidMiningData>,
     pub augmentations: Vec<AugmentationData>,
@@ -178,6 +187,42 @@ where
     tokens
 }
 
+fn parse_section<'s, Token, Data>(file_name: &'s str, input: &'s str) -> Vec<Data>
+where
+    Data: DataParser<'s, Token, Data>,
+    Token: Logos<'s, Source = str, Error = LexicalError> + Display,
+    Token::Extras: Default,
+{
+    let tokens = lex::<Token>(file_name, input);
+    let data_parse = Data::parse_tokens(tokens);
+
+    match data_parse {
+        Ok(list) => list,
+        Err(e) => match e {
+            lalrpop_util::ParseError::InvalidToken { location } => {
+                let problem = SyntaxError {
+                    src: NamedSource::new(file_name, input.to_string()),
+                    bad_bit: (location).into(),
+                    advice: Some("Skill issue".to_string()),
+                };
+
+                panic!("{:?}", miette::Error::new(problem));
+            }
+            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
+            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
+                let problem = SyntaxError {
+                    src: NamedSource::new(file_name, input.to_string()),
+                    bad_bit: (token.0, token.2).into(),
+                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
+                };
+                panic!("{:?}", miette::Error::new(problem));
+            }
+            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
+            lalrpop_util::ParseError::User { .. } => todo!(),
+        },
+    }
+}
+
 pub fn parse(file_name: &str, contents: &str) -> ParseData {
     let tokens = lex::<Token>(file_name, contents);
 
@@ -188,38 +233,71 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
         Ok(sections) => {
             for s in sections {
                 match s {
-                    Section::AsteroidMining(s) => parse_data
-                        .asteroid_mining
-                        .append(&mut parse_asteroid_mining(file_name, &s)),
-                    Section::Augmentations(s) => parse_data
-                        .augmentations
-                        .append(&mut parse_augmentations(file_name, &s)),
-                    Section::Buildings(b) => parse_data
-                        .building_data
-                        .append(&mut parse_buildings_section(file_name, &b)),
-                    Section::Goods(g) => parse_data
-                        .goods_data
-                        .append(&mut parse_goods_section(file_name, &g)),
-                    Section::Tech(t) => parse_data
-                        .tech_data
-                        .append(&mut parse_tech_section(file_name, &t)),
-                    Section::Orbital(o) => parse_data
-                        .orbital_data
-                        .append(&mut parse_orbital(file_name, &o)),
-                    Section::PlanetTypes(t) => parse_data
-                        .planet_type_data
-                        .append(&mut parse_planet_types_section(file_name, &t)),
-                    Section::SpecieTraits(s) => parse_data
-                        .species_trait
-                        .append(&mut parse_species_traits(file_name, &s)),
-                    Section::Shipyard(s) => {
-                        parse_data
-                            .shipyard
-                            .append(&mut parse_shipyard(file_name, &s));
+                    Section::AsteroidMining(s) => {
+                        parse_data.asteroid_mining.append(&mut parse_section::<
+                            AsteroidToken,
+                            AsteroidMiningData,
+                        >(
+                            file_name, &s
+                        ))
                     }
-                    Section::Stapledon(s) => parse_data
-                        .stapledon
-                        .append(&mut parse_stapledon(file_name, &s)),
+                    Section::Augmentations(s) => {
+                        parse_data.augmentations.append(&mut parse_section::<
+                            AugmentationToken,
+                            AugmentationData,
+                        >(
+                            file_name, &s
+                        ))
+                    }
+                    Section::Buildings(s) => parse_data.building_data.append(&mut parse_section::<
+                        BuildingToken,
+                        BuildingData,
+                    >(
+                        file_name, &s
+                    )),
+                    Section::Goods(s) => {
+                        parse_data
+                            .goods_data
+                            .append(&mut parse_section::<GoodToken, GoodData>(file_name, &s))
+                    }
+                    Section::Orbital(o) => parse_data.orbital_data.append(&mut parse_section::<
+                        OrbitalToken,
+                        OrbitalData,
+                    >(
+                        file_name, &o
+                    )),
+                    Section::PlanetTypes(s) => {
+                        parse_data.planet_type_data.append(&mut parse_section::<
+                            PlanetTypeToken,
+                            PlanetTypeData,
+                        >(
+                            file_name, &s
+                        ))
+                    }
+                    Section::Shipyard(s) => {
+                        parse_data.shipyard.append(
+                            &mut parse_section::<ShipyardToken, ShipyardData>(file_name, &s),
+                        );
+                    }
+                    Section::SpecieTraits(s) => {
+                        parse_data.species_trait.append(&mut parse_section::<
+                            SpeciesToken,
+                            SpeciesTraitData,
+                        >(
+                            file_name, &s
+                        ))
+                    }
+                    Section::Stapledon(s) => parse_data.stapledon.append(&mut parse_section::<
+                        StapledonToken,
+                        StapledonSwarmData,
+                    >(
+                        file_name, &s
+                    )),
+                    Section::Tech(s) => {
+                        parse_data
+                            .tech_data
+                            .append(&mut parse_section::<TechToken, TechData>(file_name, &s))
+                    }
                 }
             }
         }

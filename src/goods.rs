@@ -1,12 +1,11 @@
 use std::{fmt, str::FromStr};
 
 use lalrpop_util::lalrpop_mod;
-use miette::NamedSource;
 use rust_decimal::Decimal;
 
 use logos::{self, Logos};
 
-use crate::{LexicalError, SyntaxError, lex};
+use crate::{LexicalError, common::DataParser};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -177,36 +176,10 @@ pub enum SurvivalField {
     LackServicePenalty(Decimal),
 }
 
-pub(super) fn parse_goods_section(file_name: &str, input: &str) -> Vec<GoodData> {
-    let tokens = lex::<Token>(file_name, input);
-    let goods_parse = goods::GoodsParser::new().parse(tokens);
-
-    match goods_parse {
-        Ok(g) => g,
-        Err(e) => match e {
-            lalrpop_util::ParseError::InvalidToken { location } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (location).into(),
-                    advice: Some("Skill issue".to_string()),
-                };
-
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::UnrecognizedEof {
-                location: _,
-                expected: _,
-            } => todo!(),
-            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (token.0, token.2).into(),
-                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
-                };
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::ExtraToken { token: _ } => todo!(),
-            lalrpop_util::ParseError::User { error: _ } => todo!(),
-        },
+impl<'s> DataParser<'s, Token, GoodData> for GoodData {
+    fn parse_tokens(
+        tokens: Vec<(usize, Token, usize)>,
+    ) -> Result<Vec<GoodData>, lalrpop_util::ParseError<usize, Token, String>> {
+        goods::GoodsParser::new().parse(tokens)
     }
 }

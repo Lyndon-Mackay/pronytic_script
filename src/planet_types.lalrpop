@@ -1,5 +1,5 @@
 use rust_decimal::Decimal;
-use crate::planet_types::{PlanetTypeData,PlanetTypeDataList};
+use crate::planet_types::PlanetTypeData;
 
 use crate::planet_types::{Action,Branch,Condition,Field,
 GoodAbundance, IfCondition ,Token,Value};
@@ -74,10 +74,8 @@ extern {
 }
 
 
-pub PlanetTypeList:PlanetTypeDataList = {
-    <i:TypesItem+> => PlanetTypeDataList  {
-        list:i
-    }
+pub PlanetTypeList:Vec<PlanetTypeData> = {
+    <list:TypesItem*> => list
 }
 
 TypesItem :PlanetTypeData = {

@@ -2,10 +2,12 @@ use std::fmt;
 
 use lalrpop_util::lalrpop_mod;
 use logos::Logos;
-use miette::NamedSource;
 use rust_decimal::prelude::*;
 
-use crate::{LexicalError, SyntaxError, common::GoodConsumes, lex};
+use crate::{
+    LexicalError,
+    common::{DataParser, GoodConsumes},
+};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -92,32 +94,10 @@ pub enum Field {
     Power(Decimal),
 }
 
-pub(super) fn parse_stapledon(file_name: &str, input: &str) -> Vec<StapledonSwarmData> {
-    let tokens = lex::<Token>(file_name, input);
-    let orbital_parse = stapledon_swarm::StapledonDataParser::new().parse(tokens);
-    match orbital_parse {
-        Ok(list) => list,
-        Err(e) => match e {
-            lalrpop_util::ParseError::InvalidToken { location } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (location).into(),
-                    advice: Some("Skill issue".to_string()),
-                };
-
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
-            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (token.0, token.2).into(),
-                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
-                };
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
-            lalrpop_util::ParseError::User { .. } => todo!(),
-        },
+impl<'s> DataParser<'s, Token, StapledonSwarmData> for StapledonSwarmData {
+    fn parse_tokens(
+        tokens: Vec<(usize, Token, usize)>,
+    ) -> Result<Vec<StapledonSwarmData>, lalrpop_util::ParseError<usize, Token, String>> {
+        stapledon_swarm::StapledonDataParser::new().parse(tokens)
     }
 }

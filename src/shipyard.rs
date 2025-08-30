@@ -4,9 +4,10 @@ use lalrpop_util::lalrpop_mod;
 use logos::{self, Logos};
 use rust_decimal::prelude::*;
 
-use miette::NamedSource;
-
-use crate::{LexicalError, SyntaxError, common::GoodConsumes, lex};
+use crate::{
+    LexicalError,
+    common::{DataParser, GoodConsumes},
+};
 
 //TODO! this number tokenising is inconsistent with other token types I should change the others to split decimal numbers as consistently
 #[derive(Logos, Clone, Debug, PartialEq)]
@@ -77,32 +78,10 @@ pub enum Field {
     Time(u8),
 }
 
-pub(super) fn parse_shipyard(file_name: &str, input: &str) -> Vec<ShipyardData> {
-    let tokens = lex::<Token>(file_name, input);
-    let shipyard_parse = shipyard::ShipyardDataParser::new().parse(tokens);
-    match shipyard_parse {
-        Ok(list) => list,
-        Err(e) => match e {
-            lalrpop_util::ParseError::InvalidToken { location } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (location).into(),
-                    advice: Some("Skill issue".to_string()),
-                };
-
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
-            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (token.0, token.2).into(),
-                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
-                };
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
-            lalrpop_util::ParseError::User { .. } => todo!(),
-        },
+impl<'s> DataParser<'s, Token, ShipyardData> for ShipyardData {
+    fn parse_tokens(
+        tokens: Vec<(usize, Token, usize)>,
+    ) -> Result<Vec<ShipyardData>, lalrpop_util::ParseError<usize, Token, String>> {
+        shipyard::ShipyardDataParser::new().parse(tokens)
     }
 }

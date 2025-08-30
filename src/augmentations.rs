@@ -1,11 +1,13 @@
 use std::{fmt, str::FromStr};
 
-use lalrpop_util::lalrpop_mod;
+use lalrpop_util::{ParseError, lalrpop_mod};
 use logos::{self, Logos};
 use rust_decimal::Decimal;
 
-use crate::{LexicalError, SyntaxError, common::GoodConsumes, lex};
-use miette::NamedSource;
+use crate::{
+    LexicalError,
+    common::{DataParser, GoodConsumes},
+};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -89,32 +91,10 @@ pub enum Field {
     Consumes(Vec<GoodConsumes>),
 }
 
-pub(super) fn parse_augmentations(file_name: &str, input: &str) -> Vec<AugmentationData> {
-    let tokens = lex::<Token>(file_name, input);
-    let species_trait_parse = augmentations::AugmentationsParser::new().parse(tokens);
-    match species_trait_parse {
-        Ok(list) => list,
-        Err(e) => match e {
-            lalrpop_util::ParseError::InvalidToken { location } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (location).into(),
-                    advice: Some("Skill issue".to_string()),
-                };
-
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::UnrecognizedEof { .. } => todo!(),
-            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
-                let problem = SyntaxError {
-                    src: NamedSource::new(file_name, input.to_string()),
-                    bad_bit: (token.0, token.2).into(),
-                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
-                };
-                panic!("{:?}", miette::Error::new(problem));
-            }
-            lalrpop_util::ParseError::ExtraToken { .. } => todo!(),
-            lalrpop_util::ParseError::User { .. } => todo!(),
-        },
+impl<'s> DataParser<'s, Token, AugmentationData> for AugmentationData {
+    fn parse_tokens(
+        tokens: Vec<(usize, Token, usize)>,
+    ) -> Result<Vec<AugmentationData>, ParseError<usize, Token, String>> {
+        augmentations::AugmentationsParser::new().parse(tokens)
     }
 }
