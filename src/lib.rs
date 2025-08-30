@@ -197,6 +197,8 @@ where
 
     match data_parse {
         Ok(list) => list,
+        //TODO's are on errors because I have not triggered them and don't know how to
+        // if I come across them I will give them proper implementations
         Err(e) => match e {
             lalrpop_util::ParseError::InvalidToken { location } => {
                 let problem = SyntaxError {
