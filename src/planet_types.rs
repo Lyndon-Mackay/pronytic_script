@@ -10,7 +10,7 @@ use crate::{LexicalError, common::DataParser};
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum PlanetTypeToken {
     #[token("true")]
     True,
     #[token("false")]
@@ -113,7 +113,7 @@ pub enum Token {
     StoredNumber,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for PlanetTypeToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -188,10 +188,10 @@ pub struct PlanetTypeData {
     pub terraform_conditions: Vec<Branch>,
 }
 
-impl<'s> DataParser<'s, Token, PlanetTypeData> for PlanetTypeData {
+impl<'s> DataParser<'s, PlanetTypeToken, PlanetTypeData> for PlanetTypeData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<PlanetTypeData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, PlanetTypeToken, usize)>,
+    ) -> Result<Vec<PlanetTypeData>, lalrpop_util::ParseError<usize, PlanetTypeToken, String>> {
         planet_types::PlanetTypeListParser::new().parse(tokens)
     }
 }

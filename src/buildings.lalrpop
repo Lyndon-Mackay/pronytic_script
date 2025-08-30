@@ -1,4 +1,4 @@
-use crate::building::{AtmosphereImpact,BuildingData,CustomGood,MagnetosphereImpact,Station,StationField,Field,Token};
+use crate::building::{AtmosphereImpact,BuildingData,CustomGood,MagnetosphereImpact,Station,StationField,Field,BuildingToken};
 
 use rust_decimal::prelude::*;
 
@@ -8,55 +8,55 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token {
-        "true" => Token::True,
-        "false" => Token::False,
-        "=" => Token::Equal,
+    enum BuildingToken {
+        "true" => BuildingToken::True,
+        "false" => BuildingToken::False,
+        "=" => BuildingToken::Equal,
 
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
-        "[" => Token::LeftSquare,
-        "]" => Token::RightSquare,
+        "{" => BuildingToken::LeftCurly,
+        "}" => BuildingToken::RightCurly,
+        "[" => BuildingToken::LeftSquare,
+        "]" => BuildingToken::RightSquare,
         
-        "string" => Token::String(<String>),
-        "number" => Token::DecimalNumber(<Decimal>),
-        "negative_number" => Token::NegativeNumber(<Decimal>),
+        "string" => BuildingToken::String(<String>),
+        "number" => BuildingToken::DecimalNumber(<Decimal>),
+        "negative_number" => BuildingToken::NegativeNumber(<Decimal>),
 
-        "id" => Token::Id,
-        "name" => Token::Name,
-        "planet_filters" => Token::PlanetFilters,
-        "initial" => Token::Initial,
-        "unique" => Token::Unique,
-        "energy" => Token::Energy,
+        "id" => BuildingToken::Id,
+        "name" => BuildingToken::Name,
+        "planet_filters" => BuildingToken::PlanetFilters,
+        "initial" => BuildingToken::Initial,
+        "unique" => BuildingToken::Unique,
+        "energy" => BuildingToken::Energy,
 
-        "private_costs" => Token::PrivateCosts,
-        "costs" => Token::Costs,
-        "consumes" => Token::Consumes,
-        "produces" => Token::Produces,
+        "private_costs" => BuildingToken::PrivateCosts,
+        "costs" => BuildingToken::Costs,
+        "consumes" => BuildingToken::Consumes,
+        "produces" => BuildingToken::Produces,
 
-        "housing" => Token::Housing,
-        "workers" => Token::Workers,
+        "housing" => BuildingToken::Housing,
+        "workers" => BuildingToken::Workers,
 
-        "stations" => Token::Stations,
+        "stations" => BuildingToken::Stations,
         
-        "private_sector" => Token::PrivateSector,
-        "magnetosphere_equilibrium" => Token::MagnetosphereEquilibrium,
-        "atmosphere_equilibrium" => Token::AtmosphereEquilibrium,
-        "temperature_change" => Token::TemperatureChange,
-        "water_change" => Token::WaterChange,
-        "breathable_change" => Token::BreathableChange,
-        "tech_needed" => Token::TechNeeded,
-        "upgrades_from" => Token::UpgradesFrom,
-        "prosperity_per_job" => Token::ProsperityPerJob,
+        "private_sector" => BuildingToken::PrivateSector,
+        "magnetosphere_equilibrium" => BuildingToken::MagnetosphereEquilibrium,
+        "atmosphere_equilibrium" => BuildingToken::AtmosphereEquilibrium,
+        "temperature_change" => BuildingToken::TemperatureChange,
+        "water_change" => BuildingToken::WaterChange,
+        "breathable_change" => BuildingToken::BreathableChange,
+        "tech_needed" => BuildingToken::TechNeeded,
+        "upgrades_from" => BuildingToken::UpgradesFrom,
+        "prosperity_per_job" => BuildingToken::ProsperityPerJob,
 
-        "rate" => Token::Rate,
-        "added" => Token::Added,
+        "rate" => BuildingToken::Rate,
+        "added" => BuildingToken::Added,
 
-        "x" => Token::X,
-        "y" => Token::Y,
-        "z" => Token::Z,
-        "scale" => Token::Scale,
-        "path" => Token::Path,
+        "x" => BuildingToken::X,
+        "y" => BuildingToken::Y,
+        "z" => BuildingToken::Z,
+        "scale" => BuildingToken::Scale,
+        "path" => BuildingToken::Path,
     }
 }
 

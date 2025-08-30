@@ -12,7 +12,7 @@ use crate::{
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum OrbitalToken {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -55,7 +55,7 @@ pub enum Token {
     BuildingLimit,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for OrbitalToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -82,10 +82,10 @@ pub enum Field {
     BuildingLimit(u8),
 }
 
-impl<'s> DataParser<'s, Token, OrbitalData> for OrbitalData {
+impl<'s> DataParser<'s, OrbitalToken, OrbitalData> for OrbitalData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<OrbitalData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, OrbitalToken, usize)>,
+    ) -> Result<Vec<OrbitalData>, lalrpop_util::ParseError<usize, OrbitalToken, String>> {
         orbital::OrbitalDataParser::new().parse(tokens)
     }
 }

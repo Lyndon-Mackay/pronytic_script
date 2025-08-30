@@ -1,6 +1,6 @@
 use rust_decimal::Decimal;
 
-use crate::augmentations::{AugmentationData,Effect,Field,Token};
+use crate::augmentations::{AugmentationData,Effect,Field,AugmentationToken};
 
 use crate::common::GoodConsumes;
 
@@ -11,34 +11,34 @@ extern {
     type Location = usize;
     type Error = String;
 
-	enum Token {
-        "string" => Token::String(<String>),
-        "number" => Token::DecimalNumber(<Decimal>),
+	enum AugmentationToken {
+        "string" => AugmentationToken::String(<String>),
+        "number" => AugmentationToken::DecimalNumber(<Decimal>),
 
-        "name" => Token::Name,
-        "icon" => Token::Icon,
+        "name" => AugmentationToken::Name,
+        "icon" => AugmentationToken::Icon,
 
-        "=" => Token::Equal,
-        ":" => Token::Colon,
+        "=" => AugmentationToken::Equal,
+        ":" => AugmentationToken::Colon,
 
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
+        "{" => AugmentationToken::LeftCurly,
+        "}" => AugmentationToken::RightCurly,
 
-        "[" => Token::LeftSquare,
-        "]" => Token::RightSquare,
+        "[" => AugmentationToken::LeftSquare,
+        "]" => AugmentationToken::RightSquare,
 
-        "good_id" => Token::GoodId,
+        "good_id" => AugmentationToken::GoodId,
 
-        "amount" => Token::Amount,
+        "amount" => AugmentationToken::Amount,
         
-        "consumes" => Token::Consumes,
+        "consumes" => AugmentationToken::Consumes,
 
-		"effects" => Token::Effects,
+		"effects" => AugmentationToken::Effects,
 
-		"add_trait" => Token::AddTrait,
-		"remove_trait" => Token::RemoveTrait,
+		"add_trait" => AugmentationToken::AddTrait,
+		"remove_trait" => AugmentationToken::RemoveTrait,
 
-		"star_adapt" => Token::StarAdapt,
+		"star_adapt" => AugmentationToken::StarAdapt,
 	}
 	
 }

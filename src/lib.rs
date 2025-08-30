@@ -20,19 +20,16 @@ use crate::{
     stapledon_swarm::StapledonSwarmData,
 };
 
-//TODO change data name in actual files
-//Need to do in lalrpop so can't do via
-//rust analyzer
-use asteroid_mining::Token as AsteroidToken;
-use augmentations::Token as AugmentationToken;
-use building::Token as BuildingToken;
-use goods::Token as GoodToken;
-use orbital::Token as OrbitalToken;
-use planet_types::Token as PlanetTypeToken;
-use shipyard::Token as ShipyardToken;
-use species_trait::Token as SpeciesToken;
-use stapledon_swarm::Token as StapledonToken;
-use tech::Token as TechToken;
+use asteroid_mining::AsteroidToken;
+use augmentations::AugmentationToken;
+use building::BuildingToken;
+use goods::GoodToken;
+use orbital::OrbitalToken;
+use planet_types::PlanetTypeToken;
+use shipyard::ShipyardToken;
+use species_trait::SpeciesToken;
+use stapledon_swarm::StapledonToken;
+use tech::TechToken;
 
 pub mod asteroid_mining;
 pub mod augmentations;

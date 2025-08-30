@@ -1,6 +1,6 @@
 use rust_decimal::Decimal;
 
-use crate::orbital::{Field,OrbitalData,Token};
+use crate::orbital::{Field,OrbitalData,OrbitalToken};
 
 use crate::common::GoodConsumes;
 
@@ -11,31 +11,31 @@ extern {
     type Error = String;
 
     
-    enum Token{
-        "string" => Token::String(<String>),
-        "number" => Token::Number(<u8>),
-        "decimal_number" => Token::DecimalNumber(<Decimal>),
+    enum OrbitalToken{
+        "string" => OrbitalToken::String(<String>),
+        "number" => OrbitalToken::Number(<u8>),
+        "decimal_number" => OrbitalToken::DecimalNumber(<Decimal>),
 
-        "=" => Token::Equal,
-        ":" => Token::Colon,
+        "=" => OrbitalToken::Equal,
+        ":" => OrbitalToken::Colon,
 
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
+        "{" => OrbitalToken::LeftCurly,
+        "}" => OrbitalToken::RightCurly,
 
-        "[" => Token::LeftSquare,
-        "]" => Token::RightSquare,
+        "[" => OrbitalToken::LeftSquare,
+        "]" => OrbitalToken::RightSquare,
 
-        "name" => Token::Name,
-        "asset_location" => Token::AssetLocation,
+        "name" => OrbitalToken::Name,
+        "asset_location" => OrbitalToken::AssetLocation,
 
-        "good_id" => Token::GoodId,
+        "good_id" => OrbitalToken::GoodId,
 
-        "amount" => Token::Amount,
+        "amount" => OrbitalToken::Amount,
         
-        "consumes" => Token::Consumes,
+        "consumes" => OrbitalToken::Consumes,
 
-        "time" => Token::Time,
-        "building_limit" => Token::BuildingLimit,
+        "time" => OrbitalToken::Time,
+        "building_limit" => OrbitalToken::BuildingLimit,
     }
 
 }

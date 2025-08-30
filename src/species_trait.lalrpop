@@ -1,6 +1,6 @@
 use rust_decimal::Decimal;
 
-use crate::species_trait::{Effect,Field,SpeciesTraitData,Token};
+use crate::species_trait::{Effect,Field,SpeciesTraitData,SpeciesToken};
 use crate::common::GoodConsumes;
 
 
@@ -10,32 +10,32 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token {
-        "string" => Token::String(<String>),
-        "number" => Token::DecimalNumber(<Decimal>),
+    enum SpeciesToken {
+        "string" => SpeciesToken::String(<String>),
+        "number" => SpeciesToken::DecimalNumber(<Decimal>),
 
-        "name" => Token::Name,
-        "icon" => Token::Icon,
+        "name" => SpeciesToken::Name,
+        "icon" => SpeciesToken::Icon,
 
-        "=" => Token::Equal,
-        ":" => Token::Colon,
+        "=" => SpeciesToken::Equal,
+        ":" => SpeciesToken::Colon,
 
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
+        "{" => SpeciesToken::LeftCurly,
+        "}" => SpeciesToken::RightCurly,
 
-        "[" => Token::LeftSquare,
-        "]" => Token::RightSquare,
+        "[" => SpeciesToken::LeftSquare,
+        "]" => SpeciesToken::RightSquare,
 
         
-        "good_id" => Token::GoodId,
+        "good_id" => SpeciesToken::GoodId,
 
-        "amount" => Token::Amount,
+        "amount" => SpeciesToken::Amount,
         
-        "consumes" => Token::Consumes,
+        "consumes" => SpeciesToken::Consumes,
 
-		"effects" => Token::Effects,
+		"effects" => SpeciesToken::Effects,
 
-        "growth_rate" => Token::GrowthRate,
+        "growth_rate" => SpeciesToken::GrowthRate,
     }
 	
 }

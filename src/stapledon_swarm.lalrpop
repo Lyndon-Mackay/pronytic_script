@@ -1,6 +1,6 @@
 
 use rust_decimal::Decimal;
-use crate::stapledon_swarm::{Field,StapledonSwarmData,Token};
+use crate::stapledon_swarm::{Field,StapledonSwarmData,StapledonToken};
 
 use crate::common::GoodConsumes;
 
@@ -10,37 +10,37 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token {
-        "string" => Token::String(<String>),
-        "number" => Token::Number(<u8>),
-        "decimal_number" => Token::DecimalNumber(<Decimal>),
+    enum StapledonToken {
+        "string" => StapledonToken::String(<String>),
+        "number" => StapledonToken::Number(<u8>),
+        "decimal_number" => StapledonToken::DecimalNumber(<Decimal>),
 
         
-        "=" => Token::Equal,
-        ":" => Token::Colon,
+        "=" => StapledonToken::Equal,
+        ":" => StapledonToken::Colon,
 
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
+        "{" => StapledonToken::LeftCurly,
+        "}" => StapledonToken::RightCurly,
 
-        "[" => Token::LeftSquare,
-        "]" => Token::RightSquare,
+        "[" => StapledonToken::LeftSquare,
+        "]" => StapledonToken::RightSquare,
 
-        "name" => Token::Name,
+        "name" => StapledonToken::Name,
 
-        "swarm_asset" => Token::SwarmAsset,
-        "receiver_asset" => Token::ReceiverAsset,
-
-        
-        "good_id" => Token::GoodId,
-
-        "amount" => Token::Amount,
-        
-        "consumes" => Token::Consumes,
-        "upkeep" => Token::Upkeep,
+        "swarm_asset" => StapledonToken::SwarmAsset,
+        "receiver_asset" => StapledonToken::ReceiverAsset,
 
         
-        "time" => Token::Time,
-        "power" => Token::Power,
+        "good_id" => StapledonToken::GoodId,
+
+        "amount" => StapledonToken::Amount,
+        
+        "consumes" => StapledonToken::Consumes,
+        "upkeep" => StapledonToken::Upkeep,
+
+        
+        "time" => StapledonToken::Time,
+        "power" => StapledonToken::Power,
     }
     
 }

@@ -10,7 +10,7 @@ use crate::{LexicalError, common::DataParser};
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum GoodToken {
     #[token("=")]
     Equal,
 
@@ -82,7 +82,7 @@ pub enum Token {
     LackServicePenalty,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for GoodToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -176,10 +176,10 @@ pub enum SurvivalField {
     LackServicePenalty(Decimal),
 }
 
-impl<'s> DataParser<'s, Token, GoodData> for GoodData {
+impl<'s> DataParser<'s, GoodToken, GoodData> for GoodData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<GoodData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, GoodToken, usize)>,
+    ) -> Result<Vec<GoodData>, lalrpop_util::ParseError<usize, GoodToken, String>> {
         goods::GoodsParser::new().parse(tokens)
     }
 }

@@ -1,5 +1,5 @@
 use rust_decimal::Decimal;
-use crate::asteroid_mining::{Field,AsteroidMiningData,Token};
+use crate::asteroid_mining::{Field,AsteroidMiningData,AsteroidToken};
 
 use crate::common::GoodConsumes;
 
@@ -9,34 +9,34 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token{
-        "string" => Token::String(<String>),
-        "number" => Token::Number(<u8>),
-        "decimal_number" => Token::DecimalNumber(<Decimal>),
+    enum AsteroidToken{
+        "string" => AsteroidToken::String(<String>),
+        "number" => AsteroidToken::Number(<u8>),
+        "decimal_number" => AsteroidToken::DecimalNumber(<Decimal>),
 
-        "=" => Token::Equal,
-        ":" => Token::Colon,
+        "=" => AsteroidToken::Equal,
+        ":" => AsteroidToken::Colon,
 
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
+        "{" => AsteroidToken::LeftCurly,
+        "}" => AsteroidToken::RightCurly,
 
-        "[" => Token::LeftSquare,
-        "]" => Token::RightSquare,
+        "[" => AsteroidToken::LeftSquare,
+        "]" => AsteroidToken::RightSquare,
 
-        "name" => Token::Name,
-        "depot_asset" => Token::DepotAsset,
-        "ship_asset" => Token::ShipAsset,
+        "name" => AsteroidToken::Name,
+        "depot_asset" => AsteroidToken::DepotAsset,
+        "ship_asset" => AsteroidToken::ShipAsset,
 
-        "good_id" => Token::GoodId,
+        "good_id" => AsteroidToken::GoodId,
 
-        "amount" => Token::Amount,
+        "amount" => AsteroidToken::Amount,
         
-        "consumes" => Token::Consumes,
-        "produces" => Token::Produces,
+        "consumes" => AsteroidToken::Consumes,
+        "produces" => AsteroidToken::Produces,
 
-        "power" => Token::Power,
+        "power" => AsteroidToken::Power,
 
-        "time" => Token::Time,
+        "time" => AsteroidToken::Time,
         
     }
 }

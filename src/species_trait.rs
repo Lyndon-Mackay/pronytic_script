@@ -13,7 +13,7 @@ use crate::{
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum SpeciesToken {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -56,7 +56,7 @@ pub enum Token {
     GrowthRate,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for SpeciesToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -86,10 +86,10 @@ pub enum Field {
     Effects(Vec<Effect>),
 }
 
-impl<'s> DataParser<'s, Token, SpeciesTraitData> for SpeciesTraitData {
+impl<'s> DataParser<'s, SpeciesToken, SpeciesTraitData> for SpeciesTraitData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<SpeciesTraitData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, SpeciesToken, usize)>,
+    ) -> Result<Vec<SpeciesTraitData>, lalrpop_util::ParseError<usize, SpeciesToken, String>> {
         species_trait::SpeciesTraitsParser::new().parse(tokens)
     }
 }

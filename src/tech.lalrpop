@@ -1,4 +1,4 @@
-use crate::tech::{Field,TechData,Token};
+use crate::tech::{Field,TechData,TechToken};
 
 grammar;
 
@@ -6,13 +6,13 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token {
-        "=" => Token::Equal,
-        "string" => Token::String(<String>),
-        "number" => Token::Number(<u8>),
-        "name" => Token::Name,
-        "time" => Token::Time,
-        "description" => Token::Description
+    enum TechToken {
+        "=" => TechToken::Equal,
+        "string" => TechToken::String(<String>),
+        "number" => TechToken::Number(<u8>),
+        "name" => TechToken::Name,
+        "time" => TechToken::Time,
+        "description" => TechToken::Description
     }
 }
 

@@ -113,7 +113,7 @@ impl Default for BuildingData {
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum BuildingToken {
     #[token("true")]
     True,
     #[token("false")]
@@ -216,7 +216,7 @@ pub enum Token {
     Path,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for BuildingToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -255,10 +255,10 @@ pub enum StationField {
     Path(String),
 }
 
-impl<'s> DataParser<'s, Token, BuildingData> for BuildingData {
+impl<'s> DataParser<'s, BuildingToken, BuildingData> for BuildingData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<BuildingData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, BuildingToken, usize)>,
+    ) -> Result<Vec<BuildingData>, lalrpop_util::ParseError<usize, BuildingToken, String>> {
         buildings::BuildingsParser::new().parse(tokens)
     }
 }

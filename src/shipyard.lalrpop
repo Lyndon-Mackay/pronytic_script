@@ -1,6 +1,6 @@
 use rust_decimal::Decimal;
 
-use crate::shipyard::{Field,ShipyardData,Token};
+use crate::shipyard::{Field,ShipyardData,ShipyardToken};
 
 use crate::common::GoodConsumes;
 
@@ -10,30 +10,30 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token{
-        "string" => Token::String(<String>),
-        "number" => Token::Number(<u8>),
-        "decimal_number" => Token::DecimalNumber(<Decimal>),
+    enum ShipyardToken{
+        "string" => ShipyardToken::String(<String>),
+        "number" => ShipyardToken::Number(<u8>),
+        "decimal_number" => ShipyardToken::DecimalNumber(<Decimal>),
 
-        "=" => Token::Equal,
-        ":" => Token::Colon,
+        "=" => ShipyardToken::Equal,
+        ":" => ShipyardToken::Colon,
 
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
+        "{" => ShipyardToken::LeftCurly,
+        "}" => ShipyardToken::RightCurly,
 
-        "[" => Token::LeftSquare,
-        "]" => Token::RightSquare,
+        "[" => ShipyardToken::LeftSquare,
+        "]" => ShipyardToken::RightSquare,
 
-        "name" => Token::Name,
-        "asset_location" => Token::AssetLocation,
+        "name" => ShipyardToken::Name,
+        "asset_location" => ShipyardToken::AssetLocation,
 
-        "good_id" => Token::GoodId,
+        "good_id" => ShipyardToken::GoodId,
 
-        "amount" => Token::Amount,
+        "amount" => ShipyardToken::Amount,
         
-        "consumes" => Token::Consumes,
+        "consumes" => ShipyardToken::Consumes,
 
-        "time" => Token::Time,
+        "time" => ShipyardToken::Time,
         
     }
 }

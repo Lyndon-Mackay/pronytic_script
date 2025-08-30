@@ -12,7 +12,7 @@ use crate::{
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum AugmentationToken {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -59,7 +59,7 @@ pub enum Token {
     StarAdapt,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for AugmentationToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -91,10 +91,10 @@ pub enum Field {
     Consumes(Vec<GoodConsumes>),
 }
 
-impl<'s> DataParser<'s, Token, AugmentationData> for AugmentationData {
+impl<'s> DataParser<'s, AugmentationToken, AugmentationData> for AugmentationData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<AugmentationData>, ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, AugmentationToken, usize)>,
+    ) -> Result<Vec<AugmentationData>, ParseError<usize, AugmentationToken, String>> {
         augmentations::AugmentationsParser::new().parse(tokens)
     }
 }

@@ -13,7 +13,7 @@ use crate::{
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum ShipyardToken {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -54,7 +54,7 @@ pub enum Token {
     Time,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for ShipyardToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -78,10 +78,10 @@ pub enum Field {
     Time(u8),
 }
 
-impl<'s> DataParser<'s, Token, ShipyardData> for ShipyardData {
+impl<'s> DataParser<'s, ShipyardToken, ShipyardData> for ShipyardData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<ShipyardData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, ShipyardToken, usize)>,
+    ) -> Result<Vec<ShipyardData>, lalrpop_util::ParseError<usize, ShipyardToken, String>> {
         shipyard::ShipyardDataParser::new().parse(tokens)
     }
 }

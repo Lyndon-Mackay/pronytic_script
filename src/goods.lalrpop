@@ -1,4 +1,4 @@
-use crate::goods::{ConsumptionType,Field,GoodData,GoodType,SurvivalConditions,SurvivalField,Token};
+use crate::goods::{ConsumptionType,Field,GoodData,GoodType,SurvivalConditions,SurvivalField,GoodToken};
 use rust_decimal::Decimal;
 
 
@@ -8,38 +8,38 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum Token {
-        "=" => Token::Equal,
-        "{" => Token::LeftCurly,
-        "}" => Token::RightCurly,
-        "string" => Token::String(<String>),
-        "number" => Token::DecimalNumber(<Decimal>),
-        "icon" => Token::Icon,
-        "name" => Token::Name,
-        "buy_value" => Token::BuyValue,
-        "sell_value" => Token::SellValue,
-        "good_type" => Token::GoodType,
-        "public" => Token::Public,
-        "private" => Token::Private,
-        "tender" => Token::Tender,
-        "hardcoded_id" => Token::HardcodedId,
-        "consumption_type" => Token::ConsumptionType,
+    enum GoodToken {
+        "=" => GoodToken::Equal,
+        "{" => GoodToken::LeftCurly,
+        "}" => GoodToken::RightCurly,
+        "string" => GoodToken::String(<String>),
+        "number" => GoodToken::DecimalNumber(<Decimal>),
+        "icon" => GoodToken::Icon,
+        "name" => GoodToken::Name,
+        "buy_value" => GoodToken::BuyValue,
+        "sell_value" => GoodToken::SellValue,
+        "good_type" => GoodToken::GoodType,
+        "public" => GoodToken::Public,
+        "private" => GoodToken::Private,
+        "tender" => GoodToken::Tender,
+        "hardcoded_id" => GoodToken::HardcodedId,
+        "consumption_type" => GoodToken::ConsumptionType,
 
-        "prosperity_bonus" => Token::ProsperityBonus,
-        "prosperity_cost" => Token::ProsperityCost,
+        "prosperity_bonus" => GoodToken::ProsperityBonus,
+        "prosperity_cost" => GoodToken::ProsperityCost,
 
-        "none" => Token::None,
-        "amenity" => Token::Amenity,
-        "survival" => Token::Survival,
-        "essential" => Token::Essential,
+        "none" => GoodToken::None,
+        "amenity" => GoodToken::Amenity,
+        "survival" => GoodToken::Survival,
+        "essential" => GoodToken::Essential,
 
-        "magnetosphere" => Token::Magnetosphere,
-        "atmosphere" => Token::Atmosphere,
-        "temperature" => Token::Temperature,
-        "water" => Token::Water,
-        "breathability" => Token::Breathability,
-        "served_step" => Token::ServedStep,
-        "lack_of_service_penalty" => Token::LackServicePenalty,
+        "magnetosphere" => GoodToken::Magnetosphere,
+        "atmosphere" => GoodToken::Atmosphere,
+        "temperature" => GoodToken::Temperature,
+        "water" => GoodToken::Water,
+        "breathability" => GoodToken::Breathability,
+        "served_step" => GoodToken::ServedStep,
+        "lack_of_service_penalty" => GoodToken::LackServicePenalty,
     }
 }
 

@@ -17,7 +17,7 @@ pub struct TechData {
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
-pub enum Token {
+pub enum TechToken {
     #[token("=")]
     Equal,
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
@@ -32,7 +32,7 @@ pub enum Token {
     Description,
 }
 
-impl fmt::Display for Token {
+impl fmt::Display for TechToken {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{self:?}")
     }
@@ -45,10 +45,10 @@ pub enum Field {
 
 lalrpop_mod!(pub tech);
 
-impl<'s> DataParser<'s, Token, TechData> for TechData {
+impl<'s> DataParser<'s, TechToken, TechData> for TechData {
     fn parse_tokens(
-        tokens: Vec<(usize, Token, usize)>,
-    ) -> Result<Vec<TechData>, lalrpop_util::ParseError<usize, Token, String>> {
+        tokens: Vec<(usize, TechToken, usize)>,
+    ) -> Result<Vec<TechData>, lalrpop_util::ParseError<usize, TechToken, String>> {
         tech::TechsParser::new().parse(tokens)
     }
 }
