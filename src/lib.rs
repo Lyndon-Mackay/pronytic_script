@@ -20,6 +20,9 @@ use crate::{
     stapledon_swarm::StapledonSwarmData,
 };
 
+//TODO change data name in actual files
+//Need to do in lalrpop so can't do via
+//rust analyzer
 use asteroid_mining::Token as AsteroidToken;
 use augmentations::Token as AugmentationToken;
 use building::Token as BuildingToken;
@@ -95,7 +98,6 @@ macro_rules! create_parse_data {
   }
 }
 
-//TODO trait for each type that does the parser
 create_parse_data!({
     pub asteroid_mining: Vec<AsteroidMiningData>,
     pub augmentations: Vec<AugmentationData>,
