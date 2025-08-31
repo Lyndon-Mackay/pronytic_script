@@ -1,4 +1,4 @@
-use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 use crate::orbital::{Field,OrbitalData,OrbitalToken};
 
@@ -10,7 +10,6 @@ extern {
     type Location = usize;
     type Error = String;
 
-    
     enum OrbitalToken{
         "string" => OrbitalToken::String(<String>),
         "number" => OrbitalToken::Number(<u8>),

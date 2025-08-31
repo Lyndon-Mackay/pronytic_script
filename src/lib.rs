@@ -41,6 +41,7 @@ pub mod planet_types;
 pub mod shipyard;
 pub mod species_trait;
 pub mod stapledon_swarm;
+pub mod stellar_system;
 pub mod tech;
 
 /// Placeholder for better syntax errors

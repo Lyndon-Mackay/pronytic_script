@@ -1,0 +1,221 @@
+use crate::stellar_system::{MoonData,MoonField,NaturalResource,PlanetData,PlanetField,StarData,StarField,StellarData,StellarField,StellarObject,StellarToken,Temperature};
+use rust_decimal::prelude::*;
+
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+    
+    enum StellarToken {
+        "true" => StellarToken::True,
+        "false" => StellarToken::False,
+        "string" => StellarToken::String(<String>),
+        "number" => StellarToken::Number(<u16>),
+        "decimal_number" => StellarToken::DecimalNumber(<Decimal>),
+
+        "=" => StellarToken::Equal,
+
+        ":" => StellarToken::Colon,
+        
+        "{" => StellarToken::LeftCurly,
+        "}" => StellarToken::RightCurly,
+
+        "[" => StellarToken::LeftSquare,
+        "]" => StellarToken::RightSquare,
+
+        "name" => StellarToken::Name,
+
+        "surveyed" => StellarToken::Surveyed,
+
+        "star_data" => StellarToken::StarData,
+        "planet_data" => StellarToken::PlanetData,
+        "moon_data" => StellarToken::MoonData,
+        "asteroid_belt" => StellarToken::AsteroidBelt,
+
+        "name" => StellarToken::Name,
+
+        "star_type" => StellarToken::StarType,
+        "planet_type" => StellarToken::PlanetType,
+        "temperature_celsius" => StellarToken::TemperatureCelsius,
+        "temperature_kelvin" => StellarToken::TemperatureKelvin,
+        "water" => StellarToken::Water,
+        "breathability" => StellarToken::Breathability,
+        "magnetosphere" => StellarToken::Magnetosphere,
+        "atmosphere" => StellarToken::Atmosphere,
+
+        "natural_resources" => StellarToken::NaturalResources,
+
+        "good_id" => StellarToken::GoodId,
+        "amount" => StellarToken::Amount,
+
+    }
+}
+
+pub StellarData:Vec<StellarData> = {
+    StellarDatum*
+}
+
+StellarDatum:StellarData = {
+    <id:"number"> "=" "{" <fields:StellarField*> "}" => {
+        let mut stellar_data = StellarData::default();
+        stellar_data.id = id;
+
+        for f in fields {
+            match f {
+                StellarField::StarData(s) => stellar_data.star_data = s,
+                StellarField::Orbiting(o) => stellar_data.orbiting.push(o),
+                StellarField::Surveyed(b) => stellar_data.surveyed = b,
+            }
+        }
+        stellar_data
+    }
+}
+
+StellarField:StellarField = {
+    <s:StarData> => StellarField::StarData(s),
+    <o:Orbiting> => StellarField::Orbiting(o),
+    <s:Surveyed> => StellarField::Surveyed(s),
+}
+
+StarData:StarData = {
+    "star_data" "=" "{" <field:StarField*>  "}" => {
+        let mut star_data = StarData::default();
+        for f in field {
+            match f {
+                StarField::Name(n) => star_data.name = n,
+                StarField::Temperature(t) => star_data.temperature = t,
+                StarField::StarType(s) => star_data.star_type = s,
+            }
+        }
+        star_data
+    }
+}
+
+StarField:StarField = {
+    <n:Name> => StarField::Name(n),
+    <t:Temperature> => StarField::Temperature(t),
+    <s:StarType> => StarField::StarType(s),
+}
+
+Orbiting:StellarObject = {
+    <p:Planet> => StellarObject::PlanetData(p),
+    "asteroid_belt" => StellarObject::AsteroidBelt,
+}
+
+
+Planet:PlanetData = {
+    "planet_data" "=" "{" <fields:PlanetField*>  "}" => {
+        let mut planet_data = PlanetData::default();
+        for f in fields {
+            match f  {
+                PlanetField::Name(n) => planet_data.name = n,
+                PlanetField::PlanetType(p) => planet_data.planet_type = p,
+                PlanetField::Magnetosphere(m) => planet_data.magnetosphere = m,
+                PlanetField::Atmosphere(a) => planet_data.atmosphere = a,
+                PlanetField::Temperature(t) => planet_data.temperature = t,
+                PlanetField::Water(w) => planet_data.water = w,
+                PlanetField::Breathability(b) => planet_data.breathability = b,
+                PlanetField::NaturalResources(n) => planet_data.natural_resources = n,
+                PlanetField::Moons(m) => planet_data.moons = m,
+            }
+        }
+        planet_data
+    }
+}
+
+PlanetField:PlanetField = {
+    <n:Name> => PlanetField::Name(n),
+    <p:PlanetType> => PlanetField::PlanetType(p),
+    <m:Magnetosphere> => PlanetField::Magnetosphere(m),
+    <a:Atmosphere> => PlanetField::Atmosphere(a),
+    <t:Temperature> => PlanetField::Temperature(t),
+    <w:Water> => PlanetField::Water(w),
+    <b:Breathability> => PlanetField::Breathability(b),
+    <n:NaturalResources> => PlanetField::NaturalResources(n),
+    <m:Moons> => PlanetField::Moons(m),
+}
+
+Moons:Vec<MoonData> = {
+    "moon_data" "=" "[" <moons:Moon*> "]" => moons,
+}
+
+Moon:MoonData = {
+    "{" <fields:MoonField*> "}" => {
+        let mut moon_data = MoonData::default();
+        for f in fields {
+            match f {
+                MoonField::Name(n) => moon_data.name = n,
+                MoonField::PlanetType(p) => moon_data.planet_type = p,
+                MoonField::Magnetosphere(m) => moon_data.magnetosphere = m,
+                MoonField::Atmosphere(a) => moon_data.atmosphere = a,
+                MoonField::Temperature(t) => moon_data.temperature = t,
+                MoonField::Water(w) => moon_data.water = w,
+                MoonField::Breathability(b) => moon_data.breathability = b,
+                MoonField::NaturalResources(n) => moon_data.natural_resources = n,
+            }
+        } 
+        moon_data
+    }
+}
+
+MoonField:MoonField = {
+    <n:Name> => MoonField::Name(n),
+    <p:PlanetType> => MoonField::PlanetType(p),
+    <m:Magnetosphere> => MoonField::Magnetosphere(m),
+    <a:Atmosphere> => MoonField::Atmosphere(a),
+    <t:Temperature> => MoonField::Temperature(t),
+    <w:Water> => MoonField::Water(w),
+    <b:Breathability> => MoonField::Breathability(b),
+    <n:NaturalResources> => MoonField::NaturalResources(n),
+}
+
+StarType:String = {
+    "star_type" "=" <s:"string"> => s,
+}
+
+PlanetType:String = {
+    "planet_type" "=" <s:"string"> => s,
+}
+
+Surveyed:bool = {
+    "surveyed" "=" "false" => false,
+    "surveyed" "=" "true" => true,
+}
+
+Magnetosphere:Decimal = {
+    "magnetosphere" "=" <d:"decimal_number"> => d,
+}
+
+Atmosphere:Decimal = {
+    "atmosphere" "=" <d:"decimal_number"> => d,
+}
+
+Water:Decimal = {
+    "water" "=" <d:"decimal_number"> => d,
+}
+
+Temperature:Temperature = {
+    "temperature_kelvin" "=" <d:"decimal_number"> => Temperature::from_kelvin(d),
+    "temperature_celsius" "=" <d:"decimal_number"> => Temperature::from_celsius(d),
+}
+
+Breathability:Decimal = {
+    "breathability" "=" <d:"decimal_number"> => d,
+}
+
+Name:String = {
+    "name" "=" <s:"string"> => s,
+}
+
+NaturalResources:Vec<NaturalResource> = {
+    "natural_resources" "=" "[" <n:NaturalResource* > "]" => n
+}
+
+NaturalResource:NaturalResource = {
+    "{" "good_id" ":" <s:"string"> "amount" <n:"decimal_number">  "}" => NaturalResource{
+        id:s,
+        amount:n,
+    }
+}

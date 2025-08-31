@@ -5,7 +5,10 @@ use rust_decimal::Decimal;
 
 use logos::Logos;
 
-use crate::{LexicalError, common::DataParser};
+use crate::{
+    LexicalError,
+    common::{DataParser, GoodAbundance},
+};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -170,13 +173,6 @@ pub enum Action {
     SetPlanetType(String),
     Branch(Branch),
     SetStored(String, String),
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct GoodAbundance {
-    pub id: String,
-    pub mean: Decimal,
-    pub std_dev: Decimal,
 }
 
 #[derive(Clone, Debug, Default)]
