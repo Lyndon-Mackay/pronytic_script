@@ -17,6 +17,7 @@ extern {
         "tech" => Token::Tech,
         "shipyard" => Token::Shipyard,
         "stapledon" => Token::Stapledon,
+        "stellar_system" => Token::StellarSystem,
         "section_contents" => Token::SectionContents(<String>),
     }
     
@@ -36,5 +37,6 @@ section:Section = {
     "specie_traits" <s:"section_contents"> => Section::SpecieTraits(s),
     "shipyard" <s:"section_contents"> => Section::Shipyard(s),
     "stapledon" <s:"section_contents"> => Section::Stapledon(s),
+    "stellar_system" <s:"section_contents"> => Section::StellarSystem(s),
     "tech" <s:"section_contents"> => Section::Tech(s),
 }

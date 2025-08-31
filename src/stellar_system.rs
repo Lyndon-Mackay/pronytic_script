@@ -4,7 +4,10 @@ use lalrpop_util::lalrpop_mod;
 use logos::Logos;
 use rust_decimal::prelude::*;
 
-use crate::{LexicalError, common::Temperature};
+use crate::{
+    LexicalError,
+    common::{DataParser, Temperature},
+};
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -93,7 +96,7 @@ impl fmt::Display for StellarToken {
 
 lalrpop_mod!(pub stellar_system);
 
-#[derive(Default)]
+#[derive(Clone, Default, Debug)]
 pub struct StellarData {
     pub id: u16,
     pub star_data: StarData,
@@ -101,24 +104,26 @@ pub struct StellarData {
     pub surveyed: bool,
 }
 
+#[derive(Clone, Debug)]
 pub enum StellarObject {
     PlanetData(PlanetData),
     AsteroidBelt,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default, Debug)]
 pub struct StarData {
     pub name: String,
     pub temperature: Temperature,
     pub star_type: String,
 }
 
+#[derive(Clone, Default, Debug)]
 pub struct NaturalResource {
     pub id: String,
     pub amount: Decimal,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default, Debug)]
 pub struct PlanetData {
     pub name: String,
     pub planet_type: String,
@@ -133,7 +138,7 @@ pub struct PlanetData {
     pub moons: Vec<MoonData>,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default, Debug)]
 pub struct MoonData {
     pub name: String,
     pub planet_type: String,
@@ -179,4 +184,12 @@ pub enum MoonField {
     Water(Decimal),
     Breathability(Decimal),
     NaturalResources(Vec<NaturalResource>),
+}
+
+impl<'s> DataParser<'s, StellarToken, StellarData> for StellarData {
+    fn parse_tokens(
+        tokens: Vec<(usize, StellarToken, usize)>,
+    ) -> Result<Vec<StellarData>, lalrpop_util::ParseError<usize, StellarToken, String>> {
+        stellar_system::StellarDataParser::new().parse(tokens)
+    }
 }

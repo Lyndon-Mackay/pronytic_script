@@ -1,7 +1,6 @@
 use crate::stellar_system::{MoonData,MoonField,NaturalResource,PlanetData,PlanetField,StarData,StarField,StellarData,StellarField,StellarObject,StellarToken,Temperature};
 use rust_decimal::prelude::*;
 
-
 grammar;
 
 extern {

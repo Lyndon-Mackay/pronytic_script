@@ -14,7 +14,7 @@ pub trait DataParser<'s, Token, Data> {
     ) -> Result<Vec<Data>, ParseError<usize, Token, String>>;
 }
 
-#[derive(Default)]
+#[derive(Clone, Default, Debug)]
 pub struct Temperature {
     kelvin: Decimal,
 }
