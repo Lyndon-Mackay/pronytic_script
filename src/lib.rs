@@ -241,11 +241,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                     Section::PlanetTypes(s) => parse_data
                         .planet_type_data
                         .append(&mut parse_section(file_name, &s)),
-                    Section::Shipyard(s) => {
-                        parse_data
-                            .shipyard
-                            .append(&mut parse_section(file_name, &s));
-                    }
+                    Section::Shipyard(s) => parse_data
+                        .shipyard
+                        .append(&mut parse_section(file_name, &s)),
                     Section::SpecieTraits(s) => parse_data
                         .species_trait
                         .append(&mut parse_section(file_name, &s)),

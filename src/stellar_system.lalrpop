@@ -24,6 +24,10 @@ extern {
         "[" => StellarToken::LeftSquare,
         "]" => StellarToken::RightSquare,
 
+        "asset_location" => StellarToken::AssetLocation,
+
+        "size" => StellarToken::Size,
+
         "name" => StellarToken::Name,
 
         "surveyed" => StellarToken::Surveyed,
@@ -45,6 +49,8 @@ extern {
         "atmosphere" => StellarToken::Atmosphere,
 
         "natural_resources" => StellarToken::NaturalResources,
+
+        "ring" => StellarToken::Ring,
 
         "good_id" => StellarToken::GoodId,
         "amount" => StellarToken::Amount,
@@ -83,6 +89,7 @@ StarData:StarData = {
         let mut star_data = StarData::default();
         for f in field {
             match f {
+                StarField::AssetLocation(a) => star_data.asset_location = a,
                 StarField::Name(n) => star_data.name = n,
                 StarField::Temperature(t) => star_data.temperature = t,
                 StarField::StarType(s) => star_data.star_type = s,
@@ -93,6 +100,7 @@ StarData:StarData = {
 }
 
 StarField:StarField = {
+    <a:AssetLocation> => StarField::AssetLocation(a),
     <n:Name> => StarField::Name(n),
     <t:Temperature> => StarField::Temperature(t),
     <s:StarType> => StarField::StarType(s),
@@ -100,7 +108,11 @@ StarField:StarField = {
 
 Orbiting:StellarObject = {
     <p:Planet> => StellarObject::PlanetData(p),
-    "asteroid_belt" => StellarObject::AsteroidBelt,
+    <p:AsteroidBelt> => StellarObject::AsteroidBelt(p),
+}
+
+AsteroidBelt:Vec<PlanetData> ={
+    "asteroid_belt" "=" "{" <p:Planet*>  "}" => p,
 }
 
 
@@ -110,6 +122,8 @@ Planet:PlanetData = {
         for f in fields {
             match f  {
                 PlanetField::Name(n) => planet_data.name = n,
+                PlanetField::AssetLocation(a) => planet_data.asset_location = a,
+                PlanetField::Size(n) => planet_data.size = n,
                 PlanetField::PlanetType(p) => planet_data.planet_type = p,
                 PlanetField::Magnetosphere(m) => planet_data.magnetosphere = m,
                 PlanetField::Atmosphere(a) => planet_data.atmosphere = a,
@@ -117,7 +131,8 @@ Planet:PlanetData = {
                 PlanetField::Water(w) => planet_data.water = w,
                 PlanetField::Breathability(b) => planet_data.breathability = b,
                 PlanetField::NaturalResources(n) => planet_data.natural_resources = n,
-                PlanetField::Moons(m) => planet_data.moons = m,
+                PlanetField::Ring => planet_data.ring = true,
+                PlanetField::Moon(m) => planet_data.moons.push(m),
             }
         }
         planet_data
@@ -126,6 +141,8 @@ Planet:PlanetData = {
 
 PlanetField:PlanetField = {
     <n:Name> => PlanetField::Name(n),
+    <a:AssetLocation> => PlanetField::AssetLocation(a),
+    <s:Size> => PlanetField::Size(s),
     <p:PlanetType> => PlanetField::PlanetType(p),
     <m:Magnetosphere> => PlanetField::Magnetosphere(m),
     <a:Atmosphere> => PlanetField::Atmosphere(a),
@@ -133,19 +150,19 @@ PlanetField:PlanetField = {
     <w:Water> => PlanetField::Water(w),
     <b:Breathability> => PlanetField::Breathability(b),
     <n:NaturalResources> => PlanetField::NaturalResources(n),
-    <m:Moons> => PlanetField::Moons(m),
+    <"ring"> => PlanetField::Ring,
+    <m:Moon> => PlanetField::Moon(m),
 }
 
-Moons:Vec<MoonData> = {
-    "moon_data" "=" "[" <moons:Moon*> "]" => moons,
-}
 
 Moon:MoonData = {
-    "{" <fields:MoonField*> "}" => {
+   "moon_data" "=" "{" <fields:MoonField*> "}" => {
         let mut moon_data = MoonData::default();
         for f in fields {
             match f {
+                MoonField::AssetLocation(a) => moon_data.asset_location = a,
                 MoonField::Name(n) => moon_data.name = n,
+                MoonField::Size(n) => moon_data.size = n,
                 MoonField::PlanetType(p) => moon_data.planet_type = p,
                 MoonField::Magnetosphere(m) => moon_data.magnetosphere = m,
                 MoonField::Atmosphere(a) => moon_data.atmosphere = a,
@@ -161,6 +178,8 @@ Moon:MoonData = {
 
 MoonField:MoonField = {
     <n:Name> => MoonField::Name(n),
+    <a:AssetLocation> => MoonField::AssetLocation(a),
+    <s:Size> => MoonField::Size(s),
     <p:PlanetType> => MoonField::PlanetType(p),
     <m:Magnetosphere> => MoonField::Magnetosphere(m),
     <a:Atmosphere> => MoonField::Atmosphere(a),
@@ -177,6 +196,15 @@ StarType:String = {
 PlanetType:String = {
     "planet_type" "=" <s:"string"> => s,
 }
+
+AssetLocation:String = {
+    "asset_location" "=" <s:"string"> => s,
+}
+
+Size:u16 = {
+    "size" "=" <n:"number"> => n,
+}
+
 
 Surveyed:bool = {
     "surveyed" "=" "false" => false,
@@ -213,7 +241,7 @@ NaturalResources:Vec<NaturalResource> = {
 }
 
 NaturalResource:NaturalResource = {
-    "{" "good_id" ":" <s:"string"> "amount" <n:"decimal_number">  "}" => NaturalResource{
+    "{" "good_id" ":" <s:"string"> "amount" ":" <n:"decimal_number">  "}" => NaturalResource{
         id:s,
         amount:n,
     }

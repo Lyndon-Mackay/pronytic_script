@@ -23,7 +23,7 @@ pub enum StellarToken {
     #[regex(r"(\d+)", |lex|lex.slice().parse::<u16>().expect("parsing u8"), priority = 5)]
     Number(u16),
 
-    #[regex(r"(\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    #[regex(r"(-?\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
     DecimalNumber(Decimal),
 
     #[token("=")]
@@ -43,6 +43,12 @@ pub enum StellarToken {
 
     #[token("name")]
     Name,
+
+    #[token("asset_location")]
+    AssetLocation,
+
+    #[token("size")]
+    Size,
 
     #[token("surveyed")]
     Surveyed,
@@ -65,7 +71,7 @@ pub enum StellarToken {
     #[token("planet_type")]
     PlanetType,
 
-    #[token("magnetospher")]
+    #[token("magnetosphere")]
     Magnetosphere,
     #[token("atmosphere")]
     Atmosphere,
@@ -80,6 +86,9 @@ pub enum StellarToken {
 
     #[token("natural_resources")]
     NaturalResources,
+
+    #[token("ring")]
+    Ring,
 
     #[token("good_id")]
     GoodId,
@@ -105,14 +114,19 @@ pub struct StellarData {
 }
 
 #[derive(Clone, Debug)]
+//Majority case is the large data structure variant and it will be cleaned up on program startup
+#[allow(clippy::large_enum_variant)]
 pub enum StellarObject {
     PlanetData(PlanetData),
-    AsteroidBelt,
+    //Dwarf planets
+    AsteroidBelt(Vec<PlanetData>),
 }
 
 #[derive(Clone, Default, Debug)]
 pub struct StarData {
     pub name: String,
+    pub asset_location: String,
+    pub size: u16,
     pub temperature: Temperature,
     pub star_type: String,
 }
@@ -123,9 +137,13 @@ pub struct NaturalResource {
     pub amount: Decimal,
 }
 
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Debug)]
 pub struct PlanetData {
     pub name: String,
+
+    pub asset_location: String,
+    pub size: u16,
+
     pub planet_type: String,
     pub magnetosphere: Decimal,
     pub atmosphere: Decimal,
@@ -135,12 +153,37 @@ pub struct PlanetData {
 
     pub natural_resources: Vec<NaturalResource>,
 
+    pub ring: bool,
+
     pub moons: Vec<MoonData>,
+}
+
+impl Default for PlanetData {
+    fn default() -> Self {
+        Self {
+            name: Default::default(),
+            asset_location: Default::default(),
+            size: 10,
+            planet_type: Default::default(),
+            magnetosphere: Default::default(),
+            atmosphere: Default::default(),
+            temperature: Default::default(),
+            water: Default::default(),
+            breathability: Default::default(),
+            natural_resources: Default::default(),
+            ring: Default::default(),
+            moons: Default::default(),
+        }
+    }
 }
 
 #[derive(Clone, Default, Debug)]
 pub struct MoonData {
     pub name: String,
+    pub asset_location: String,
+
+    pub size: u16,
+
     pub planet_type: String,
     pub magnetosphere: Decimal,
     pub atmosphere: Decimal,
@@ -159,12 +202,15 @@ pub enum StellarField {
 
 pub enum StarField {
     Name(String),
+    AssetLocation(String),
     Temperature(Temperature),
     StarType(String),
 }
 
 pub enum PlanetField {
     Name(String),
+    AssetLocation(String),
+    Size(u16),
     PlanetType(String),
     Magnetosphere(Decimal),
     Atmosphere(Decimal),
@@ -172,11 +218,14 @@ pub enum PlanetField {
     Water(Decimal),
     Breathability(Decimal),
     NaturalResources(Vec<NaturalResource>),
-    Moons(Vec<MoonData>),
+    Ring,
+    Moon(MoonData),
 }
 
 pub enum MoonField {
     Name(String),
+    AssetLocation(String),
+    Size(u16),
     PlanetType(String),
     Magnetosphere(Decimal),
     Atmosphere(Decimal),
