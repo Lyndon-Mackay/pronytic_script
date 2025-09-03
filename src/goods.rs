@@ -11,6 +11,10 @@ use crate::{LexicalError, common::DataParser};
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
 pub enum GoodToken {
+    #[token("true")]
+    True,
+    #[token("false")]
+    False,
     #[token("=")]
     Equal,
 
@@ -56,6 +60,9 @@ pub enum GoodToken {
     ProsperityBonus,
     #[token("prosperity_cost")]
     ProsperityCost,
+
+    #[token("vendible")]
+    Vendible,
 
     #[token("none")]
     None,
@@ -104,6 +111,7 @@ pub struct GoodData {
     pub hardcoded_id: Option<u8>,
     pub icon: String,
     pub name: String,
+    pub vendible: bool,
     pub good_type: GoodType,
     pub consumption_type: ConsumptionType,
     pub prosperity_bonus: Decimal,
@@ -164,6 +172,7 @@ pub enum Field {
     ConsumptionType(ConsumptionType),
     ProsperityBonus(Decimal),
     ProsperityCost(Decimal),
+    Vendible(bool),
 }
 
 pub enum SurvivalField {
