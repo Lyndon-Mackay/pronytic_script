@@ -54,6 +54,7 @@ pub struct BuildingData {
     pub costs: Vec<CustomGood>,
     pub private_costs: Decimal,
     pub consumes: Vec<CustomGood>,
+    pub upkeep: Vec<CustomGood>,
     pub produces: Vec<CustomGood>,
 
     pub housing: u64,
@@ -89,6 +90,7 @@ impl Default for BuildingData {
             costs: Vec::new(),
             private_costs: Decimal::ZERO,
             consumes: Vec::new(),
+            upkeep: Vec::new(),
             produces: Vec::new(),
 
             housing: 0,
@@ -165,6 +167,8 @@ pub enum BuildingToken {
     Costs,
     #[token("consumes")]
     Consumes,
+    #[token("upkeep")]
+    Upkeep,
     #[token("produces")]
     Produces,
 
@@ -232,6 +236,7 @@ pub enum Field {
     PrivateCosts(Decimal),
     Costs(Vec<CustomGood>),
     Consumes(Vec<CustomGood>),
+    Upkeep(Vec<CustomGood>),
     Produces(Vec<CustomGood>),
     Housing(u64),
     Workers(u64),

@@ -32,6 +32,7 @@ extern {
         "private_costs" => BuildingToken::PrivateCosts,
         "costs" => BuildingToken::Costs,
         "consumes" => BuildingToken::Consumes,
+        "upkeep" => BuildingToken::Upkeep,
         "produces" => BuildingToken::Produces,
 
         "housing" => BuildingToken::Housing,
@@ -90,6 +91,7 @@ Building:BuildingData = {
                 }
                 Field::Costs(c) => building_data.costs = c,
                 Field::Consumes(c) => building_data.consumes = c,
+                Field::Upkeep(u) => building_data.upkeep = u,
                 Field::Produces(p) => building_data.produces = p,
                 Field::Housing(h) => building_data.housing = h,
                 Field::Workers(w) => building_data.workers = w,
@@ -138,6 +140,7 @@ Field:Field = {
     <p:PrivateCosts> => Field::PrivateCosts(p),
     <c:Costs> => Field::Costs(c),
     <c:Consumes> => Field::Consumes(c),
+    <u:Upkeep> => Field::Upkeep(u),
     <p:Produces> => Field::Produces(p),
     <h:Housing> => Field::Housing(h),
     <w:Workers> => Field::Workers(w),
@@ -163,6 +166,10 @@ Consumes:Vec<CustomGood> = {
 
 Produces:Vec<CustomGood> = {
     "produces" "=" "[" <c:CustomGood+> "]" =>c,
+}
+
+Upkeep:Vec<CustomGood> = {
+    "upkeep" "=" "[" <c:CustomGood+> "]" => c,
 }
 
 CustomGood:CustomGood = {

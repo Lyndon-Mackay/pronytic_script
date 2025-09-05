@@ -16,7 +16,7 @@ pub enum StapledonToken {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
-    #[regex(r"(\d+)", |lex|lex.slice().parse::<u8>().expect("parsing u8"), priority = 5)]
+    #[regex(r"(\d+)", |lex| lex.slice().parse::<u8>().expect("parsing u8"), priority = 5)]
     Number(u8),
 
     #[regex(r"(-?\d+\.\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
