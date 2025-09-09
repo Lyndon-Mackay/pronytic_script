@@ -1,5 +1,5 @@
 use std::{
-    fmt::{self, Display},
+    fmt::{self},
     str::FromStr,
 };
 
@@ -44,15 +44,7 @@ pub struct Station {
 pub enum PlanetFilter {
     PlanetSide(String),
     Orbital(String),
-}
-
-impl Display for PlanetFilter {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            PlanetFilter::PlanetSide(s) => write!(f, "{s}"),
-            PlanetFilter::Orbital(s) => write!(f, "{s}"),
-        }
-    }
+    AllOrbitals,
 }
 
 /// Building data to send to game
@@ -173,6 +165,8 @@ pub enum BuildingToken {
 
     #[token("orbital")]
     Orbital,
+    #[token("all_orbitals")]
+    AllOrbitals,
 
     #[token("build_planets")]
     PlanetFilters,

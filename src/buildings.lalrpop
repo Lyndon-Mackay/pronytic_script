@@ -29,6 +29,7 @@ extern {
         "name" => BuildingToken::Name,
 
         "orbital" => BuildingToken::Orbital,
+        "all_orbitals" => BuildingToken::AllOrbitals,
         
         "planet_filters" => BuildingToken::PlanetFilters,
         "initial" => BuildingToken::Initial,
@@ -201,6 +202,7 @@ PlanetFilters:Vec<PlanetFilter> = {
 
 PlanetFilter:PlanetFilter = {
     "orbital" "(" <planet:"string"> ")" => PlanetFilter::Orbital(planet),
+    "all_orbitals" => PlanetFilter::AllOrbitals,
     <planet:"string"> => PlanetFilter::PlanetSide(planet),
 }
 
