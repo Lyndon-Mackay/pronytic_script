@@ -203,7 +203,12 @@ where
                 let problem = SyntaxError {
                     src: NamedSource::new(file_name, input.to_string()),
                     bad_bit: (token.0, token.2).into(),
-                    advice: Some(format!("Expected {} found {}", expected.join(","), token.1)),
+                    advice: Some(format!(
+                        //redunancy for out of bounds
+                        "{file_name} Expected {} found {}",
+                        expected.join(","),
+                        token.1
+                    )),
                 };
                 panic!("{:?}", miette::Error::new(problem));
             }

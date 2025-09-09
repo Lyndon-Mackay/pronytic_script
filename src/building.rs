@@ -1,4 +1,7 @@
-use std::{fmt, str::FromStr};
+use std::{
+    fmt::{self, Display},
+    str::FromStr,
+};
 
 use rust_decimal::prelude::*;
 
@@ -36,6 +39,22 @@ pub struct Station {
     pub path: String,
     //TODO animation information
 }
+
+#[derive(Clone, Debug)]
+pub enum PlanetFilter {
+    PlanetSide(String),
+    Orbital(String),
+}
+
+impl Display for PlanetFilter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            PlanetFilter::PlanetSide(s) => write!(f, "{s}"),
+            PlanetFilter::Orbital(s) => write!(f, "{s}"),
+        }
+    }
+}
+
 /// Building data to send to game
 /// this is only made for serialisation
 /// actual data structure in game is different
@@ -44,7 +63,7 @@ pub struct BuildingData {
     pub id: String,
     pub name: String,
 
-    pub planet_filters: Vec<String>,
+    pub planet_filters: Vec<PlanetFilter>,
 
     pub initial: bool,
     pub unique: bool,
@@ -133,18 +152,27 @@ pub enum BuildingToken {
     #[token("}")]
     RightCurly,
 
+    #[token("(")]
+    LeftBracket,
+    #[token(")")]
+    RightBracket,
+
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
-    #[regex(r"(\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    #[regex(r"(\d+)", |lex| lex.slice().parse::<u64>().expect("parsing u8"), priority = 5)]
+    Number(u64),
+
+    #[regex(r"(-?\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
     DecimalNumber(Decimal),
-    #[regex(r"(-\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
-    NegativeNumber(Decimal),
 
     #[token("id")]
     Id,
     #[token("name")]
     Name,
+
+    #[token("orbital")]
+    Orbital,
 
     #[token("build_planets")]
     PlanetFilters,
@@ -229,7 +257,7 @@ impl fmt::Display for BuildingToken {
 lalrpop_mod!(pub buildings);
 pub enum Field {
     Name(String),
-    PlanetFilters(Vec<String>),
+    PlanetFilters(Vec<PlanetFilter>),
     Initial(bool),
     Unique(bool),
     Energy(Decimal),

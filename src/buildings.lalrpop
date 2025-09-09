@@ -1,4 +1,5 @@
-use crate::building::{AtmosphereImpact,BuildingData,CustomGood,MagnetosphereImpact,Station,StationField,Field,BuildingToken};
+use crate::building::{AtmosphereImpact,BuildingData,CustomGood,
+MagnetosphereImpact,PlanetFilter,Station,StationField,Field,BuildingToken};
 
 use rust_decimal::prelude::*;
 
@@ -17,13 +18,18 @@ extern {
         "}" => BuildingToken::RightCurly,
         "[" => BuildingToken::LeftSquare,
         "]" => BuildingToken::RightSquare,
+        "(" => BuildingToken::LeftBracket,
+        ")" => BuildingToken::RightBracket,
         
         "string" => BuildingToken::String(<String>),
-        "number" => BuildingToken::DecimalNumber(<Decimal>),
-        "negative_number" => BuildingToken::NegativeNumber(<Decimal>),
+        "number" => BuildingToken::Number(<u64>),
+        "decimal" => BuildingToken::DecimalNumber(<Decimal>),
 
         "id" => BuildingToken::Id,
         "name" => BuildingToken::Name,
+
+        "orbital" => BuildingToken::Orbital,
+        
         "planet_filters" => BuildingToken::PlanetFilters,
         "initial" => BuildingToken::Initial,
         "unique" => BuildingToken::Unique,
@@ -173,7 +179,7 @@ Upkeep:Vec<CustomGood> = {
 }
 
 CustomGood:CustomGood = {
-    "{" <id:"string"> <amount:"number"> "}" => {
+    "{" <id:"string"> <amount:"decimal"> "}" => {
         CustomGood{
             id,
             amount,
@@ -189,8 +195,13 @@ Name:String = {
     "name" "=" <id:"string"> => id,
 }
 
-PlanetFilters:Vec<String> = {
-    "planet_filters" "=" "[" <planets:"string"+> "]" => planets,
+PlanetFilters:Vec<PlanetFilter> = {
+    "planet_filters" "=" "[" <planets:PlanetFilter+> "]" => planets,
+}
+
+PlanetFilter:PlanetFilter = {
+    "orbital" "(" <planet:"string"> ")" => PlanetFilter::Orbital(planet),
+    <planet:"string"> => PlanetFilter::PlanetSide(planet),
 }
 
 Initial:bool = {
@@ -202,7 +213,7 @@ Unique:bool = {
 }
 
 Energy:Decimal = {
-    "energy" "=" <n:RealNumber> => n,
+    "energy" "=" <n:"decimal"> => n,
 }
 
 Housing:u64 = {
@@ -214,11 +225,11 @@ Workers:u64 = {
 }
 
 PrivateCosts:Decimal = {
-    "private_costs" "=" <n:"number"> => n,
+    "private_costs" "=" <n:"decimal"> => n,
 }
 
 MagnetosphereEquilibrium:MagnetosphereImpact = {
-    "magnetosphere_equilibrium" "=" "{" "added" "=" <n:"number"> "rate" "=" <r:"number"> "}" => {
+    "magnetosphere_equilibrium" "=" "{" "added" "=" <n:"decimal"> "rate" "=" <r:"decimal"> "}" => {
         MagnetosphereImpact {
             added_equilibrium:n,
             rate:r,
@@ -227,7 +238,7 @@ MagnetosphereEquilibrium:MagnetosphereImpact = {
 }
 
 AtmosphereEquilibrium:AtmosphereImpact = {
-    "atmosphere_equilibrium" "=" "{" "added" "=" <n:"number"> "rate" "=" <r:"number"> "}" => {
+    "atmosphere_equilibrium" "=" "{" "added" "=" <n:"decimal"> "rate" "=" <r:"decimal"> "}" => {
         AtmosphereImpact {
             added_equilibrium:n,
             rate:r,
@@ -236,15 +247,15 @@ AtmosphereEquilibrium:AtmosphereImpact = {
 }
 
 TemperatureChange:Decimal = {
-    "temperature_change" "=" <n:"number"> => n,
+    "temperature_change" "=" <n:"decimal"> => n,
 }
 
 WaterChange:Decimal = {
-    "water_change" "=" <n:"number"> => n,
+    "water_change" "=" <n:"decimal"> => n,
 }
 
 BreathableChange:Decimal = {
-    "breathable_change" "=" <n:"number"> => n,
+    "breathable_change" "=" <n:"decimal"> => n,
 }
 
 TechNeeded:String = {
@@ -260,7 +271,7 @@ PrivateSector:bool = {
 }
 
 ProsperityPerJob:Decimal = {
-    "prosperity_per_job" "=" <n:"number"> => n,
+    "prosperity_per_job" "=" <n:"decimal"> => n,
 }
 
 Stations:Vec<Station> = {
@@ -302,29 +313,25 @@ StationField:StationField = {
 }
 
 X:f32 = {
-    "x" "=" <n:RealNumber> => n.to_f32().unwrap(),
+    "x" "=" <n:"decimal"> => n.to_f32().unwrap(),
 }
 
 Y:f32 = {
-    "y" "=" <n:RealNumber> => n.to_f32().unwrap(),
+    "y" "=" <n:"decimal"> => n.to_f32().unwrap(),
 }
 
 Z:f32 = {
-    "z" "=" <n:RealNumber> => n.to_f32().unwrap(),
+    "z" "=" <n:"decimal"> => n.to_f32().unwrap(),
 }
 
 Scale:f32 = {
-    "scale" "=" <n:"number"> => n.to_f32().unwrap(),
+    "scale" "=" <n:"decimal"> => n.to_f32().unwrap(),
 }
 
 Path:String ={
     "path" "=" <s:"string"> => s,
 }
 
-RealNumber:Decimal = {
-    <n:"number"> => n,
-    <n:"negative_number"> => n,
-}
 
 Bool:bool = {
     "true" => true,
