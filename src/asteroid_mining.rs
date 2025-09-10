@@ -89,7 +89,7 @@ impl<'s> DataParser<'s> for AsteroidMiningData {
     type Token = AsteroidToken;
     fn parse_tokens(
         tokens: Vec<(usize, Self::Token, usize)>,
-    ) -> Result<Vec<AsteroidMiningData>, ParseError<usize, Self::Token, String>> {
+    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>> {
         asteroid_mining::AsteroidMiningDataParser::new().parse(tokens)
     }
 }
