@@ -282,10 +282,11 @@ pub enum StationField {
     Path(String),
 }
 
-impl<'s> DataParser<'s, BuildingToken, BuildingData> for BuildingData {
+impl<'s> DataParser<'s> for BuildingData {
+    type Token = BuildingToken;
     fn parse_tokens(
-        tokens: Vec<(usize, BuildingToken, usize)>,
-    ) -> Result<Vec<BuildingData>, lalrpop_util::ParseError<usize, BuildingToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<BuildingData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         buildings::BuildingsParser::new().parse(tokens)
     }
 }

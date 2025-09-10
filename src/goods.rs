@@ -185,10 +185,11 @@ pub enum SurvivalField {
     LackServicePenalty(Decimal),
 }
 
-impl<'s> DataParser<'s, GoodToken, GoodData> for GoodData {
+impl<'s> DataParser<'s> for GoodData {
+    type Token = GoodToken;
     fn parse_tokens(
-        tokens: Vec<(usize, GoodToken, usize)>,
-    ) -> Result<Vec<GoodData>, lalrpop_util::ParseError<usize, GoodToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<GoodData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         goods::GoodsParser::new().parse(tokens)
     }
 }

@@ -78,10 +78,11 @@ pub enum Field {
     Time(u8),
 }
 
-impl<'s> DataParser<'s, ShipyardToken, ShipyardData> for ShipyardData {
+impl<'s> DataParser<'s> for ShipyardData {
+    type Token = ShipyardToken;
     fn parse_tokens(
-        tokens: Vec<(usize, ShipyardToken, usize)>,
-    ) -> Result<Vec<ShipyardData>, lalrpop_util::ParseError<usize, ShipyardToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<ShipyardData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         shipyard::ShipyardDataParser::new().parse(tokens)
     }
 }

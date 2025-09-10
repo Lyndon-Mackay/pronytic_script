@@ -94,11 +94,11 @@ pub enum Field {
     Power(Decimal),
 }
 
-impl<'s> DataParser<'s, StapledonToken, StapledonSwarmData> for StapledonSwarmData {
+impl<'s> DataParser<'s> for StapledonSwarmData {
+    type Token = StapledonToken;
     fn parse_tokens(
-        tokens: Vec<(usize, StapledonToken, usize)>,
-    ) -> Result<Vec<StapledonSwarmData>, lalrpop_util::ParseError<usize, StapledonToken, String>>
-    {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<StapledonSwarmData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         stapledon_swarm::StapledonDataParser::new().parse(tokens)
     }
 }

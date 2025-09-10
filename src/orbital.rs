@@ -82,10 +82,11 @@ pub enum Field {
     BuildingLimit(u8),
 }
 
-impl<'s> DataParser<'s, OrbitalToken, OrbitalData> for OrbitalData {
+impl<'s> DataParser<'s> for OrbitalData {
+    type Token = OrbitalToken;
     fn parse_tokens(
-        tokens: Vec<(usize, OrbitalToken, usize)>,
-    ) -> Result<Vec<OrbitalData>, lalrpop_util::ParseError<usize, OrbitalToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<OrbitalData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         orbital::OrbitalDataParser::new().parse(tokens)
     }
 }

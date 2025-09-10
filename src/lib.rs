@@ -177,7 +177,7 @@ where
 
 fn parse_section<'s, Token, Data>(file_name: &'s str, input: &'s str) -> Vec<Data>
 where
-    Data: DataParser<'s, Token, Data>,
+    Data: DataParser<'s, Token = Token>,
     Token: Logos<'s, Source = str, Error = LexicalError> + Display,
     Token::Extras: Default,
 {

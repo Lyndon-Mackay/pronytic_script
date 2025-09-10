@@ -85,10 +85,11 @@ pub struct AsteroidMiningData {
     pub time: u8,
 }
 
-impl<'s> DataParser<'s, AsteroidToken, AsteroidMiningData> for AsteroidMiningData {
+impl<'s> DataParser<'s> for AsteroidMiningData {
+    type Token = AsteroidToken;
     fn parse_tokens(
-        tokens: Vec<(usize, AsteroidToken, usize)>,
-    ) -> Result<Vec<AsteroidMiningData>, ParseError<usize, AsteroidToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<AsteroidMiningData>, ParseError<usize, Self::Token, String>> {
         asteroid_mining::AsteroidMiningDataParser::new().parse(tokens)
     }
 }

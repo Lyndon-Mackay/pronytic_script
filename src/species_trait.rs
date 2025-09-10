@@ -86,10 +86,11 @@ pub enum Field {
     Effects(Vec<Effect>),
 }
 
-impl<'s> DataParser<'s, SpeciesToken, SpeciesTraitData> for SpeciesTraitData {
+impl<'s> DataParser<'s> for SpeciesTraitData {
+    type Token = SpeciesToken;
     fn parse_tokens(
-        tokens: Vec<(usize, SpeciesToken, usize)>,
-    ) -> Result<Vec<SpeciesTraitData>, lalrpop_util::ParseError<usize, SpeciesToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<SpeciesTraitData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         species_trait::SpeciesTraitsParser::new().parse(tokens)
     }
 }

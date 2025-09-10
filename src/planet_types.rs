@@ -184,10 +184,11 @@ pub struct PlanetTypeData {
     pub terraform_conditions: Vec<Branch>,
 }
 
-impl<'s> DataParser<'s, PlanetTypeToken, PlanetTypeData> for PlanetTypeData {
+impl<'s> DataParser<'s> for PlanetTypeData {
+    type Token = PlanetTypeToken;
     fn parse_tokens(
-        tokens: Vec<(usize, PlanetTypeToken, usize)>,
-    ) -> Result<Vec<PlanetTypeData>, lalrpop_util::ParseError<usize, PlanetTypeToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<PlanetTypeData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         planet_types::PlanetTypeListParser::new().parse(tokens)
     }
 }

@@ -45,10 +45,11 @@ pub enum Field {
 
 lalrpop_mod!(pub tech);
 
-impl<'s> DataParser<'s, TechToken, TechData> for TechData {
+impl<'s> DataParser<'s> for TechData {
+    type Token = TechToken;
     fn parse_tokens(
-        tokens: Vec<(usize, TechToken, usize)>,
-    ) -> Result<Vec<TechData>, lalrpop_util::ParseError<usize, TechToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<TechData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         tech::TechsParser::new().parse(tokens)
     }
 }

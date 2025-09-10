@@ -91,10 +91,11 @@ pub enum Field {
     Consumes(Vec<GoodConsumes>),
 }
 
-impl<'s> DataParser<'s, AugmentationToken, AugmentationData> for AugmentationData {
+impl<'s> DataParser<'s> for AugmentationData {
+    type Token = AugmentationToken;
     fn parse_tokens(
-        tokens: Vec<(usize, AugmentationToken, usize)>,
-    ) -> Result<Vec<AugmentationData>, ParseError<usize, AugmentationToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>> {
         augmentations::AugmentationsParser::new().parse(tokens)
     }
 }

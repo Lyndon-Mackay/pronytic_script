@@ -235,10 +235,11 @@ pub enum MoonField {
     NaturalResources(Vec<NaturalResource>),
 }
 
-impl<'s> DataParser<'s, StellarToken, StellarData> for StellarData {
+impl<'s> DataParser<'s> for StellarData {
+    type Token = StellarToken;
     fn parse_tokens(
-        tokens: Vec<(usize, StellarToken, usize)>,
-    ) -> Result<Vec<StellarData>, lalrpop_util::ParseError<usize, StellarToken, String>> {
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<StellarData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         stellar_system::StellarDataParser::new().parse(tokens)
     }
 }
