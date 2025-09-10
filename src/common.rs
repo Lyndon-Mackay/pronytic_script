@@ -9,12 +9,13 @@ pub struct GoodConsumes {
 }
 
 pub trait DataParser<'s> {
-    type Token;
+    type Token
+    where
+        Self::Token: Sized;
+
     fn parse_tokens(
         tokens: Vec<(usize, Self::Token, usize)>,
-    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>>
-    where
-        Self: Sized;
+    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>>;
 }
 
 #[derive(Clone, Default, Debug)]
