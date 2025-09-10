@@ -8,13 +8,14 @@ pub struct GoodConsumes {
     pub amount: Decimal,
 }
 
-pub trait DataParser<'s> {
+pub trait DataParser<'s>
+where
+    Self: Sized,
+{
     type Token;
     fn parse_tokens(
         tokens: Vec<(usize, Self::Token, usize)>,
-    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>>
-    where
-        Self: Sized;
+    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>>;
 }
 
 #[derive(Clone, Default, Debug)]
