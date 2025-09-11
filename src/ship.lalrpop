@@ -1,0 +1,73 @@
+use rust_decimal::prelude::*;
+
+use crate::ship::{Field,ShipClass,ShipData,ShipToken};
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+    
+    enum ShipToken {
+        "string" => ShipToken::String(<String>),
+        "number" => ShipToken::Number(<u8>),
+        "decimal_number" => ShipToken::DecimalNumber(<Decimal>),
+
+        "=" => ShipToken::Equal,
+
+
+        "name" => ShipToken::Name,
+        "asset_location" => ShipToken::AssetLocation,
+        "ship_class" => ShipToken::ShipClass,
+
+        "survey" => ShipToken::Survey,
+
+        "scale" => ShipToken::Scale,
+
+    }
+}
+
+pub ShipData:Vec<ShipData> = {
+    <ShipDatum*>
+}
+
+ShipDatum:ShipData = {
+    <id:"string"> <fields:ShipField*>  => {
+        let mut ship_data = ShipData::default();
+        ship_data.id = id;
+
+        for f in fields {
+            match f {
+                Field::Name(n) => ship_data.name = n,
+                Field::AssetLocation(a) => ship_data.asset_location = a,
+                Field::ShipClass(s) => ship_data.ship_class = s,
+                Field::Scale(s) => ship_data.scale = s,
+            }
+        }
+
+        ship_data
+    }
+}
+
+ShipField:Field = {
+    <n:Name> => Field::Name(n),
+    <a:AssetLocation> => Field::AssetLocation(a),
+    <s:ShipClass> => Field::ShipClass(s),
+    <s:Scale> => Field::Scale(s),
+}
+
+Name:String = {
+    "name" "=" <s:"string"> => s,
+}
+
+AssetLocation:String = {
+    "asset_location" "=" <s:"string"> => s,
+}
+
+ShipClass:ShipClass = {
+    "ship_class" "=" "survey" => ShipClass::Survey,
+}
+
+Scale:f32 = {
+    "scale" "=" <n:"decimal_number"> => n.to_f32().unwrap(),
+}

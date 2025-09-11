@@ -14,10 +14,11 @@ extern {
         "orbital" => Token::Orbital,
         "planet_types" => Token::PlanetTypes,
         "specie_traits" => Token::SpecieTraits,
-        "tech" => Token::Tech,
         "shipyard" => Token::Shipyard,
+        "ships" => Token::Ships,
         "stapledon" => Token::Stapledon,
         "stellar_system" => Token::StellarSystem,
+        "tech" => Token::Tech,
         "section_contents" => Token::SectionContents(<String>),
     }
     
@@ -36,6 +37,7 @@ section:Section = {
     "planet_types" <s:"section_contents"> => Section::PlanetTypes(s),
     "specie_traits" <s:"section_contents"> => Section::SpecieTraits(s),
     "shipyard" <s:"section_contents"> => Section::Shipyard(s),
+    "ships" <s:"section_contents"> => Section::Ships(s),
     "stapledon" <s:"section_contents"> => Section::Stapledon(s),
     "stellar_system" <s:"section_contents"> => Section::StellarSystem(s),
     "tech" <s:"section_contents"> => Section::Tech(s),

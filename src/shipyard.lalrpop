@@ -1,4 +1,4 @@
-use rust_decimal::Decimal;
+use rust_decimal::prelude::*;
 
 use crate::shipyard::{Field,ShipyardData,ShipyardToken};
 
@@ -10,7 +10,7 @@ extern {
     type Location = usize;
     type Error = String;
 
-    enum ShipyardToken{
+    enum ShipyardToken {
         "string" => ShipyardToken::String(<String>),
         "number" => ShipyardToken::Number(<u8>),
         "decimal_number" => ShipyardToken::DecimalNumber(<Decimal>),

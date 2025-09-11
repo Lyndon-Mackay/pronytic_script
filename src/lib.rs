@@ -16,7 +16,7 @@ use logos::{self, Logos};
 
 use crate::{
     asteroid_mining::AsteroidMiningData, augmentations::AugmentationData, common::DataParser,
-    orbital::OrbitalData, shipyard::ShipyardData, species_trait::SpeciesTraitData,
+    orbital::OrbitalData, ship::ShipData, shipyard::ShipyardData, species_trait::SpeciesTraitData,
     stapledon_swarm::StapledonSwarmData, stellar_system::StellarData,
 };
 
@@ -27,6 +27,7 @@ pub mod common;
 pub mod goods;
 pub mod orbital;
 pub mod planet_types;
+pub mod ship;
 pub mod shipyard;
 pub mod species_trait;
 pub mod stapledon_swarm;
@@ -94,6 +95,7 @@ create_parse_data!({
     pub planet_type_data: Vec<PlanetTypeData>,
     pub species_trait: Vec<SpeciesTraitData>,
     pub shipyard: Vec<ShipyardData>,
+    pub ships:Vec<ShipData>,
     pub stapledon:Vec<StapledonSwarmData>,
     pub stellar_system:Vec<StellarData>,
     pub tech_data: Vec<TechData>,
@@ -116,6 +118,8 @@ pub enum Token {
     PlanetTypes,
     #[token("#shipyard")]
     Shipyard,
+    #[token("#ships")]
+    Ships,
     #[token("#specie_traits")]
     SpecieTraits,
     #[token("#stapledon_swarm")]
@@ -145,6 +149,7 @@ pub enum Section {
     Orbital(String),
     PlanetTypes(String),
     SpecieTraits(String),
+    Ships(String),
     Shipyard(String),
     Stapledon(String),
     StellarSystem(String),
@@ -246,6 +251,7 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                     Section::PlanetTypes(s) => parse_data
                         .planet_type_data
                         .append(&mut parse_section(file_name, &s)),
+                    Section::Ships(s) => parse_data.ships.append(&mut parse_section(file_name, &s)),
                     Section::Shipyard(s) => parse_data
                         .shipyard
                         .append(&mut parse_section(file_name, &s)),
