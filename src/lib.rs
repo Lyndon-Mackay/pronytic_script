@@ -139,7 +139,7 @@ impl fmt::Display for Token {
     }
 }
 
-lalrpop_mod!(pub main);
+lalrpop_mod!(pub lib);
 
 pub enum Section {
     AsteroidMining(String),
@@ -226,7 +226,7 @@ where
 pub fn parse(file_name: &str, contents: &str) -> ParseData {
     let tokens = lex::<Token>(file_name, contents);
 
-    let main_parse = main::SectionsParser::new().parse(tokens);
+    let main_parse = lib::SectionsParser::new().parse(tokens);
     let mut parse_data = ParseData::default();
 
     match main_parse {
