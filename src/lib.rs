@@ -16,14 +16,16 @@ use logos::{self, Logos};
 
 use crate::{
     asteroid_mining::AsteroidMiningData, augmentations::AugmentationData, common::DataParser,
-    orbital::OrbitalData, ship::ShipData, shipyard::ShipyardData, species_trait::SpeciesTraitData,
-    stapledon_swarm::StapledonSwarmData, stellar_system::StellarData,
+    designation::DesignationData, orbital::OrbitalData, ship::ShipData, shipyard::ShipyardData,
+    species_trait::SpeciesTraitData, stapledon_swarm::StapledonSwarmData,
+    stellar_system::StellarData,
 };
 
 pub mod asteroid_mining;
 pub mod augmentations;
 pub mod building;
 pub mod common;
+pub mod designation;
 pub mod goods;
 pub mod orbital;
 pub mod planet_types;
@@ -90,6 +92,7 @@ create_parse_data!({
     pub asteroid_mining: Vec<AsteroidMiningData>,
     pub augmentations: Vec<AugmentationData>,
     pub building_data: Vec<BuildingData>,
+    pub designation_data:Vec<DesignationData>,
     pub goods_data: Vec<GoodData>,
     pub orbital_data: Vec<OrbitalData>,
     pub planet_type_data: Vec<PlanetTypeData>,
@@ -110,6 +113,8 @@ pub enum Token {
     Augmentations,
     #[token("#buildings")]
     Buildings,
+    #[token("#designations")]
+    Designations,
     #[token("#goods")]
     Goods,
     #[token("#orbital")]
@@ -145,6 +150,7 @@ pub enum Section {
     AsteroidMining(String),
     Augmentations(String),
     Buildings(String),
+    Designations(String),
     Goods(String),
     Orbital(String),
     PlanetTypes(String),
@@ -241,6 +247,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                         .append(&mut parse_section(file_name, &s)),
                     Section::Buildings(s) => parse_data
                         .building_data
+                        .append(&mut parse_section(file_name, &s)),
+                    Section::Designations(s) => parse_data
+                        .designation_data
                         .append(&mut parse_section(file_name, &s)),
                     Section::Goods(s) => parse_data
                         .goods_data

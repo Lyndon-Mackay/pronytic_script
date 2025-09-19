@@ -1,0 +1,79 @@
+use crate::designation::{BuildingLimit,DesignationData,DesignationToken,Field,Housing};
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum DesignationToken {
+        "string" => DesignationToken::String(<String>),
+        "number" => DesignationToken::Number(<u8>),
+
+        "=" => DesignationToken::Equal,
+        "(" => DesignationToken::RightBracket,
+        ")" => DesignationToken::LeftBracket,
+
+        "name" => DesignationToken::Name,
+
+        "description" => DesignationToken::Description,
+
+        "building_limit" => DesignationToken::BuildingLimit,
+        "unlimited" => DesignationToken::Unlimited,
+        "limited" => DesignationToken::Limited,
+
+        "housing" => DesignationToken::Housing,
+        "managed" => DesignationToken::Managed,
+        "unmanaged" => DesignationToken::Unmanaged,
+        
+    }
+}
+
+pub DesignationData:Vec<DesignationData> = {
+    <DesignationDatum*>
+}
+
+DesignationDatum:DesignationData = {
+    <id:"string"> <fields:Field*> =>{
+        let mut designation_data = DesignationData::default();
+
+        designation_data.id = id;
+
+        for f in fields{
+            match f {
+                Field::Name(n) => designation_data.name = n,
+                Field::Description(d) => designation_data.description = d,
+                Field::Housing(h) => designation_data.housing = h,
+                Field::BuildingLimit(b) => designation_data.building_limit = b
+            }
+        }
+
+        designation_data
+
+    }
+}
+
+Field:Field = {
+    <n:Name> => Field::Name(n),
+    <d:Description> => Field::Description(d),
+    <h:Housing> => Field::Housing(h),
+    <b:BuildingLimit> => Field::BuildingLimit(b),
+}
+
+BuildingLimit:BuildingLimit = {
+    "building_limit" "=" "unlimited" => BuildingLimit::Unlimited,
+    "building_limit" "=" "limited" "(" <n:"number"> ")" => BuildingLimit::Limited(n),
+}
+
+Housing:Housing = {
+    "housing" "=" "managed" => Housing::Managed,
+    "housing" "=" "unmanaged" => Housing::Unmanaged,
+}
+
+Description:String = {
+    "description" "=" <id:"string"> => id,
+}
+
+Name:String = {
+    "name" "=" <id:"string"> => id,
+}
