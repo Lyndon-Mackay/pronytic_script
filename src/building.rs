@@ -10,6 +10,86 @@ use lalrpop_util::lalrpop_mod;
 use crate::{LexicalError, common::DataParser};
 use logos::{self, Logos};
 
+/// Building data to send to game
+/// this is only made for serialisation
+/// actual data structure in game is different
+#[derive(Clone, Debug)]
+pub struct BuildingData {
+    pub id: String,
+    pub name: String,
+
+    pub planet_filters: Vec<PlanetFilter>,
+
+    pub initial: bool,
+    pub unique: bool,
+
+    pub energy: Decimal,
+
+    pub costs: Vec<CustomGood>,
+    pub private_costs: Decimal,
+    pub consumes: Vec<CustomGood>,
+    pub upkeep: Vec<CustomGood>,
+    pub produces: Vec<CustomGood>,
+
+    pub category: Category,
+
+    pub housing: u64,
+    pub workers: u64,
+
+    pub private_sector: bool,
+
+    pub stations: Vec<Station>,
+
+    pub magnetosphere_equilibrium: MagnetosphereImpact,
+    pub atmosphere_equilibrium: AtmosphereImpact,
+
+    pub temperature_change: Decimal,
+    pub water_change: Decimal,
+    pub breathable_change: Decimal,
+
+    pub tech_needed: Option<String>,
+    pub upgrades_from: Option<String>,
+
+    pub prosperity_per_job: Decimal,
+}
+
+impl Default for BuildingData {
+    fn default() -> Self {
+        BuildingData {
+            id: "".to_string(),
+            name: "".to_string(),
+            planet_filters: Vec::new(),
+            initial: false,
+            unique: false,
+            energy: Decimal::ZERO,
+
+            category: Category::Misc,
+
+            costs: Vec::new(),
+            private_costs: Decimal::ZERO,
+            consumes: Vec::new(),
+            upkeep: Vec::new(),
+            produces: Vec::new(),
+
+            housing: 0,
+            workers: 0,
+
+            private_sector: false,
+
+            stations: vec![],
+
+            magnetosphere_equilibrium: MagnetosphereImpact::default(),
+            atmosphere_equilibrium: AtmosphereImpact::default(),
+            temperature_change: Decimal::ZERO,
+            water_change: Decimal::ZERO,
+            breathable_change: Decimal::ZERO,
+            tech_needed: None,
+            upgrades_from: None,
+            prosperity_per_job: Decimal::ONE,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct CustomGood {
     pub id: String,
@@ -47,80 +127,10 @@ pub enum PlanetFilter {
     AllOrbitals,
 }
 
-/// Building data to send to game
-/// this is only made for serialisation
-/// actual data structure in game is different
 #[derive(Clone, Debug)]
-pub struct BuildingData {
-    pub id: String,
-    pub name: String,
-
-    pub planet_filters: Vec<PlanetFilter>,
-
-    pub initial: bool,
-    pub unique: bool,
-
-    pub energy: Decimal,
-
-    pub costs: Vec<CustomGood>,
-    pub private_costs: Decimal,
-    pub consumes: Vec<CustomGood>,
-    pub upkeep: Vec<CustomGood>,
-    pub produces: Vec<CustomGood>,
-
-    pub housing: u64,
-    pub workers: u64,
-
-    pub private_sector: bool,
-
-    pub stations: Vec<Station>,
-
-    pub magnetosphere_equilibrium: MagnetosphereImpact,
-    pub atmosphere_equilibrium: AtmosphereImpact,
-
-    pub temperature_change: Decimal,
-    pub water_change: Decimal,
-    pub breathable_change: Decimal,
-
-    pub tech_needed: Option<String>,
-    pub upgrades_from: Option<String>,
-
-    pub prosperity_per_job: Decimal,
-}
-
-impl Default for BuildingData {
-    fn default() -> Self {
-        BuildingData {
-            id: "".to_string(),
-            name: "".to_string(),
-            planet_filters: Vec::new(),
-            initial: false,
-            unique: false,
-            energy: Decimal::ZERO,
-
-            costs: Vec::new(),
-            private_costs: Decimal::ZERO,
-            consumes: Vec::new(),
-            upkeep: Vec::new(),
-            produces: Vec::new(),
-
-            housing: 0,
-            workers: 0,
-
-            private_sector: false,
-
-            stations: vec![],
-
-            magnetosphere_equilibrium: MagnetosphereImpact::default(),
-            atmosphere_equilibrium: AtmosphereImpact::default(),
-            temperature_change: Decimal::ZERO,
-            water_change: Decimal::ZERO,
-            breathable_change: Decimal::ZERO,
-            tech_needed: None,
-            upgrades_from: None,
-            prosperity_per_job: Decimal::ONE,
-        }
-    }
+pub enum Category {
+    Housing,
+    Misc,
 }
 
 #[derive(Logos, Clone, Debug, PartialEq)]
@@ -194,6 +204,9 @@ pub enum BuildingToken {
     #[token("produces")]
     Produces,
 
+    #[token("category")]
+    Category,
+
     #[token("housing")]
     Housing,
     #[token("workers")]
@@ -201,6 +214,9 @@ pub enum BuildingToken {
 
     #[token("private_sector")]
     PrivateSector,
+
+    #[token("misc")]
+    Misc,
 
     #[token("magnetosphere_equilibrium")]
     MagnetosphereEquilibrium,
@@ -272,6 +288,7 @@ pub enum Field {
     UpgradesFrom(String),
     ProsperityPerJob(Decimal),
     Stations(Vec<Station>),
+    Category(Category),
 }
 
 pub enum StationField {

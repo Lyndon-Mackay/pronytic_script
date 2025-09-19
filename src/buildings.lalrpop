@@ -1,4 +1,4 @@
-use crate::building::{AtmosphereImpact,BuildingData,CustomGood,
+use crate::building::{AtmosphereImpact,BuildingData,Category,CustomGood,
 MagnetosphereImpact,PlanetFilter,Station,StationField,Field,BuildingToken};
 
 use rust_decimal::prelude::*;
@@ -42,12 +42,17 @@ extern {
         "upkeep" => BuildingToken::Upkeep,
         "produces" => BuildingToken::Produces,
 
+        "category" => BuildingToken::Category,
+
         "housing" => BuildingToken::Housing,
         "workers" => BuildingToken::Workers,
 
         "stations" => BuildingToken::Stations,
         
         "private_sector" => BuildingToken::PrivateSector,
+
+        "misc" => BuildingToken::Misc,
+        
         "magnetosphere_equilibrium" => BuildingToken::MagnetosphereEquilibrium,
         "atmosphere_equilibrium" => BuildingToken::AtmosphereEquilibrium,
         "temperature_change" => BuildingToken::TemperatureChange,
@@ -102,6 +107,7 @@ Building:BuildingData = {
                 Field::Produces(p) => building_data.produces = p,
                 Field::Housing(h) => building_data.housing = h,
                 Field::Workers(w) => building_data.workers = w,
+                Field::Category(c) => building_data.category = c,
                 Field::PrivateSector(p) => {
                     building_data.private_sector = p;
                 }
@@ -161,6 +167,7 @@ Field:Field = {
     <u:UpgradesFrom> => Field::UpgradesFrom(u),
     <p:ProsperityPerJob> => Field::ProsperityPerJob(p),
     <s:Stations> => Field::Stations(s),
+    <c:Category> => Field::Category(c),
 }
 
 Costs:Vec<CustomGood> = {
@@ -228,6 +235,11 @@ Workers:u64 = {
 
 PrivateCosts:Decimal = {
     "private_costs" "=" <n:"decimal"> => n,
+}
+
+Category:Category = {
+    "category" "=" "housing" => Category::Housing,
+    "category" "=" "misc" => Category::Misc,
 }
 
 MagnetosphereEquilibrium:MagnetosphereImpact = {
