@@ -47,3 +47,11 @@ pub struct GoodAbundance {
     pub mean: Decimal,
     pub std_dev: Decimal,
 }
+
+#[derive(Clone, Debug)]
+pub enum PlanetFilter {
+    PlanetSide(String),
+    Orbital(String),
+    AllOrbitals,
+    AllPlanets,
+}

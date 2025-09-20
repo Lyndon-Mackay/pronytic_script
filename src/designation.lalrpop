@@ -1,5 +1,7 @@
-use crate::designation::{BuildingLimit,DesignationData,DesignationToken,Field,Housing};
+use crate::designation::{BuildingLimit,DesignationData,
+DesignationToken,Field,Housing,PlanetFilter,PopulationImpact};
 
+use rust_decimal::prelude::*;
 grammar;
 
 extern {
@@ -9,10 +11,17 @@ extern {
     enum DesignationToken {
         "string" => DesignationToken::String(<String>),
         "number" => DesignationToken::Number(<u8>),
+        "decimal_number" => DesignationToken::DecimalNumber(<Decimal>),
 
         "=" => DesignationToken::Equal,
-        "(" => DesignationToken::RightBracket,
-        ")" => DesignationToken::LeftBracket,
+        "(" => DesignationToken::LeftBracket,
+        ")" => DesignationToken::RightBracket,
+
+        "[" => DesignationToken::LeftSquare,
+        "]" => DesignationToken::RightSquare,
+
+        "{" => DesignationToken::LeftCurly,
+        "}" => DesignationToken::RightCurly,
 
         "name" => DesignationToken::Name,
 
@@ -22,9 +31,18 @@ extern {
         "unlimited" => DesignationToken::Unlimited,
         "limited" => DesignationToken::Limited,
 
+        "population_impact" => DesignationToken::PopulationImpact,
+        "growth" => DesignationToken::Growth,
+        "min_population" => DesignationToken::MinPopulation,
+
         "housing" => DesignationToken::Housing,
         "managed" => DesignationToken::Managed,
         "unmanaged" => DesignationToken::Unmanaged,
+
+        "orbital" => DesignationToken::Orbital,
+        "all_orbitals" => DesignationToken::AllOrbitals,
+        "all_planets" => DesignationToken::AllPlanets,        
+        "planet_filters" => DesignationToken::PlanetFilters,
         
     }
 }
@@ -44,7 +62,9 @@ DesignationDatum:DesignationData = {
                 Field::Name(n) => designation_data.name = n,
                 Field::Description(d) => designation_data.description = d,
                 Field::Housing(h) => designation_data.housing = h,
-                Field::BuildingLimit(b) => designation_data.building_limit = b
+                Field::BuildingLimit(b) => designation_data.building_limit = b,
+                Field::PopulationImpact(p) => designation_data.population_impact = p,
+                Field::PlanetFilters(p) => designation_data.planet_filters = p,
             }
         }
 
@@ -58,6 +78,7 @@ Field:Field = {
     <d:Description> => Field::Description(d),
     <h:Housing> => Field::Housing(h),
     <b:BuildingLimit> => Field::BuildingLimit(b),
+    <p:PopulationImpact> => Field::PopulationImpact(p),
 }
 
 BuildingLimit:BuildingLimit = {
@@ -68,6 +89,27 @@ BuildingLimit:BuildingLimit = {
 Housing:Housing = {
     "housing" "=" "managed" => Housing::Managed,
     "housing" "=" "unmanaged" => Housing::Unmanaged,
+}
+
+PopulationImpact:PopulationImpact = {
+    "population_impact" "{" "growth" "=" <growth:"decimal_number">
+    "min_population" "=" <min_population:"number"> "}" => {
+        PopulationImpact{
+            growth,
+            min_population
+        }
+    }
+}
+
+PlanetFilters:Vec<PlanetFilter> = {
+    "planet_filters" "=" "[" <planets:PlanetFilter+> "]" => planets,
+}
+
+PlanetFilter:PlanetFilter = {
+    "orbital" "(" <planet:"string"> ")" => PlanetFilter::Orbital(planet),
+    "all_orbitals" => PlanetFilter::AllOrbitals,
+    "all_planets" => PlanetFilter::AllPlanets,
+    <planet:"string"> => PlanetFilter::PlanetSide(planet),
 }
 
 Description:String = {

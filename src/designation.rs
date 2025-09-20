@@ -3,7 +3,12 @@ use std::fmt;
 use lalrpop_util::lalrpop_mod;
 use logos::Logos;
 
-use crate::{LexicalError, common::DataParser};
+use crate::{
+    LexicalError,
+    common::{DataParser, PlanetFilter},
+};
+
+use rust_decimal::prelude::*;
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -15,13 +20,36 @@ pub enum DesignationToken {
     #[regex(r"(\d+)", |lex|lex.slice().parse::<u8>().expect("parsing u8"), priority = 5)]
     Number(u8),
 
+    #[regex(r"(-?\d+\.\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    DecimalNumber(Decimal),
+
     #[token("=")]
     Equal,
 
     #[token("(")]
-    RightBracket,
-    #[token(")")]
     LeftBracket,
+    #[token(")")]
+    RightBracket,
+
+    #[token("{")]
+    LeftCurly,
+    #[token("}")]
+    RightCurly,
+
+    #[token("[")]
+    LeftSquare,
+    #[token("]")]
+    RightSquare,
+
+    #[token("orbital")]
+    Orbital,
+    #[token("all_orbitals")]
+    AllOrbitals,
+    #[token("all_planets")]
+    AllPlanets,
+
+    #[token("build_planets")]
+    PlanetFilters,
 
     #[token("name")]
     Name,
@@ -34,6 +62,13 @@ pub enum DesignationToken {
     Unlimited,
     #[token("limited")]
     Limited,
+
+    #[token("population_impact")]
+    PopulationImpact,
+    #[token("growth")]
+    Growth,
+    #[token("min_population")]
+    MinPopulation,
 
     #[token("housing")]
     Housing,
@@ -51,6 +86,20 @@ impl fmt::Display for DesignationToken {
 
 lalrpop_mod!(pub designation);
 
+///Parsed serialisation data to send to the game
+#[derive(Clone, Default, Debug)]
+pub struct DesignationData {
+    pub id: String,
+
+    pub name: String,
+    pub description: String,
+
+    pub building_limit: BuildingLimit,
+    pub housing: Housing,
+    pub population_impact: PopulationImpact,
+    pub planet_filters: Vec<PlanetFilter>,
+}
+
 #[derive(Clone, Default, Debug)]
 pub enum BuildingLimit {
     #[default]
@@ -66,14 +115,9 @@ pub enum Housing {
 }
 
 #[derive(Clone, Default, Debug)]
-pub struct DesignationData {
-    pub id: String,
-
-    pub name: String,
-    pub description: String,
-
-    pub building_limit: BuildingLimit,
-    pub housing: Housing,
+pub struct PopulationImpact {
+    pub growth: Decimal,
+    pub min_population: u8,
 }
 
 pub enum Field {
@@ -81,6 +125,8 @@ pub enum Field {
     Description(String),
     Housing(Housing),
     BuildingLimit(BuildingLimit),
+    PopulationImpact(PopulationImpact),
+    PlanetFilters(Vec<PlanetFilter>),
 }
 
 impl<'s> DataParser<'s> for DesignationData {

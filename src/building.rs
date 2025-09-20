@@ -8,6 +8,8 @@ use rust_decimal::prelude::*;
 use lalrpop_util::lalrpop_mod;
 
 use crate::{LexicalError, common::DataParser};
+
+pub use crate::common::PlanetFilter;
 use logos::{self, Logos};
 
 /// Building data to send to game
@@ -118,13 +120,6 @@ pub struct Station {
 
     pub path: String,
     //TODO animation information
-}
-
-#[derive(Clone, Debug)]
-pub enum PlanetFilter {
-    PlanetSide(String),
-    Orbital(String),
-    AllOrbitals,
 }
 
 #[derive(Clone, Debug)]
