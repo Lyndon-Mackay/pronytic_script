@@ -14,6 +14,10 @@ use rust_decimal::prelude::*;
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
 pub enum DesignationToken {
+    #[token("true")]
+    True,
+    #[token("false")]
+    False,
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -76,6 +80,9 @@ pub enum DesignationToken {
     Managed,
     #[token("unmanaged")]
     Unmanaged,
+
+    #[token("private_buildings")]
+    PrivateBuildings,
 }
 
 impl fmt::Display for DesignationToken {
@@ -87,7 +94,7 @@ impl fmt::Display for DesignationToken {
 lalrpop_mod!(pub designation);
 
 ///Parsed serialisation data to send to the game
-#[derive(Clone, Default, Debug)]
+#[derive(Clone, Debug)]
 pub struct DesignationData {
     pub id: String,
 
@@ -98,6 +105,23 @@ pub struct DesignationData {
     pub housing: Housing,
     pub population_impact: PopulationImpact,
     pub planet_filters: Vec<PlanetFilter>,
+
+    pub allow_private_buildings: bool,
+}
+
+impl Default for DesignationData {
+    fn default() -> Self {
+        Self {
+            allow_private_buildings: true,
+            id: Default::default(),
+            name: Default::default(),
+            description: Default::default(),
+            building_limit: Default::default(),
+            housing: Default::default(),
+            population_impact: Default::default(),
+            planet_filters: Default::default(),
+        }
+    }
 }
 
 #[derive(Clone, Default, Debug)]
@@ -127,6 +151,7 @@ pub enum Field {
     BuildingLimit(BuildingLimit),
     PopulationImpact(PopulationImpact),
     PlanetFilters(Vec<PlanetFilter>),
+    PrivateBuildings(bool),
 }
 
 impl<'s> DataParser<'s> for DesignationData {

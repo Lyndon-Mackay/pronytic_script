@@ -9,6 +9,9 @@ extern {
     type Error = String;
 
     enum DesignationToken {
+        "true" => DesignationToken::True,
+        "false" => DesignationToken::False,
+
         "string" => DesignationToken::String(<String>),
         "number" => DesignationToken::Number(<u8>),
         "decimal_number" => DesignationToken::DecimalNumber(<Decimal>),
@@ -43,6 +46,7 @@ extern {
         "all_orbitals" => DesignationToken::AllOrbitals,
         "all_planets" => DesignationToken::AllPlanets,        
         "planet_filters" => DesignationToken::PlanetFilters,
+        "private_buildings" => DesignationToken::PrivateBuildings,
         
     }
 }
@@ -65,6 +69,7 @@ DesignationDatum:DesignationData = {
                 Field::BuildingLimit(b) => designation_data.building_limit = b,
                 Field::PopulationImpact(p) => designation_data.population_impact = p,
                 Field::PlanetFilters(p) => designation_data.planet_filters = p,
+                Field::PrivateBuildings(p) => designation_data.allow_private_buildings = p,
             }
         }
 
@@ -79,6 +84,7 @@ Field:Field = {
     <h:Housing> => Field::Housing(h),
     <b:BuildingLimit> => Field::BuildingLimit(b),
     <p:PopulationImpact> => Field::PopulationImpact(p),
+    <p:PrivateBuildings> => Field::PrivateBuildings(p),
 }
 
 BuildingLimit:BuildingLimit = {
@@ -118,4 +124,9 @@ Description:String = {
 
 Name:String = {
     "name" "=" <id:"string"> => id,
+}
+
+PrivateBuildings:bool = {
+    "private_buildings" "=" "true" => true,
+    "private_buildings" "=" "false" => false,
 }
