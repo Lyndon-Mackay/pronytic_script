@@ -85,15 +85,6 @@ pub struct AsteroidMiningData {
     pub time: u8,
 }
 
-impl<'s> DataParser<'s> for AsteroidMiningData {
-    type Token = AsteroidToken;
-    fn parse_tokens(
-        tokens: Vec<(usize, Self::Token, usize)>,
-    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>> {
-        asteroid_mining::AsteroidMiningDataParser::new().parse(tokens)
-    }
-}
-
 pub enum Field {
     Name(String),
     DepotAsset(String),
@@ -102,4 +93,13 @@ pub enum Field {
     Produces(Vec<GoodConsumes>),
     Time(u8),
     Power(Decimal),
+}
+
+impl<'s> DataParser<'s> for AsteroidMiningData {
+    type Token = AsteroidToken;
+    fn parse_tokens(
+        tokens: Vec<(usize, Self::Token, usize)>,
+    ) -> Result<Vec<Self>, ParseError<usize, Self::Token, String>> {
+        asteroid_mining::AsteroidMiningDataParser::new().parse(tokens)
+    }
 }

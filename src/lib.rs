@@ -16,8 +16,8 @@ use logos::{self, Logos};
 
 use crate::{
     asteroid_mining::AsteroidMiningData, augmentations::AugmentationData, common::DataParser,
-    designation::DesignationData, orbital::OrbitalData, ship::ShipData, shipyard::ShipyardData,
-    species_trait::SpeciesTraitData, stapledon_swarm::StapledonSwarmData,
+    designation::DesignationData, orbital::OrbitalData, ranks::RankData, ship::ShipData,
+    shipyard::ShipyardData, species_trait::SpeciesTraitData, stapledon_swarm::StapledonSwarmData,
     stellar_system::StellarData,
 };
 
@@ -29,6 +29,7 @@ pub mod designation;
 pub mod goods;
 pub mod orbital;
 pub mod planet_types;
+pub mod ranks;
 pub mod ship;
 pub mod shipyard;
 pub mod species_trait;
@@ -96,6 +97,7 @@ create_parse_data!({
     pub goods_data: Vec<GoodData>,
     pub orbital_data: Vec<OrbitalData>,
     pub planet_type_data: Vec<PlanetTypeData>,
+    pub rank_data:Vec<RankData>,
     pub species_trait: Vec<SpeciesTraitData>,
     pub shipyard: Vec<ShipyardData>,
     pub ships:Vec<ShipData>,
@@ -121,6 +123,8 @@ pub enum Token {
     Orbital,
     #[token("#planet_types")]
     PlanetTypes,
+    #[token("#ranks")]
+    Ranks,
     #[token("#shipyard")]
     Shipyard,
     #[token("#ships")]
@@ -154,6 +158,7 @@ pub enum Section {
     Goods(String),
     Orbital(String),
     PlanetTypes(String),
+    Ranks(String),
     SpecieTraits(String),
     Ships(String),
     Shipyard(String),
@@ -259,6 +264,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                         .append(&mut parse_section(file_name, &o)),
                     Section::PlanetTypes(s) => parse_data
                         .planet_type_data
+                        .append(&mut parse_section(file_name, &s)),
+                    Section::Ranks(s) => parse_data
+                        .rank_data
                         .append(&mut parse_section(file_name, &s)),
                     Section::Ships(s) => parse_data.ships.append(&mut parse_section(file_name, &s)),
                     Section::Shipyard(s) => parse_data

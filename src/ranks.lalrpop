@@ -1,0 +1,61 @@
+use crate::ranks::{Field,RankData,RankToken};
+
+grammar;
+
+
+extern {
+	type Location = usize;
+	type Error = String;
+
+
+	enum RankToken{
+		"string" => RankToken::String(<String>),
+		"number" => RankToken::Number(<u16>),
+
+		"=" => RankToken::Equal,
+        "{" => RankToken::LeftCurly,
+        "}" => RankToken::RightCurly,
+
+		"number_of_stars" => RankToken::NumStars,
+
+		"level" => RankToken::Level,
+		"name" => RankToken::Name,
+	}
+}
+
+pub RankData:Vec<RankData> = {
+	<list:RankDatum*> => list,
+}
+
+RankDatum:RankData = {
+	<level:"number"> "=" "{" <fields:RankField*>"}" =>{
+		let mut rank = RankData::default();
+
+		rank.level = level;
+
+		for f in fields{
+			match f {
+				Field::Name(n) => rank.name = n,
+				Field::NumStars(n) => rank.number_of_stars = n
+			}
+		}
+
+		rank
+	}
+}
+
+
+RankField:Field ={
+	<n:Name> => Field::Name(n),
+	<n:NumStars> => Field::NumStars(n),
+}
+
+
+
+Name:String = {
+	"name" "=" <s:"string"> => s,
+}
+
+NumStars:u16 = {
+	"number_of_stars" "=" <n:"number"> => n,
+}
