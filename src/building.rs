@@ -112,9 +112,9 @@ pub struct MagnetosphereImpact {
 
 #[derive(Clone, Debug, Default)]
 pub struct Station {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub right: f32,
+    pub up: f32,
+    pub back: f32,
 
     pub scale: f32,
 
@@ -241,12 +241,12 @@ pub enum BuildingToken {
     #[token("added")]
     Added,
 
-    #[token("x")]
-    X,
-    #[token("y")]
-    Y,
-    #[token("z")]
-    Z,
+    #[token("right")]
+    Right,
+    #[token("up")]
+    Up,
+    #[token("back")]
+    Back,
     #[token("scale")]
     Scale,
     #[token("path")]
@@ -287,9 +287,9 @@ pub enum Field {
 }
 
 pub enum StationField {
-    X(f32),
-    Y(f32),
-    Z(f32),
+    Right(f32),
+    Up(f32),
+    Back(f32),
     Scale(f32),
     Path(String),
 }

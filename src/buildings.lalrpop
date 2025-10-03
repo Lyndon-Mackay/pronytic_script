@@ -65,9 +65,9 @@ extern {
         "rate" => BuildingToken::Rate,
         "added" => BuildingToken::Added,
 
-        "x" => BuildingToken::X,
-        "y" => BuildingToken::Y,
-        "z" => BuildingToken::Z,
+        "right" => BuildingToken::Right,
+        "up" => BuildingToken::Up,
+        "back" => BuildingToken::Back,
         "scale" => BuildingToken::Scale,
         "path" => BuildingToken::Path,
     }
@@ -297,14 +297,14 @@ Station:Station ={
         let mut station = Station::default();
         for f in fields{
             match f {
-                StationField::X(x) => {
-                    station.x = x;
+                StationField::Right(x) => {
+                    station.right = x;
                 }
-                StationField::Y(y) => {
-                    station.y = y;
+                StationField::Up(y) => {
+                    station.up = y;
                 }
-                StationField::Z(z) => {
-                    station.z = z;
+                StationField::Back(z) => {
+                    station.back = z;
                 }
                 StationField::Scale(s) => {
                     station.scale = s;
@@ -319,23 +319,23 @@ Station:Station ={
 }
 
 StationField:StationField = {
-    <x:X> => StationField::X(x),
-    <y:Y> => StationField::Y(y),
-    <z:Z> => StationField::Z(z),
+    <x:X> => StationField::Right(x),
+    <y:Y> => StationField::Up(y),
+    <z:Z> => StationField::Back(z),
     <s:Scale> => StationField::Scale(s),
     <p:Path> => StationField::Path(p),
 }
 
 X:f32 = {
-    "x" "=" <n:"decimal"> => n.to_f32().unwrap(),
+    "right" "=" <n:"decimal"> => n.to_f32().unwrap(),
 }
 
 Y:f32 = {
-    "y" "=" <n:"decimal"> => n.to_f32().unwrap(),
+    "up" "=" <n:"decimal"> => n.to_f32().unwrap(),
 }
 
 Z:f32 = {
-    "z" "=" <n:"decimal"> => n.to_f32().unwrap(),
+    "back" "=" <n:"decimal"> => n.to_f32().unwrap(),
 }
 
 Scale:f32 = {
