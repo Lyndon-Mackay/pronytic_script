@@ -80,26 +80,18 @@ pub PlanetTypeList:Vec<PlanetTypeData> = {
 
 TypesItem :PlanetTypeData = {
     <i:TypeId> <fields:Field*>   => {
-        let mut asset_location = "".to_string();
-        let mut setup_branch = Branch::default();
-        let mut abundances = Vec::new();
-        let mut terraform = Branch::default();
+
+        let mut planet_type_data = PlanetTypeData::default();
+        planet_type_data.name = i;
          for f in fields.into_iter() {
             match f {
-                Field::AssetLocation(a) => asset_location = a,
-                Field::Setup(s) => setup_branch = s,
-                Field::GoodsAbundance(g) => abundances = g,
-                Field::Terraform(t) => terraform = t,
+                Field::AssetLocation(a) => planet_type_data.asset_location = a,
+                Field::Setup(s) => planet_type_data.setup_conditions.push(s),
+                Field::GoodsAbundance(g) => planet_type_data.abundances = g,
+                Field::Terraform(t) => planet_type_data.terraform_conditions.extend(t),
             }
         }
-        PlanetTypeData{
-            name:i,
-            asset_location,
-            setup_conditions:vec![setup_branch],
-            abundances,
-            terraform_conditions:vec![terraform],
-
-        }
+        planet_type_data
     }
 }
 
@@ -114,8 +106,8 @@ Setup:Branch = {
     }
 }
 
-OnTerraform:Branch = {
-    "on_terraform" "{" <b:Branch> "}" => {
+OnTerraform:Vec<Branch> = {
+    "on_terraform" "{" <b:Branch*> "}" => {
         b
     }
 }

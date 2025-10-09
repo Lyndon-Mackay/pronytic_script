@@ -122,57 +122,13 @@ impl fmt::Display for PlanetTypeToken {
     }
 }
 lalrpop_mod!(pub planet_types);
-#[derive(Clone, Debug)]
-pub enum Condition {
-    Eq(Value, Value),
-    Gt(Value, Value),
-    Ge(Value, Value),
-    Lt(Value, Value),
-    Le(Value, Value),
-    Ne(Value, Value),
-}
-#[derive(Clone, Debug)]
-pub struct IfCondition {
-    pub conditions: Vec<Condition>,
-    pub actions: Vec<Action>,
-}
-
-#[derive(Clone, Debug, Default)]
-pub struct Branch {
-    pub if_conditions: Vec<IfCondition>,
-    pub else_actions: Vec<Action>,
-}
 
 #[derive(Debug, Clone)]
 pub enum Field {
     AssetLocation(String),
     GoodsAbundance(Vec<GoodAbundance>),
     Setup(Branch),
-    Terraform(Branch),
-}
-#[derive(Clone, Debug)]
-pub enum Value {
-    Decimal(Decimal),
-    OxygenLevel,
-    TemperatureCelsius,
-    TemperatureKelvin,
-    WaterLevel,
-    Magnetosphere,
-    Atmosphere,
-
-    GoodsAbundance(String),
-
-    StarType,
-    String(String),
-}
-
-#[derive(Clone, Debug)]
-pub enum Action {
-    None,
-    SetAsset(String),
-    SetPlanetType(String),
-    Branch(Branch),
-    SetStored(String, String),
+    Terraform(Vec<Branch>),
 }
 
 #[derive(Clone, Debug, Default)]
@@ -191,4 +147,50 @@ impl<'s> DataParser<'s> for PlanetTypeData {
     ) -> Result<Vec<PlanetTypeData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         planet_types::PlanetTypeListParser::new().parse(tokens)
     }
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct Branch {
+    pub if_conditions: Vec<IfCondition>,
+    pub else_actions: Vec<Action>,
+}
+#[derive(Clone, Debug)]
+pub struct IfCondition {
+    pub conditions: Vec<Condition>,
+    pub actions: Vec<Action>,
+}
+
+#[derive(Clone, Debug)]
+pub enum Condition {
+    Eq(Value, Value),
+    Gt(Value, Value),
+    Ge(Value, Value),
+    Lt(Value, Value),
+    Le(Value, Value),
+    Ne(Value, Value),
+}
+
+#[derive(Clone, Debug)]
+pub enum Action {
+    None,
+    SetAsset(String),
+    SetPlanetType(String),
+    Branch(Branch),
+    SetStored(String, String),
+}
+
+#[derive(Clone, Debug)]
+pub enum Value {
+    Decimal(Decimal),
+    OxygenLevel,
+    TemperatureCelsius,
+    TemperatureKelvin,
+    WaterLevel,
+    Magnetosphere,
+    Atmosphere,
+
+    GoodsAbundance(String),
+
+    StarType,
+    String(String),
 }
