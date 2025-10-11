@@ -55,6 +55,8 @@ extern {
         "good_id" => StellarToken::GoodId,
         "amount" => StellarToken::Amount,
 
+        "capital" => StellarToken::Capital,
+
     }
 }
 
@@ -64,8 +66,10 @@ pub StellarData:Vec<StellarData> = {
 
 StellarDatum:StellarData = {
     <id:"number"> "=" "{" <fields:StellarField*> "}" => {
-        let mut stellar_data = StellarData::default();
-        stellar_data.id = id;
+        let mut stellar_data = StellarData{
+            id,
+            ..Default::default()
+        };
 
         for f in fields {
             match f {
@@ -133,6 +137,7 @@ Planet:PlanetData = {
                 PlanetField::NaturalResources(n) => planet_data.natural_resources = n,
                 PlanetField::Ring => planet_data.ring = true,
                 PlanetField::Moon(m) => planet_data.moons.push(m),
+                PlanetField::Capital(c) => planet_data.capital = c,
             }
         }
         planet_data
@@ -152,6 +157,7 @@ PlanetField:PlanetField = {
     <n:NaturalResources> => PlanetField::NaturalResources(n),
     <"ring"> => PlanetField::Ring,
     <m:Moon> => PlanetField::Moon(m),
+    <c:Capital> => PlanetField::Capital(c),
 }
 
 
@@ -170,6 +176,7 @@ Moon:MoonData = {
                 MoonField::Water(w) => moon_data.water = w,
                 MoonField::Breathability(b) => moon_data.breathability = b,
                 MoonField::NaturalResources(n) => moon_data.natural_resources = n,
+                MoonField::Capital(c) => moon_data.capital = c,
             }
         } 
         moon_data
@@ -187,6 +194,7 @@ MoonField:MoonField = {
     <w:Water> => MoonField::Water(w),
     <b:Breathability> => MoonField::Breathability(b),
     <n:NaturalResources> => MoonField::NaturalResources(n),
+    <c:Capital> => MoonField::Capital(c),
 }
 
 StarType:String = {
@@ -245,4 +253,10 @@ NaturalResource:NaturalResource = {
         id:s,
         amount:n,
     }
+}
+
+Capital:bool = {
+    "capital" "=" "true" => true,
+    "capital" "=" "false" => false,
+    
 }

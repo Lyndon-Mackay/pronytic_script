@@ -9,6 +9,8 @@ extern {
     type Error = String;
     
     enum ShipToken {
+        "true" => ShipToken::True,
+        "false" => ShipToken::False,
         "string" => ShipToken::String(<String>),
         "number" => ShipToken::Number(<u8>),
         "decimal_number" => ShipToken::DecimalNumber(<Decimal>),
@@ -24,6 +26,8 @@ extern {
 
         "scale" => ShipToken::Scale,
 
+        "starts_with" => ShipToken::StartsWith
+
     }
 }
 
@@ -33,8 +37,10 @@ pub ShipData:Vec<ShipData> = {
 
 ShipDatum:ShipData = {
     <id:"string"> <fields:ShipField*>  => {
-        let mut ship_data = ShipData::default();
-        ship_data.id = id;
+        let mut ship_data = ShipData{
+            id,
+            ..Default::default()
+        };
 
         for f in fields {
             match f {
@@ -42,6 +48,7 @@ ShipDatum:ShipData = {
                 Field::AssetLocation(a) => ship_data.asset_location = a,
                 Field::ShipClass(s) => ship_data.ship_class = s,
                 Field::Scale(s) => ship_data.scale = s,
+                Field::StartsWith(b) => ship_data.starts_with = b,
             }
         }
 
@@ -54,6 +61,7 @@ ShipField:Field = {
     <a:AssetLocation> => Field::AssetLocation(a),
     <s:ShipClass> => Field::ShipClass(s),
     <s:Scale> => Field::Scale(s),
+    <s:StartsWith> => Field::StartsWith(s),
 }
 
 Name:String = {
@@ -70,4 +78,9 @@ ShipClass:ShipClass = {
 
 Scale:f32 = {
     "scale" "=" <n:"decimal_number"> => n.to_f32().unwrap(),
+}
+
+StartsWith:bool = {
+    "starts_with" "=" "true" => true,
+    "starts_with" "=" "false" => false,
 }

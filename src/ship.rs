@@ -10,6 +10,10 @@ use crate::{LexicalError, common::DataParser};
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
 pub enum ShipToken {
+    #[token("true")]
+    True,
+    #[token("false")]
+    False,
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -34,6 +38,9 @@ pub enum ShipToken {
 
     #[token("scale")]
     Scale,
+
+    #[token("starts_with")]
+    StartsWith,
 }
 
 impl fmt::Display for ShipToken {
@@ -59,6 +66,8 @@ pub struct ShipData {
     pub ship_class: ShipClass,
 
     pub scale: f32,
+
+    pub starts_with: bool,
 }
 
 pub enum Field {
@@ -66,6 +75,7 @@ pub enum Field {
     AssetLocation(String),
     ShipClass(ShipClass),
     Scale(f32),
+    StartsWith(bool),
 }
 
 impl<'s> DataParser<'s> for ShipData {

@@ -95,6 +95,9 @@ pub enum StellarToken {
 
     #[token("amount")]
     Amount,
+
+    #[token("capital")]
+    Capital,
 }
 
 impl fmt::Display for StellarToken {
@@ -115,7 +118,7 @@ pub struct StellarData {
 
 #[derive(Clone, Debug)]
 //Majority case is the large data structure variant and it will be cleaned up on program startup
-#[allow(clippy::large_enum_variant)]
+// #[allow(clippy::large_enum_variant)]
 pub enum StellarObject {
     PlanetData(PlanetData),
     //Dwarf planets
@@ -129,12 +132,6 @@ pub struct StarData {
     pub size: u16,
     pub temperature: Temperature,
     pub star_type: String,
-}
-
-#[derive(Clone, Default, Debug)]
-pub struct NaturalResource {
-    pub id: String,
-    pub amount: Decimal,
 }
 
 #[derive(Clone, Debug)]
@@ -152,6 +149,8 @@ pub struct PlanetData {
     pub breathability: Decimal,
 
     pub natural_resources: Vec<NaturalResource>,
+
+    pub capital: bool,
 
     pub ring: bool,
 
@@ -172,6 +171,7 @@ impl Default for PlanetData {
             breathability: Default::default(),
             natural_resources: Default::default(),
             ring: Default::default(),
+            capital: Default::default(),
             moons: Default::default(),
         }
     }
@@ -192,6 +192,13 @@ pub struct MoonData {
     pub breathability: Decimal,
 
     pub natural_resources: Vec<NaturalResource>,
+    pub capital: bool,
+}
+
+#[derive(Clone, Default, Debug)]
+pub struct NaturalResource {
+    pub id: String,
+    pub amount: Decimal,
 }
 
 pub enum StellarField {
@@ -220,6 +227,7 @@ pub enum PlanetField {
     NaturalResources(Vec<NaturalResource>),
     Ring,
     Moon(MoonData),
+    Capital(bool),
 }
 
 pub enum MoonField {
@@ -233,6 +241,7 @@ pub enum MoonField {
     Water(Decimal),
     Breathability(Decimal),
     NaturalResources(Vec<NaturalResource>),
+    Capital(bool),
 }
 
 impl<'s> DataParser<'s> for StellarData {
