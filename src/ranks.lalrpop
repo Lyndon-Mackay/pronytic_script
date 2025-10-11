@@ -20,6 +20,7 @@ extern {
 
 		"level" => RankToken::Level,
 		"name" => RankToken::Name,
+		"description" => RankToken::Description,
 	}
 }
 
@@ -29,14 +30,14 @@ pub RankData:Vec<RankData> = {
 
 RankDatum:RankData = {
 	<level:"number"> "=" "{" <fields:RankField*>"}" =>{
-		let mut rank = RankData::default();
-
-		rank.level = level;
-
+		let mut rank = RankData{
+			level,..Default::default()
+		};
 		for f in fields{
 			match f {
 				Field::Name(n) => rank.name = n,
-				Field::NumStars(n) => rank.number_of_stars = n
+				Field::NumStars(n) => rank.number_of_stars = n,
+				Field::Description(d) => rank.description = Some(d),
 			}
 		}
 
@@ -48,6 +49,7 @@ RankDatum:RankData = {
 RankField:Field ={
 	<n:Name> => Field::Name(n),
 	<n:NumStars> => Field::NumStars(n),
+	<d:Description> => Field::Description(d),
 }
 
 
@@ -58,4 +60,8 @@ Name:String = {
 
 NumStars:u16 = {
 	"number_of_stars" "=" <n:"number"> => n,
+}
+
+Description:String = {
+	"description" "=" <s:"string"> => s,
 }

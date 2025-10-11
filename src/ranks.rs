@@ -28,6 +28,8 @@ pub enum RankToken {
     Level,
     #[token("name")]
     Name,
+    #[token("description")]
+    Description,
 }
 
 impl fmt::Display for RankToken {
@@ -43,13 +45,8 @@ pub struct RankData {
     pub level: u16,
     pub name: String,
     pub number_of_stars: u16,
+    pub description: Option<String>,
 }
-
-pub enum Field {
-    Name(String),
-    NumStars(u16),
-}
-
 impl<'s> DataParser<'s> for RankData {
     type Token = RankToken;
 
@@ -58,4 +55,10 @@ impl<'s> DataParser<'s> for RankData {
     ) -> Result<Vec<Self>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         ranks::RankDataParser::new().parse(tokens)
     }
+}
+
+pub enum Field {
+    Name(String),
+    NumStars(u16),
+    Description(String),
 }
