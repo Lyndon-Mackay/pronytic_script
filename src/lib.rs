@@ -6,7 +6,6 @@ use lalrpop_util::lalrpop_mod;
 use planet_types::PlanetTypeData;
 use regex::Regex;
 use tech::TechData;
-use tracing::*;
 
 use miette::{Diagnostic, NamedSource, SourceSpan};
 
