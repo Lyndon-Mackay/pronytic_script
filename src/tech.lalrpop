@@ -23,23 +23,20 @@ pub Techs:Vec<TechData> = {
 
 Tech:TechData = {
     <id:TechId> <fields:Field*> => {
-        let mut time = 0;
-        let mut name = String::new();
-        let mut description = String::new();
+
+        let mut tech_data = TechData{
+            id,
+            ..Default::default()
+        };
 
         for f in fields{
             match f {
-                Field::Time(t) => time = t,
-                Field::Name(n) => name = n,
-                Field::Description(d) => description = d
+                Field::Time(t) => tech_data.time = t,
+                Field::Name(n) => tech_data.name = n,
+                Field::Description(d) => tech_data.description = d
             }
         }
-        TechData{
-            id,
-            time,
-            name,
-            description,
-        }
+        tech_data
     }
 }
 

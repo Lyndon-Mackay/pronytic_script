@@ -57,9 +57,11 @@ pub DesignationData:Vec<DesignationData> = {
 
 DesignationDatum:DesignationData = {
     <id:"string"> <fields:Field*> =>{
-        let mut designation_data = DesignationData::default();
+        let mut designation_data = DesignationData{
+            id,
+            ..Default::default()
+        };
 
-        designation_data.id = id;
 
         for f in fields{
             match f {

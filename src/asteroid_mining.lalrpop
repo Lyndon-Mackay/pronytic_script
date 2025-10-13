@@ -47,8 +47,10 @@ pub AsteroidMiningData:Vec<AsteroidMiningData> = {
 
 AsteroidMiningDatum:AsteroidMiningData = {
     <level:"number"> "=" "{" <fields:AsteroidField*>  "}" => {
-        let mut asteroid_mine = AsteroidMiningData::default();
-        asteroid_mine.level = level;
+        let mut asteroid_mine = AsteroidMiningData{
+            level,
+            ..Default::default()
+        };
 
         for f in fields {
             match f {

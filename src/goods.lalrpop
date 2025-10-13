@@ -53,43 +53,26 @@ pub Goods:Vec<GoodData> = {
 
 Good:GoodData = {
     <id:"string"> <fields:Field*> =>{
-        let mut hardcoded_id = None;
-        let mut icon = String::new();
-        let mut name = String::new();
-        let mut good_type = GoodType::Public;
-        let mut buy_value = Decimal::ZERO;
-        let mut sell_value = Decimal::ZERO;
-        let mut consumption_type = ConsumptionType::None;
-        let mut prosperity_bonus = Decimal::ZERO;
-        let mut prosperity_cost = Decimal::ZERO;
-        let mut vendible = true;
+
+        let mut good_data = GoodData{
+            id,
+            ..Default::default()
+        };
         for f in fields {
             match f{
-                Field::Icon(i) => icon = i,
-                Field::Name(n) => name = n,
-                Field::BuyValue(b) => buy_value = b,
-                Field::SellValue(s) => sell_value = s,
-                Field::GoodType(g) => good_type = g,
-                Field::HardcodedId(i) => hardcoded_id = Some(i),
-                Field::ConsumptionType(c) => consumption_type = c,
-                Field::ProsperityBonus(p) => prosperity_bonus = p,
-                Field::ProsperityCost(p) => prosperity_cost = p,
-                Field::Vendible(v) => vendible = v,
+                Field::Icon(i) => good_data.icon = i,
+                Field::Name(n) => good_data.name = n,
+                Field::BuyValue(b) => good_data.buy_value = b,
+                Field::SellValue(s) => good_data.sell_value = s,
+                Field::GoodType(g) => good_data.good_type = g,
+                Field::HardcodedId(i) => good_data.hardcoded_id = Some(i),
+                Field::ConsumptionType(c) => good_data.consumption_type = c,
+                Field::ProsperityBonus(p) => good_data.prosperity_bonus = p,
+                Field::ProsperityCost(p) => good_data.prosperity_cost = p,
+                Field::Vendible(v) => good_data.vendible = v,
             }
         }
-        GoodData {
-            id:id.to_string(),
-            hardcoded_id,
-            icon,
-            name,
-            good_type,
-            consumption_type,
-            buy_value,
-            sell_value,
-            prosperity_bonus,
-            prosperity_cost,
-            vendible,
-        }
+        good_data
     }
 }
 

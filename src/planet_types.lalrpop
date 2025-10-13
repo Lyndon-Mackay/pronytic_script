@@ -79,10 +79,12 @@ pub PlanetTypeList:Vec<PlanetTypeData> = {
 }
 
 TypesItem :PlanetTypeData = {
-    <i:TypeId> <fields:Field*>   => {
+    <name:TypeId> <fields:Field*>   => {
 
-        let mut planet_type_data = PlanetTypeData::default();
-        planet_type_data.name = i;
+        let mut planet_type_data = PlanetTypeData{
+            name,
+            ..Default::default()
+        };
          for f in fields.into_iter() {
             match f {
                 Field::AssetLocation(a) => planet_type_data.asset_location = a,
@@ -131,7 +133,7 @@ If:IfCondition = {
         let mut actions = Vec::with_capacity(a.len());
 
         conditions.extend(c2.into_iter().map(|(_,c)|c));
-        actions.extend(a.into_iter());
+        actions.extend(a);
 
         IfCondition {
             conditions,

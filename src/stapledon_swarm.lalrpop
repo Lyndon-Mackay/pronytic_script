@@ -51,8 +51,10 @@ pub StapledonData:Vec<StapledonSwarmData> = {
 
 StapledonDatum:StapledonSwarmData = {
     <level:"number">  "=" "{" <fields:StapledonField*> "}" =>{
-        let mut stapledon = StapledonSwarmData::default();
-        stapledon.level = level;
+        let mut stapledon = StapledonSwarmData{
+            level,
+            ..Default::default()
+        };
         for f in fields {
             match f {
                 Field::Name(n) => stapledon.name = n,

@@ -45,8 +45,10 @@ pub OrbitalData:Vec<OrbitalData> = {
 
 OrbitalDatum:OrbitalData = {
     <level:"number"> "=" "{" <fields:OrbitalField*> "}" => {
-        let mut orbital = OrbitalData::default();
-        orbital.level = level;
+        let mut orbital = OrbitalData{
+            level,
+            ..Default::default()
+        };
         for f in fields {
             match f {
                 Field::Name(n) => orbital.name = n,

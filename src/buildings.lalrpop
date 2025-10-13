@@ -79,8 +79,10 @@ pub Buildings:Vec<BuildingData> = {
 
 Building:BuildingData = {
     <id:"string"> <fields:Field*> => {
-        let mut building_data = BuildingData::default();
-        building_data.id = id;
+        let mut building_data = BuildingData{
+            id,
+            ..Default::default()
+        };
         for f in fields {
             match f {
                 Field::Name(n) => {
@@ -226,11 +228,11 @@ Energy:Decimal = {
 }
 
 Housing:u64 = {
-    "housing" "=" <n:"number"> => n.try_into().unwrap(),
+    "housing" "=" <n:"number"> => n,
 }
 
 Workers:u64 = {
-    "workers" "=" <n:"number"> => n.try_into().unwrap(),
+    "workers" "=" <n:"number"> => n,
 }
 
 PrivateCosts:Decimal = {

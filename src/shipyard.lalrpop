@@ -44,8 +44,10 @@ pub ShipyardData:Vec<ShipyardData> = {
 
 ShipyardDatum:ShipyardData = {
     <level:"number"> "=" "{" <fields:ShipyardField*> "}" => {
-        let mut shipyard = ShipyardData::default();
-        shipyard.level = level;
+        let mut shipyard = ShipyardData{
+            level,
+            ..Default::default()
+        };
         for f in fields{
             match f {
                 Field::Name(n) => shipyard.name = n,

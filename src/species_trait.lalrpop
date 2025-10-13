@@ -47,27 +47,21 @@ pub SpeciesTraits:Vec<SpeciesTraitData> = {
 SpeciesTrait:SpeciesTraitData = {
     
     <id:Id> <fields:Field*> => {
-        let mut name = "".to_string();
-        let mut icon = "".to_string();
-        let mut consumes = Vec::new();
-        let mut effects = Vec::new();
+
+        let mut species_trait_data = SpeciesTraitData{
+            id,
+            ..Default::default()
+        };
 
         for f in fields.into_iter(){
             match f {
-                Field::Name(n) => name = n,
-                Field::Icon(i) => icon = i,
-                Field::Consumes(c) => consumes = c,
-                Field::Effects(e) => effects = e,
+                Field::Name(n) => species_trait_data.name = n,
+                Field::Icon(i) => species_trait_data.icon = i,
+                Field::Consumes(c) => species_trait_data.consumes = c,
+                Field::Effects(e) => species_trait_data.effects = e,
             }
         }
-
-        SpeciesTraitData {
-            id,
-            name,
-            icon,
-            consumes,
-            effects,
-        }
+        species_trait_data
     }
 }
 
