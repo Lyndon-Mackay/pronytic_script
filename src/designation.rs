@@ -99,7 +99,7 @@ impl fmt::Display for DesignationToken {
 lalrpop_mod!(pub designation);
 
 ///Parsed serialisation data to send to the game
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct DesignationData {
     pub id: String,
 
@@ -112,21 +112,6 @@ pub struct DesignationData {
     pub planet_filters: Vec<PlanetFilter>,
 
     pub private_buildings: PrivateBuildings,
-}
-
-impl Default for DesignationData {
-    fn default() -> Self {
-        Self {
-            private_buildings: Default::default(),
-            id: Default::default(),
-            name: Default::default(),
-            description: Default::default(),
-            building_limit: Default::default(),
-            housing: Default::default(),
-            population_impact: Default::default(),
-            planet_filters: Default::default(),
-        }
-    }
 }
 
 #[derive(Clone, Default, Debug)]
