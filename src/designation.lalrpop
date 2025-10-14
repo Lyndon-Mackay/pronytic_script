@@ -1,5 +1,6 @@
 use crate::designation::{BuildingLimit,DesignationData,
-DesignationToken,Field,Housing,PlanetFilter,PopulationImpact};
+DesignationToken,Field,Housing,PlanetFilter,PopulationImpact,
+PrivateBuildings};
 
 use rust_decimal::prelude::*;
 grammar;
@@ -47,6 +48,9 @@ extern {
         "all_planets" => DesignationToken::AllPlanets,        
         "planet_filters" => DesignationToken::PlanetFilters,
         "private_buildings" => DesignationToken::PrivateBuildings,
+
+        "none" => DesignationToken::None,
+        "always" => DesignationToken::Always,
         
     }
 }
@@ -71,7 +75,7 @@ DesignationDatum:DesignationData = {
                 Field::BuildingLimit(b) => designation_data.building_limit = b,
                 Field::PopulationImpact(p) => designation_data.population_impact = p,
                 Field::PlanetFilters(p) => designation_data.planet_filters = p,
-                Field::PrivateBuildings(p) => designation_data.allow_private_buildings = p,
+                Field::PrivateBuildings(p) => designation_data.private_buildings = p,
             }
         }
 
@@ -128,7 +132,8 @@ Name:String = {
     "name" "=" <id:"string"> => id,
 }
 
-PrivateBuildings:bool = {
-    "private_buildings" "=" "true" => true,
-    "private_buildings" "=" "false" => false,
+PrivateBuildings:PrivateBuildings = {
+    "private_buildings" "=" "none" => PrivateBuildings::None,
+    "private_buildings" "=" "always" => PrivateBuildings::Always,
+    "private_buildings" "=" "min_population" "(" <n:"number"> ")" => PrivateBuildings::MinPopulation(n),
 }

@@ -83,6 +83,11 @@ pub enum DesignationToken {
 
     #[token("private_buildings")]
     PrivateBuildings,
+
+    #[token("none")]
+    None,
+    #[token("always")]
+    Always,
 }
 
 impl fmt::Display for DesignationToken {
@@ -106,13 +111,13 @@ pub struct DesignationData {
     pub population_impact: PopulationImpact,
     pub planet_filters: Vec<PlanetFilter>,
 
-    pub allow_private_buildings: bool,
+    pub private_buildings: PrivateBuildings,
 }
 
 impl Default for DesignationData {
     fn default() -> Self {
         Self {
-            allow_private_buildings: true,
+            private_buildings: Default::default(),
             id: Default::default(),
             name: Default::default(),
             description: Default::default(),
@@ -139,6 +144,14 @@ pub enum Housing {
 }
 
 #[derive(Clone, Default, Debug)]
+pub enum PrivateBuildings {
+    #[default]
+    None,
+    MinPopulation(u8),
+    Always,
+}
+
+#[derive(Clone, Default, Debug)]
 pub struct PopulationImpact {
     pub growth: Decimal,
     pub min_population: u8,
@@ -151,7 +164,7 @@ pub enum Field {
     BuildingLimit(BuildingLimit),
     PopulationImpact(PopulationImpact),
     PlanetFilters(Vec<PlanetFilter>),
-    PrivateBuildings(bool),
+    PrivateBuildings(PrivateBuildings),
 }
 
 impl<'s> DataParser<'s> for DesignationData {

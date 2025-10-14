@@ -105,7 +105,7 @@ pub enum GoodType {
     Tender,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct GoodData {
     pub id: String,
     pub hardcoded_id: Option<u8>,
@@ -118,6 +118,24 @@ pub struct GoodData {
     pub prosperity_cost: Decimal,
     pub buy_value: Decimal,
     pub sell_value: Decimal,
+}
+
+impl Default for GoodData {
+    fn default() -> Self {
+        Self {
+            id: Default::default(),
+            hardcoded_id: Default::default(),
+            icon: Default::default(),
+            name: Default::default(),
+            vendible: true,
+            good_type: Default::default(),
+            consumption_type: Default::default(),
+            prosperity_bonus: Default::default(),
+            prosperity_cost: Default::default(),
+            buy_value: Default::default(),
+            sell_value: Default::default(),
+        }
+    }
 }
 
 #[derive(Clone, Default, Debug)]
