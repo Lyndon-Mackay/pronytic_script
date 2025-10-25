@@ -1,6 +1,6 @@
 use rust_decimal::prelude::*;
 
-use crate::orbital::{Field,OrbitalData,OrbitalToken};
+use crate::orbital::{Field,OrbitalData,OrbitalToken,Temperature};
 
 use crate::common::GoodConsumes;
 
@@ -30,11 +30,20 @@ extern {
         "good_id" => OrbitalToken::GoodId,
 
         "amount" => OrbitalToken::Amount,
-        
+
         "consumes" => OrbitalToken::Consumes,
 
         "time" => OrbitalToken::Time,
         "building_limit" => OrbitalToken::BuildingLimit,
+
+        "magnetophere" => OrbitalToken::Magnetosphere,
+        "atmosphere" => OrbitalToken::Atmosphere,
+
+        "temperature_celsius" => OrbitalToken::TemperatureCelsius,
+        "temperature_kelvin" => OrbitalToken::TemperatureKelvin,
+
+        "water" => OrbitalToken::Water,
+        "breathability" => OrbitalToken::Breathability,
     }
 
 }
@@ -56,6 +65,11 @@ OrbitalDatum:OrbitalData = {
                 Field::Consumes(c) => orbital.costs = c,
                 Field::Time(t) => orbital.time = t,
                 Field::BuildingLimit(l) => orbital.building_limit = l,
+                Field::Magnetosphere(m) => orbital.magnetosphere = m,
+                Field::Atmosphere(a) => orbital.atmosphere = a,
+                Field::Water(w) => orbital.water = w,
+                Field::Temperature(t) => orbital.temperature = t,
+                Field::Breathability(b) => orbital.breathability = b,
             }
         }
         orbital
@@ -68,6 +82,11 @@ OrbitalField:Field ={
     <c:GoodConsumes> => Field::Consumes(c),
     <t:Time> => Field::Time(t),
     <l:BuildingLimit> => Field::BuildingLimit(l),
+    <m:Magnetosphere> => Field::Magnetosphere(m),
+    <a:Atmosphere> => Field::Atmosphere(a),
+    <w:Water> => Field::Water(w),
+    <t:Temperature> => Field::Temperature(t),
+    <b:Breathability> => Field::Breathability(b),
 }
 Name:String = {
     "name" "=" <s:"string"> => s,
@@ -85,6 +104,27 @@ BuildingLimit:u8 = {
     "building_limit" "=" <l:"number"> => l,
 }
 
+Atmosphere:Decimal = {
+    "atmosphere" "=" <d:"decimal_number"> => d,
+}
+
+Water:Decimal = {
+    "water" "=" <d:"decimal_number"> => d,
+}
+
+Magnetosphere:Decimal = {
+    "magnetophere" "=" <m:"decimal_number"> => m,
+}
+
+Breathability:Decimal = {
+    "breathability" "=" <d:"decimal_number"> => d,
+}
+
+Temperature:Temperature = {
+    "temperature_kelvin" "=" <d:"decimal_number"> => Temperature::from_kelvin(d),
+    "temperature_celsius" "=" <d:"decimal_number"> => Temperature::from_celsius(d),
+}
+
 GoodConsumes:Vec<GoodConsumes> = {
     "consumes" "=" "[" <c:GoodConsume*> "]" =>c,
 }
@@ -97,6 +137,3 @@ GoodConsume:GoodConsumes = {
         }
     }
 }
-
-
-
