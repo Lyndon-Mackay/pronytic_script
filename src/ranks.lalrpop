@@ -1,5 +1,7 @@
 use crate::ranks::{Field,RankData,RankToken};
 
+use rust_decimal::prelude::*;
+
 grammar;
 
 
@@ -11,12 +13,15 @@ extern {
 	enum RankToken{
 		"string" => RankToken::String(<String>),
 		"number" => RankToken::Number(<u16>),
+		"decimal" => RankToken::DecimalNumber(<Decimal>),
 
 		"=" => RankToken::Equal,
-        "{" => RankToken::LeftCurly,
-        "}" => RankToken::RightCurly,
+		"{" => RankToken::LeftCurly,
+		"}" => RankToken::RightCurly,
 
 		"number_of_stars" => RankToken::NumStars,
+		"stockpile_max" => RankToken::StockpileMax,
+		"huck_max" => RankToken::HuckMax,
 
 		"level" => RankToken::Level,
 		"name" => RankToken::Name,
@@ -37,6 +42,8 @@ RankDatum:RankData = {
 			match f {
 				Field::Name(n) => rank.name = n,
 				Field::NumStars(n) => rank.number_of_stars = n,
+				Field::StockpileMax(n) => rank.stockpile_max = n,
+				Field::HuckMax(d) => rank.huck_max = d,
 				Field::Description(d) => rank.description = Some(d),
 			}
 		}
@@ -49,10 +56,10 @@ RankDatum:RankData = {
 RankField:Field ={
 	<n:Name> => Field::Name(n),
 	<n:NumStars> => Field::NumStars(n),
+	<n:StockpileMax> => Field::StockpileMax(n),
+    <d:HuckMax> => Field::HuckMax(d),
 	<d:Description> => Field::Description(d),
 }
-
-
 
 Name:String = {
 	"name" "=" <s:"string"> => s,
@@ -60,6 +67,14 @@ Name:String = {
 
 NumStars:u16 = {
 	"number_of_stars" "=" <n:"number"> => n,
+}
+
+StockpileMax:u16 = {
+	"stockpile_max" "=" <n:"number"> => n,
+}
+
+HuckMax:Decimal = {
+	"huck_max" "=" <d:"decimal"> => d,
 }
 
 Description:String = {

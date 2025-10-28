@@ -3,6 +3,7 @@ use std::fmt;
 use crate::{LexicalError, common::DataParser};
 use lalrpop_util::lalrpop_mod;
 use logos::{self, Logos};
+use rust_decimal::prelude::*;
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
@@ -14,6 +15,9 @@ pub enum RankToken {
     #[regex(r"(\d+)", |lex|lex.slice().parse::<u16>().expect("parsing u8"), priority = 5)]
     Number(u16),
 
+    #[regex(r"(-?\d+\.?\d*)", |lex| Decimal::from_str(lex.slice()).expect("parsed_decimal"), priority = 4)]
+    DecimalNumber(Decimal),
+
     #[token("=")]
     Equal,
     #[token("{")]
@@ -24,6 +28,10 @@ pub enum RankToken {
     #[token("number_of_stars")]
     NumStars,
 
+    #[token("stockpile_max")]
+    StockpileMax,
+    #[token("huck_max")]
+    HuckMax,
     #[token("level")]
     Level,
     #[token("name")]
@@ -45,6 +53,8 @@ pub struct RankData {
     pub level: u16,
     pub name: String,
     pub number_of_stars: u16,
+    pub stockpile_max: u16,
+    pub huck_max: Decimal,
     pub description: Option<String>,
 }
 impl<'s> DataParser<'s> for RankData {
@@ -60,5 +70,7 @@ impl<'s> DataParser<'s> for RankData {
 pub enum Field {
     Name(String),
     NumStars(u16),
+    StockpileMax(u16),
+    HuckMax(Decimal),
     Description(String),
 }
