@@ -206,4 +206,5 @@ pub enum Value {
 
     StarType,
     String(String),
+    StringLookup(String),
 }

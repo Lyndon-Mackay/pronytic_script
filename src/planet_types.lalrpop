@@ -37,13 +37,13 @@ extern {
 
         "(" => PlanetTypeToken::RightBracket,
         ")" => PlanetTypeToken::LeftBracket,
-        
+
         "{" => PlanetTypeToken::LeftCurly,
         "}" => PlanetTypeToken::RightCurly,
 
         "[" => PlanetTypeToken::LeftSquare,
         "]" => PlanetTypeToken::RightSquare,
-        
+
         "if" => PlanetTypeToken::If,
         "else" => PlanetTypeToken::Else,
 
@@ -195,8 +195,9 @@ DecimalCompare:String = {
 }
 
 StringValue:Value = {
-    "star_type" => Value::StarType,  
-    <s:"name"> => Value::String(s)
+    "star_type" => Value::StarType,
+    <s:"name"> => Value::String(s),
+    "stored" "[" <s:"name"> "]"=> Value::StringLookup(s),
 }
 
 DecimalValue:Value = {
@@ -254,4 +255,3 @@ GoodAbundance:GoodAbundance = {
         }
     }
 }
-
