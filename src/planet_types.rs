@@ -30,6 +30,9 @@ pub enum PlanetTypeToken {
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     Name(String),
 
+    #[token("class")]
+    Class,
+
     #[token("set_asset")]
     SetAsset,
     #[token("set_planet_type")]
@@ -134,6 +137,7 @@ pub enum Field {
 #[derive(Clone, Debug, Default)]
 pub struct PlanetTypeData {
     pub name: String,
+    pub planet_class: PlanetClass,
     pub abundances: Vec<GoodAbundance>,
     pub asset_location: String,
     pub setup_conditions: Vec<Branch>,
@@ -147,6 +151,15 @@ impl<'s> DataParser<'s> for PlanetTypeData {
     ) -> Result<Vec<PlanetTypeData>, lalrpop_util::ParseError<usize, Self::Token, String>> {
         planet_types::PlanetTypeListParser::new().parse(tokens)
     }
+}
+
+/// The group the planet type falls under
+#[derive(Clone, Debug, Default)]
+pub enum PlanetClass {
+    #[default]
+    Rocky,
+    Atmospheric,
+    Gas,
 }
 
 #[derive(Clone, Debug, Default)]
