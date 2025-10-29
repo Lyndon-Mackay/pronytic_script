@@ -69,6 +69,10 @@ pub enum DesignationToken {
 
     #[token("population_impact")]
     PopulationImpact,
+
+    #[token("tech_required")]
+    TechRequired,
+
     #[token("growth")]
     Growth,
     #[token("min_population")]
@@ -109,11 +113,16 @@ pub struct DesignationData {
     pub building_limit: BuildingLimit,
     pub housing: Housing,
     pub population_impact: PopulationImpact,
+
+    pub tech_required: Option<String>,
+
     pub planet_filters: Vec<PlanetFilter>,
 
     pub private_buildings: PrivateBuildings,
 }
 
+/// Designations can have population limits the idea behind this is have
+/// low output planets that can largely be in a finished state to avoid micromanaging
 #[derive(Clone, Default, Debug)]
 pub enum BuildingLimit {
     #[default]
@@ -121,6 +130,9 @@ pub enum BuildingLimit {
     Limited(u8),
 }
 
+/// If housing should be required for this planet,
+/// with population limited planets requiring the building of housing
+/// doesn't feel as interesting for gameplay reasons.
 #[derive(Clone, Default, Debug)]
 pub enum Housing {
     #[default]
@@ -128,6 +140,9 @@ pub enum Housing {
     Unmanaged,
 }
 
+/// Private buildings are a way companies expand their revenue
+/// independantly of the player, this is to stop the players plans
+/// getting disrupted at the early stages of the buildings
 #[derive(Clone, Default, Debug)]
 pub enum PrivateBuildings {
     #[default]
@@ -136,6 +151,9 @@ pub enum PrivateBuildings {
     Always,
 }
 
+/// This is a way to simulate urban population decline
+/// This is there to stop perputual population growth along
+/// with giving you a reason to no hyper develop every planet
 #[derive(Clone, Default, Debug)]
 pub struct PopulationImpact {
     pub growth: Decimal,
@@ -150,6 +168,7 @@ pub enum Field {
     PopulationImpact(PopulationImpact),
     PlanetFilters(Vec<PlanetFilter>),
     PrivateBuildings(PrivateBuildings),
+    TechRequired(String),
 }
 
 impl<'s> DataParser<'s> for DesignationData {

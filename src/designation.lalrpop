@@ -36,6 +36,7 @@ extern {
         "limited" => DesignationToken::Limited,
 
         "population_impact" => DesignationToken::PopulationImpact,
+        "tech_required" => DesignationToken::TechRequired,
         "growth" => DesignationToken::Growth,
         "min_population" => DesignationToken::MinPopulation,
 
@@ -45,13 +46,13 @@ extern {
 
         "orbital" => DesignationToken::Orbital,
         "all_orbitals" => DesignationToken::AllOrbitals,
-        "all_planets" => DesignationToken::AllPlanets,        
+        "all_planets" => DesignationToken::AllPlanets,
         "planet_filters" => DesignationToken::PlanetFilters,
         "private_buildings" => DesignationToken::PrivateBuildings,
 
         "none" => DesignationToken::None,
         "always" => DesignationToken::Always,
-        
+
     }
 }
 
@@ -76,6 +77,7 @@ DesignationDatum:DesignationData = {
                 Field::PopulationImpact(p) => designation_data.population_impact = p,
                 Field::PlanetFilters(p) => designation_data.planet_filters = p,
                 Field::PrivateBuildings(p) => designation_data.private_buildings = p,
+                Field::TechRequired(t) => designation_data.tech_required = Some(t),
             }
         }
 
@@ -91,6 +93,7 @@ Field:Field = {
     <b:BuildingLimit> => Field::BuildingLimit(b),
     <p:PopulationImpact> => Field::PopulationImpact(p),
     <p:PrivateBuildings> => Field::PrivateBuildings(p),
+    <t:TechRequired> => Field::TechRequired(t),
 }
 
 BuildingLimit:BuildingLimit = {
@@ -136,4 +139,8 @@ PrivateBuildings:PrivateBuildings = {
     "private_buildings" "=" "none" => PrivateBuildings::None,
     "private_buildings" "=" "always" => PrivateBuildings::Always,
     "private_buildings" "=" "min_population" "(" <n:"number"> ")" => PrivateBuildings::MinPopulation(n),
+}
+
+TechRequired:String = {
+    "tech_required" "=" <s:"string"> => s,
 }
