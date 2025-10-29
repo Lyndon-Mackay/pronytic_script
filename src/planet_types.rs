@@ -117,6 +117,9 @@ pub enum PlanetTypeToken {
     Stored,
     #[token("stored_number")]
     StoredNumber,
+
+    #[token("rand_of_string")]
+    RandomOfString,
 }
 
 impl fmt::Display for PlanetTypeToken {
@@ -190,6 +193,7 @@ pub enum Action {
     SetPlanetType(String),
     Branch(Branch),
     SetStored(String, String),
+    SetStoredRandom(String, Vec<String>),
 }
 
 #[derive(Clone, Debug)]

@@ -237,6 +237,7 @@ PlanetType:String = {
 
 SetStored:Action = {
     "stored" "[" <id:"name"> "]" "=" <value:"name"> =>Action::SetStored(id,value),
+    "stored" "[" <id:"name"> "]" "=" "{" <value:"name"+> "}" =>Action::SetStoredRandom(id,value),
 }
 
 GoodsAbundance:Vec<GoodAbundance> = {
