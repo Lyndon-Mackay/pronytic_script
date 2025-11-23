@@ -1,6 +1,6 @@
 use rust_decimal::Decimal;
 use crate::planet_types::PlanetTypeData;
-
+use crate::planet_types::PlanetClass;
 use crate::planet_types::{Action,Branch,Condition,Field,
 GoodAbundance, IfCondition ,PlanetTypeToken,Value};
 
@@ -21,7 +21,7 @@ extern {
         Number => PlanetTypeToken::Number(<Decimal>),
         "name" => PlanetTypeToken::Name(<String>),
 
-
+        "class" => PlanetTypeToken::Class,
         "set_asset" => PlanetTypeToken::SetAsset,
         "set_planet_type" => PlanetTypeToken::SetPlanetType,
         "goods_abundance" => PlanetTypeToken::GoodsAbundance,
@@ -68,6 +68,10 @@ extern {
         "atmosphere" => PlanetTypeToken::Atmosphere,
         "goods_base" => PlanetTypeToken::GoodsBase,
 
+        "rocky" => PlanetTypeToken::Rocky,
+        "atmospheric" => PlanetTypeToken::Atmospheric,
+        "gas" => PlanetTypeToken::Gas,
+
         "stored" => PlanetTypeToken::Stored,
         "stored_number" => PlanetTypeToken::StoredNumber,
     }
@@ -89,6 +93,7 @@ TypesItem :PlanetTypeData = {
             match f {
                 Field::AssetLocation(a) => planet_type_data.asset_location = a,
                 Field::Setup(s) => planet_type_data.setup_conditions.push(s),
+                Field::PlanetClass(p) => planet_type_data.planet_class = p,
                 Field::GoodsAbundance(g) => planet_type_data.abundances = g,
                 Field::Terraform(t) => planet_type_data.terraform_conditions.extend(t),
             }
@@ -224,6 +229,7 @@ Actions:Action = {
 Field: Field = {
     <a:AssetLocation> =>Field::AssetLocation(a),
     <g:GoodsAbundance> => Field::GoodsAbundance(g),
+    <p:PlanetClass> => Field::PlanetClass(p),
     <s:Setup> => Field::Setup(s),
     <t:OnTerraform> => Field::Terraform(t),
 }
@@ -233,6 +239,12 @@ AssetLocation: String = {
 }
 PlanetType:String = {
     "set_planet_type" "=" <id:"name"> => id.to_string()
+}
+
+PlanetClass:PlanetClass = {
+    "class" "=" "rocky" => PlanetClass::Rocky,
+    "class" "=" "atmospheric" => PlanetClass::Atmospheric,
+    "class" "=" "gas" => PlanetClass::Gas,
 }
 
 SetStored:Action = {

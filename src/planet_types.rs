@@ -113,6 +113,13 @@ pub enum PlanetTypeToken {
     #[token("goods_base")]
     GoodsBase,
 
+    #[token("rocky")]
+    Rocky,
+    #[token("atmospheric")]
+    Atmospheric,
+    #[token("gas")]
+    Gas,
+
     #[token("stored")]
     Stored,
     #[token("stored_number")]
@@ -133,6 +140,7 @@ lalrpop_mod!(pub planet_types);
 pub enum Field {
     AssetLocation(String),
     GoodsAbundance(Vec<GoodAbundance>),
+    PlanetClass(PlanetClass),
     Setup(Branch),
     Terraform(Vec<Branch>),
 }
