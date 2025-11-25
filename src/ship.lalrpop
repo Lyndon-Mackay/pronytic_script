@@ -7,7 +7,7 @@ grammar;
 extern {
     type Location = usize;
     type Error = String;
-    
+
     enum ShipToken {
         "true" => ShipToken::True,
         "false" => ShipToken::False,
@@ -23,6 +23,7 @@ extern {
         "ship_class" => ShipToken::ShipClass,
 
         "survey" => ShipToken::Survey,
+        "military" => ShipToken::Military,
 
         "scale" => ShipToken::Scale,
 
@@ -74,6 +75,7 @@ AssetLocation:String = {
 
 ShipClass:ShipClass = {
     "ship_class" "=" "survey" => ShipClass::Survey,
+    "ship_class" "=" "military" => ShipClass::Military,
 }
 
 Scale:f32 = {

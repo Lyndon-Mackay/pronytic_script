@@ -36,6 +36,9 @@ pub enum ShipToken {
     #[token("survey")]
     Survey,
 
+    #[token("military")]
+    Military,
+
     #[token("scale")]
     Scale,
 
@@ -53,6 +56,7 @@ impl fmt::Display for ShipToken {
 pub enum ShipClass {
     #[default]
     Survey,
+    Military,
 }
 
 lalrpop_mod!(pub ship);
