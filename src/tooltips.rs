@@ -33,16 +33,21 @@ pub struct ToolTipsData {
 pub enum ToolTipsContent {
     String(String),
     Term(String),
+    Highlight(String),
 }
 
+/// Creates tooltip content from a string that interprets terms for definitions
+/// and highlighting
+// If this gets much more complicated will write a seperate parser
 pub fn create_tooltip_content(value: String) -> Vec<ToolTipsContent> {
     let mut result = Vec::new();
     let mut current_string = String::new();
     let mut opened_backtick = false;
+    let mut opened_tilde = false;
     for char in value.chars() {
         match char {
             '`' => {
-                if opened_backtick {
+                if !opened_backtick {
                     result.push(ToolTipsContent::String(current_string.clone()));
                     current_string.clear();
                 } else {
@@ -50,6 +55,16 @@ pub fn create_tooltip_content(value: String) -> Vec<ToolTipsContent> {
                     current_string.clear();
                 }
                 opened_backtick = !opened_backtick;
+            }
+            '~' => {
+                if !opened_tilde {
+                    result.push(ToolTipsContent::String(current_string.clone()));
+                    current_string.clear();
+                } else {
+                    result.push(ToolTipsContent::Highlight(current_string.clone()));
+                    current_string.clear();
+                }
+                opened_tilde = !opened_tilde;
             }
             c => {
                 current_string.push(c);
