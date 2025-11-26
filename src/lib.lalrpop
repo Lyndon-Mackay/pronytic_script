@@ -21,9 +21,10 @@ extern {
         "stapledon" => Token::Stapledon,
         "stellar_system" => Token::StellarSystem,
         "tech" => Token::Tech,
+        "tooltips" => Token::ToolTips,
         "section_contents" => Token::SectionContents(<String>),
     }
-    
+
 }
 
 pub Sections:Vec<Section> = {
@@ -45,4 +46,5 @@ section:Section = {
     "stapledon" <s:"section_contents"> => Section::Stapledon(s),
     "stellar_system" <s:"section_contents"> => Section::StellarSystem(s),
     "tech" <s:"section_contents"> => Section::Tech(s),
+    "tooltips" <s:"section_contents"> => Section::ToolTips(s),
 }

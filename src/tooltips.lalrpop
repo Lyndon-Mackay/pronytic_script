@@ -1,0 +1,22 @@
+ use crate::tooltips::{create_tooltip_content,ToolTipsData,ToolTipsToken,ToolTipsContent};
+
+
+grammar;
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum ToolTipsToken {
+        "string" => ToolTipsToken::String(<String>),
+        ":" => ToolTipsToken::Colon,
+    }
+}
+
+pub ToolTipsData:Vec<ToolTipsData> ={
+    <list:ToolTipsDatum*> => vec![ToolTipsData { map:list.into_iter().collect()}]
+}
+
+ToolTipsDatum:(String,Vec<ToolTipsContent>) = {
+    <t:"string"> ":" <v:"string"> => (t,create_tooltip_content(v))
+}
