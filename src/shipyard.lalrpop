@@ -30,11 +30,14 @@ extern {
         "good_id" => ShipyardToken::GoodId,
 
         "amount" => ShipyardToken::Amount,
-        
+
         "consumes" => ShipyardToken::Consumes,
 
         "time" => ShipyardToken::Time,
-        
+
+        "base_strength" => ShipyardToken::BaseStrength,
+        "fleet_strength" => ShipyardToken::FleetStrength,
+
     }
 }
 
@@ -54,11 +57,12 @@ ShipyardDatum:ShipyardData = {
                 Field::AssetLocation(a) => shipyard.asset_location = a,
                 Field::Consumes(c) => shipyard.costs = c,
                 Field::Time(t) => shipyard.time = t,
+                Field::BaseStrength(b) => shipyard.base_strength = b,
+                Field::FleetStrength(f) => shipyard.fleet_strength = f,
             }
         }
 
         shipyard
-        
     }
 }
 
@@ -68,6 +72,8 @@ ShipyardField:Field ={
     <a:AssetLocation> => Field::AssetLocation(a),
     <c:GoodConsumes> => Field::Consumes(c),
     <t:Time> => Field::Time(t),
+    <b:BaseStrength> => Field::BaseStrength(b),
+    <f:FleetStrength> => Field::FleetStrength(f),
 }
 
 
@@ -96,3 +102,14 @@ GoodConsume:GoodConsumes = {
     }
 }
 
+BaseStrength:Decimal = {
+    "base_strength" "=" <d:"decimal_number"> => {
+        d
+    }
+}
+
+FleetStrength:Decimal = {
+    "fleet_strength" "=" <d:"decimal_number"> => {
+        d
+    }
+}

@@ -52,6 +52,11 @@ pub enum ShipyardToken {
 
     #[token("time")]
     Time,
+
+    #[token("base_strength")]
+    BaseStrength,
+    #[token("fleet_strength")]
+    FleetStrength,
 }
 
 impl fmt::Display for ShipyardToken {
@@ -69,6 +74,9 @@ pub struct ShipyardData {
 
     pub costs: Vec<GoodConsumes>,
     pub time: u8,
+
+    pub base_strength: Decimal,
+    pub fleet_strength: Decimal,
 }
 
 pub enum Field {
@@ -76,6 +84,8 @@ pub enum Field {
     AssetLocation(String),
     Consumes(Vec<GoodConsumes>),
     Time(u8),
+    BaseStrength(Decimal),
+    FleetStrength(Decimal),
 }
 
 impl<'s> DataParser<'s> for ShipyardData {
