@@ -16,7 +16,8 @@ use logos::{self, Logos};
 use crate::{
     asteroid_mining::AsteroidMiningData, augmentations::AugmentationData, common::DataParser,
     designation::DesignationData, orbital::OrbitalData, ranks::RankData, ship::ShipData,
-    shipyard::ShipyardData, species_trait::SpeciesTraitData, stapledon_swarm::StapledonSwarmData,
+    shipyard::ShipyardData, shipyard_buildings::ShipyardBuildingData,
+    species_trait::SpeciesTraitData, stapledon_swarm::StapledonSwarmData,
     stellar_system::StellarData, tooltips::ToolTipsData,
 };
 
@@ -31,6 +32,7 @@ pub mod planet_types;
 pub mod ranks;
 pub mod ship;
 pub mod shipyard;
+pub mod shipyard_buildings;
 pub mod species_trait;
 pub mod stapledon_swarm;
 pub mod stellar_system;
@@ -100,8 +102,9 @@ create_parse_data!({
     pub planet_type_data: Vec<PlanetTypeData>,
     pub rank_data:Vec<RankData>,
     pub species_trait: Vec<SpeciesTraitData>,
-    pub shipyard: Vec<ShipyardData>,
     pub ships:Vec<ShipData>,
+    pub shipyard: Vec<ShipyardData>,
+    pub shipyard_buildings:Vec<ShipyardBuildingData>,
     pub stapledon:Vec<StapledonSwarmData>,
     pub stellar_system:Vec<StellarData>,
     pub tech_data: Vec<TechData>,
@@ -127,10 +130,12 @@ pub enum Token {
     PlanetTypes,
     #[token("#ranks")]
     Ranks,
-    #[token("#shipyard")]
-    Shipyard,
     #[token("#ships")]
     Ships,
+    #[token("#shipyard")]
+    Shipyard,
+    #[token("#shipyard_buildings")]
+    ShipyardBuildings,
     #[token("#specie_traits")]
     SpecieTraits,
     #[token("#stapledon_swarm")]
@@ -165,6 +170,7 @@ pub enum Section {
     SpecieTraits(String),
     Ships(String),
     Shipyard(String),
+    ShipyardBuildings(String),
     Stapledon(String),
     StellarSystem(String),
     Tech(String),
@@ -275,6 +281,9 @@ pub fn parse(file_name: &str, contents: &str) -> ParseData {
                     Section::Ships(s) => parse_data.ships.append(&mut parse_section(file_name, &s)),
                     Section::Shipyard(s) => parse_data
                         .shipyard
+                        .append(&mut parse_section(file_name, &s)),
+                    Section::ShipyardBuildings(s) => parse_data
+                        .shipyard_buildings
                         .append(&mut parse_section(file_name, &s)),
                     Section::SpecieTraits(s) => parse_data
                         .species_trait

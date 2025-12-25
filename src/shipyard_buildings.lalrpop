@@ -1,0 +1,137 @@
+use crate::shipyard_buildings::{CustomGood,Field,ShipyardBuildingData,ShipyardBuildingToken};
+
+use rust_decimal::prelude::*;
+
+grammar;
+
+
+extern {
+    type Location = usize;
+    type Error = String;
+
+    enum ShipyardBuildingToken {
+
+        "string" => ShipyardBuildingToken::String(<String>),
+        "number" => ShipyardBuildingToken::Number(<u8>),
+        "decimal_number" => ShipyardBuildingToken::DecimalNumber(<Decimal>),
+
+
+        "=" => ShipyardBuildingToken::Equal,
+        "{" => ShipyardBuildingToken::LeftCurly,
+        "}" => ShipyardBuildingToken::RightCurly,
+        "[" => ShipyardBuildingToken::LeftSquare,
+        "]" => ShipyardBuildingToken::RightSquare,
+
+        "name" =>  ShipyardBuildingToken::Name,
+        "time" => ShipyardBuildingToken::Time,
+        "costs" => ShipyardBuildingToken::Costs,
+
+        "level_required" => ShipyardBuildingToken::LevelRequired,
+        "base_strength" => ShipyardBuildingToken::BaseStrength,
+        "fleet_strength" => ShipyardBuildingToken::FleetStrength,
+
+        "power" => ShipyardBuildingToken::Power,
+        "upkeep" => ShipyardBuildingToken::Upkeep,
+    }
+
+}
+
+pub ShipyardBuildingData:Vec<ShipyardBuildingData> = {
+    <list:ShipyardBuildingDatum*> => list,
+}
+
+ShipyardBuildingDatum:ShipyardBuildingData = {
+    <id:"string"> <fields:Field*> => {
+        let mut building_data = ShipyardBuildingData {
+            id,
+            ..Default::default()
+        };
+        for f in fields {
+            match f {
+                Field::Name(n) => {
+                    building_data.name = n;
+                }
+                Field::LevelRequired(l) => {
+                    building_data.level_required = l;
+                }
+                Field::Costs(c) => {
+                    building_data.costs = c;
+                }
+                Field::Time(t) => {
+                    building_data.time = t;
+                }
+                Field::Upkeep(u) => {
+                    building_data.upkeep = u;
+                }
+                Field::Power(p) => {
+                    building_data.power = p;
+                }
+                Field::BaseStrength(b) => {
+                    building_data.base_strength = b;
+                }
+                Field::FleetStrength(f) => {
+                    building_data.fleet_strength = f;
+                }
+            }
+
+        }
+
+        building_data
+    }
+}
+
+Field:Field = {
+    <n:Name> => Field::Name(n),
+    <l:LevelRequired> => Field::LevelRequired(l),
+    <c:Costs> => Field::Costs(c),
+    <t:Time> => Field::Time(t),
+    <u:Upkeep> => Field::Upkeep(u),
+    <p:Power> => Field::Power(p),
+    <b:BaseStrength> => Field::BaseStrength(b),
+    <f:FleetStrength> => Field::FleetStrength(f),
+}
+
+Costs:Vec<CustomGood> = {
+    "costs" "=" "[" <c:CustomGood+> "]" => c,
+}
+
+CustomGood:CustomGood = {
+    "{" <id:"string"> <amount:"decimal_number"> "}" => {
+        CustomGood{
+            id,
+            amount,
+        }
+    }
+}
+
+Name:String = {
+    "name" "=" <id:"string"> => id,
+}
+
+Time:u8 = {
+    "time" "=" <n:"number"> => n,
+}
+
+Power:Decimal = {
+    "power" "=" <d:"decimal_number"> => d,
+}
+
+Upkeep:Decimal = {
+    "upkeep" "=" <d:"decimal_number"> => d,
+}
+
+LevelRequired:u8 = {
+    "level_required" "=" <n:"number"> => n,
+}
+
+BaseStrength:Decimal = {
+    "base_strength" "=" <d:"decimal_number"> => {
+        d
+    }
+}
+
+FleetStrength:Decimal = {
+    "fleet_strength" "=" <d:"decimal_number"> => {
+        d
+    }
+}
