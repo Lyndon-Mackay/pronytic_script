@@ -1,6 +1,6 @@
 use rust_decimal::prelude::*;
 
-use crate::shipyard::{Field,ShipyardData,ShipyardToken};
+use crate::shipyard::{Armaments,Field,ShipyardData,ShipyardToken};
 
 use crate::common::GoodConsumes;
 
@@ -11,6 +11,8 @@ extern {
     type Error = String;
 
     enum ShipyardToken {
+        "true" => ShipyardToken::True,
+        "false" => ShipyardToken::False,
         "string" => ShipyardToken::String(<String>),
         "number" => ShipyardToken::Number(<u8>),
         "decimal_number" => ShipyardToken::DecimalNumber(<Decimal>),
@@ -34,6 +36,14 @@ extern {
         "consumes" => ShipyardToken::Consumes,
 
         "time" => ShipyardToken::Time,
+
+        "star_class" => ShipyardToken::StarClass,
+
+        "armament" => ShipyardToken::Armaments,
+
+        "standard" => ShipyardToken::Standard,
+        "anti_ship" => ShipyardToken::AntiShip,
+        "anti_shipyard" => ShipyardToken::AntiShipyard,
 
         "base_strength" => ShipyardToken::BaseStrength,
         "fleet_strength" => ShipyardToken::FleetStrength,
@@ -59,6 +69,8 @@ ShipyardDatum:ShipyardData = {
                 Field::Time(t) => shipyard.time = t,
                 Field::BaseStrength(b) => shipyard.base_strength = b,
                 Field::FleetStrength(f) => shipyard.fleet_strength = f,
+                Field::StarClass(s) => shipyard.star_class = s,
+                Field::Armaments(a) => shipyard.armaments = a,
             }
         }
 
@@ -74,8 +86,14 @@ ShipyardField:Field ={
     <t:Time> => Field::Time(t),
     <b:BaseStrength> => Field::BaseStrength(b),
     <f:FleetStrength> => Field::FleetStrength(f),
+    <s:StarClass> => Field::StarClass(s),
+    <a:Armaments> => Field::Armaments(a),
 }
 
+Bool:bool = {
+    "true" => true,
+    "false" => false,
+}
 
 Name:String = {
     "name" "=" <s:"string"> => s,
@@ -112,4 +130,14 @@ FleetStrength:Decimal = {
     "fleet_strength" "=" <d:"decimal_number"> => {
         d
     }
+}
+
+StarClass:bool = {
+    "star_class" "=" <b:Bool> => b,
+}
+
+Armaments:Armaments = {
+    "anti_shipyard" "=" "standard" => Armaments::Standard,
+    "anti_shipyard" "=" "anti_ship" => Armaments::AntiShip,
+    "anti_shipyard" "=" "anti_shipyard" => Armaments::AntiShipyard,
 }

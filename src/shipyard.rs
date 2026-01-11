@@ -14,6 +14,11 @@ use crate::{
 #[logos(skip r"[\s\t\f]+", error = LexicalError)]
 #[logos(skip r"//[^\n\r]*")]
 pub enum ShipyardToken {
+    #[token("true")]
+    True,
+    #[token("false")]
+    False,
+
     #[regex(r#""[^"]*""#, |lex| lex.slice().trim_matches('"').to_string())]
     String(String),
 
@@ -53,6 +58,18 @@ pub enum ShipyardToken {
     #[token("time")]
     Time,
 
+    #[token("star_class")]
+    StarClass,
+
+    #[token("armaments")]
+    Armaments,
+    #[token("standard")]
+    Standard,
+    #[token("anti_ship")]
+    AntiShip,
+    #[token("anti_shipyard")]
+    AntiShipyard,
+
     #[token("base_strength")]
     BaseStrength,
     #[token("fleet_strength")]
@@ -75,8 +92,22 @@ pub struct ShipyardData {
     pub costs: Vec<GoodConsumes>,
     pub time: u8,
 
+    /// Gives ships a bonus when fighting in same star system
+    /// It was built in
+    pub star_class: bool,
+
+    pub armaments: Armaments,
+
     pub base_strength: Decimal,
     pub fleet_strength: Decimal,
+}
+
+#[derive(Clone, Default, Debug)]
+pub enum Armaments {
+    #[default]
+    Standard,
+    AntiShip,
+    AntiShipyard,
 }
 
 pub enum Field {
@@ -86,8 +117,9 @@ pub enum Field {
     Time(u8),
     BaseStrength(Decimal),
     FleetStrength(Decimal),
+    StarClass(bool),
+    Armaments(Armaments),
 }
-
 impl<'s> DataParser<'s> for ShipyardData {
     type Token = ShipyardToken;
     fn parse_tokens(
