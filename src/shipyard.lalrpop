@@ -1,6 +1,6 @@
 use rust_decimal::prelude::*;
 
-use crate::shipyard::{Armaments,Field,ShipyardData,ShipyardToken};
+use crate::shipyard::{Field,ShipyardData,ShipyardToken};
 
 use crate::common::GoodConsumes;
 
@@ -39,11 +39,7 @@ extern {
 
         "star_class" => ShipyardToken::StarClass,
 
-        "armament" => ShipyardToken::Armaments,
-
-        "standard" => ShipyardToken::Standard,
-        "anti_ship" => ShipyardToken::AntiShip,
-        "anti_shipyard" => ShipyardToken::AntiShipyard,
+        "armaments" => ShipyardToken::Armaments,
 
         "base_strength" => ShipyardToken::BaseStrength,
         "fleet_strength" => ShipyardToken::FleetStrength,
@@ -136,8 +132,6 @@ StarClass:bool = {
     "star_class" "=" <b:Bool> => b,
 }
 
-Armaments:Armaments = {
-    "anti_shipyard" "=" "standard" => Armaments::Standard,
-    "anti_shipyard" "=" "anti_ship" => Armaments::AntiShip,
-    "anti_shipyard" "=" "anti_shipyard" => Armaments::AntiShipyard,
+Armaments:bool = {
+    "armaments" "=" <b:Bool> => b,
 }

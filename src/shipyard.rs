@@ -63,12 +63,6 @@ pub enum ShipyardToken {
 
     #[token("armaments")]
     Armaments,
-    #[token("standard")]
-    Standard,
-    #[token("anti_ship")]
-    AntiShip,
-    #[token("anti_shipyard")]
-    AntiShipyard,
 
     #[token("base_strength")]
     BaseStrength,
@@ -96,18 +90,10 @@ pub struct ShipyardData {
     /// It was built in
     pub star_class: bool,
 
-    pub armaments: Armaments,
+    pub armaments: bool,
 
     pub base_strength: Decimal,
     pub fleet_strength: Decimal,
-}
-
-#[derive(Clone, Default, Debug)]
-pub enum Armaments {
-    #[default]
-    Standard,
-    AntiShip,
-    AntiShipyard,
 }
 
 pub enum Field {
@@ -118,7 +104,7 @@ pub enum Field {
     BaseStrength(Decimal),
     FleetStrength(Decimal),
     StarClass(bool),
-    Armaments(Armaments),
+    Armaments(bool),
 }
 impl<'s> DataParser<'s> for ShipyardData {
     type Token = ShipyardToken;
