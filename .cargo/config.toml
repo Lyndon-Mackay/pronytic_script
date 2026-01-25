@@ -1,9 +1,8 @@
-
 [unstable]
 codegen-backend = true
 
-
 [profile.dev]
+# Compile using cranelift for massively faster compilation
 codegen-backend = "cranelift"
 # If you want to attach a debugger, set this to true
 debug = "line-tables-only"
@@ -31,26 +30,33 @@ codegen-backend = "llvm"
 [profile.web]
 codegen-backend = "llvm"
 
-# # for Linux
-# [target.x86_64-unknown-linux-gnu]
-# linker = "clang"
-# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
 [target.x86_64-unknown-linux-gnu]
+linker = "clang"
 rustflags = [
-    # Nightly
+    "-Clink-arg=--ld-path=wild",
+    # Compile faster
     "-Zshare-generics=y",
     "-Zthreads=8",
-    "-Clink-arg=-fuse-ld=lld",
+]
+rustdocflags = [
+    # Compile faster
+    "-Zshare-generics=y",
+    "-Zthreads=8",
 ]
 
-
-
-rustdocflags = [
+[target.wasm32-unknown-unknown]
+rustflags = [
+    # Improve performance
     "--cfg",
-    "getrandom_backend=\"wasm_js\"",
+    "web_sys_unstable_apis",
     "-Ctarget-feature=+sign-ext,+nontrapping-fptoint",
-    # Nightly
+    # Compile faster
+    "-Zshare-generics=y",
+    "-Zthreads=8",
+]
+rustdocflags = [
+    # Compile faster
     "-Zshare-generics=y",
     "-Zthreads=8",
 ]
